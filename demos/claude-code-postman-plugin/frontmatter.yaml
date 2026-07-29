@@ -1,0 +1,13 @@
+product: Postman Claude Code Plugin
+name: Claude Code + Postman Booth Demo
+use_case: Help developers turn their APIs into AI- and production-ready services using natural language in Claude Code.
+primary_api: https://www.postman.com/liftoff/api/content/learning-paths
+key_messages:
+  - Show attendees how they can use the Claude Code Plugin for Postman to make their APIs AI and production ready using tools they already love
+  - We also provide skills for Claude Code, Amazon Kiro, Cursor, Antigravity
+cta:
+  - Claude Code Plugin install command
+  - "Try the build with AI liftoff path: https://www.postman.com/liftoff/learning-paths/building-with-ai/"
+demo_length: 10m
+presentation_title: From API to AI-Ready in 10 Minutes
+brand_style: design-sync
