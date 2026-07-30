@@ -1,0 +1,20 @@
+{
+  "name": "ai-looping-tuto",
+  "version": "1.0.0",
+  "description": "Hands-on loop engineering: an AI agent verifies its own API code against a Postman oracle until the tests pass.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/run.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "loop-engineering",
+    "postman",
+    "mcp",
+    "ai-agents",
+    "api-testing"
+  ],
+  "license": "MIT"
+}

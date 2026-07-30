@@ -1,0 +1,46 @@
+# AGENTS.md
+
+Context for AI agents working in this project during the booth demo.
+
+## What this is
+
+A hands-on **loop-engineering** demo. You will be asked to write a small
+JavaScript client for the free [Open-Meteo](https://open-meteo.com/en/docs)
+weather API, and to verify your work by looping against an **oracle** — a
+human-authored Postman test that decides pass/fail. The oracle is already
+installed in Postman before the demo starts.
+
+The point of the demo is that you *discover* what "correct" means by running,
+not by being told. So the rules below are not optional.
+
+## Rules for the loop
+
+- **The only way you may check your work is by delegating to `@agent-oracle-check`.**
+  It runs the oracle and reports which assertions passed or failed.
+- **Do NOT read the oracle.** Do not open `postman/` (especially the test file),
+  and do not call any Postman tool yourself. If you read the test, you defeat the
+  entire exercise — you must learn what to fix from `oracle-check`'s failure
+  messages alone.
+- **You do not know the full contract up front.** A first attempt can return
+  `200 OK` and a full array of numbers and still fail an assertion. Read the
+  failure message, fix the client, and re-verify.
+- **Loop with a budget** (typically up to 3 attempts): write the whole client →
+  call `@agent-oracle-check` with your request URL and the collection/environment
+  UIDs you were given → if it reports failures, fix from the messages and repeat →
+  stop when zero assertions fail.
+
+## Layout
+
+| Path | Purpose |
+|------|---------|
+| `src/weather-client.js` | The client you edit. Ships in a "looks correct" state that runs fine but does not yet satisfy the oracle. |
+| `src/run.js` | CLI runner. `npm start` runs the client and prints its output. |
+| `postman/hourly-forecast.test.js` | The oracle. **Off-limits — do not read.** |
+| `.claude/agents/oracle-check.md` | The verifier subagent. It has no Read or Bash tool, so it cannot see the test; it only reports assertion results. |
+| `.mcp.json` | Connects the Postman MCP Server so `oracle-check` can run the collection. |
+
+## Conventions
+
+- Node 18+ only (built-in `fetch`); no runtime dependencies, no build step.
+- ESM (`import`/`export`), no TypeScript, minimal comments.
+- Never hardcode secrets. `POSTMAN_API_KEY` comes from the environment via `.env`.

@@ -1,0 +1,20 @@
+product: Postman MCP Server
+name: Meteo API Loop Engineering — Postman as the Oracle
+use_case: Show how an AI coding agent stops guessing and fixes its own mistakes by looping against a real API, with a human-authored Postman test as the pass/fail oracle.
+primary_api:
+  - Open-Meteo forecast API (https://api.open-meteo.com/v1/forecast) — free, no key
+  - Postman MCP Server (https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/overview)
+  - Demo repo (https://github.com/Postman-Devrel/open-meteo-looping-demo)
+key_messages:
+  - Generated code that returns 200 OK and a full array can still be quietly wrong — "runs fine" is not "correct"
+  - Loop engineering beats turn-by-turn prompting — design a loop where the agent verifies its own work and fixes itself
+  - Postman is the oracle — its test assertions are the binary pass/fail signal that drives the loop
+  - The Postman MCP Server is the interface — the verifier agent calls it (putEnvironment, runCollection) to run the oracle each loop iteration
+  - You own the contract — a tool-restricted verifier subagent can't read the test, so the discovery is real, not rubber-stamped
+cta:
+  - "Clone the demo: git clone https://github.com/Postman-Devrel/open-meteo-looping-demo.git"
+  - "Postman MCP Server docs: https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/overview"
+  - "Loop engineering, explained: https://addyosmani.com/blog/loop-engineering/"
+demo_length: 10m
+presentation_title: Stop Prompting. Start Looping.
+brand_style: design-sync
