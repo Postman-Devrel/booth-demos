@@ -1,0 +1,22 @@
+product: Postman CLI
+name: Meteo API Loop Engineering — Postman as the Oracle
+use_case: Show how an AI coding agent stops guessing and fixes its own mistakes by looping against a real API, with a human-authored Postman collection as the pass/fail oracle.
+primary_api:
+  - Open-Meteo forecast API (https://api.open-meteo.com/v1/forecast) — free, no key
+  - Postman CLI (https://learning.postman.com/docs/postman-cli/postman-cli-overview/) — runs the local oracle collection, no account or cloud
+  - Bundled demo project in ./app (this folder is self-contained)
+key_messages:
+  - Generated code that returns 200 OK and a full array can still be quietly wrong — "runs fine" is not "correct"
+  - Loop engineering beats turn-by-turn prompting — design a loop where the agent verifies its own work and fixes itself
+  - Postman is the oracle — its collection's assertions are the binary pass/fail signal that drives the loop
+  - A loop only works when "done" is verifiable — a clear, binary success criterion is what makes the agent converge instead of drift
+  - The manual loop is what you watch; Claude Code's /goal automates the exact same verify-until-pass loop, hands-free
+  - The Postman CLI runs the oracle — a local collection in the repo, no account, key, or cloud workspace needed
+  - You own the contract — the agent verifies only through a subagent and is told never to read the collection, so the discovery is real, not rubber-stamped
+cta:
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (see demos/open-meteo-loop-eng)"
+  - "Postman CLI docs: https://learning.postman.com/docs/postman-cli/postman-cli-overview/"
+  - "Loop engineering, explained: https://addyosmani.com/blog/loop-engineering/"
+demo_length: 10m
+presentation_title: Stop Prompting. Start Looping.
+brand_style: design-sync
