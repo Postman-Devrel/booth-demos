@@ -4,7 +4,7 @@ use_case: Show how an AI coding agent stops guessing and fixes its own mistakes 
 primary_api:
   - Open-Meteo forecast API (https://api.open-meteo.com/v1/forecast) — free, no key
   - Postman MCP Server (https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/overview)
-  - Demo repo (https://github.com/Postman-Devrel/open-meteo-looping-demo)
+  - Bundled demo project in ./app (this folder is self-contained)
 key_messages:
   - Generated code that returns 200 OK and a full array can still be quietly wrong — "runs fine" is not "correct"
   - Loop engineering beats turn-by-turn prompting — design a loop where the agent verifies its own work and fixes itself
@@ -12,7 +12,7 @@ key_messages:
   - The Postman MCP Server is the interface — the verifier agent calls it (putEnvironment, runCollection) to run the oracle each loop iteration
   - You own the contract — a tool-restricted verifier subagent can't read the test, so the discovery is real, not rubber-stamped
 cta:
-  - "Clone the demo: git clone https://github.com/Postman-Devrel/open-meteo-looping-demo.git"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (see demos/open-meteo-loop-eng)"
   - "Postman MCP Server docs: https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/overview"
   - "Loop engineering, explained: https://addyosmani.com/blog/loop-engineering/"
 demo_length: 10m

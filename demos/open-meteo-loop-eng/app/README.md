@@ -5,8 +5,8 @@ loop-engineering example where an AI coding agent verifies its own Open-Meteo
 API client against a human-authored Postman oracle and fixes itself until the
 oracle passes.
 
-This folder is what you open in Claude Code during the demo. It is a trimmed
-copy of the full tutorial repo, kept lean for the booth.
+This folder is what you open in Claude Code during the demo. It is kept lean —
+everything the demo needs is right here.
 
 ## Run it
 
@@ -31,7 +31,6 @@ never read the oracle).
 
 ## Learn more
 
-- Full step-by-step tutorial (upstream): <https://github.com/Postman-Devrel/open-meteo-looping-demo>
 - Postman MCP Server: <https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/overview>
 - Loop engineering (Addy Osmani): <https://addyosmani.com/blog/loop-engineering/>
 

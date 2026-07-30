@@ -13,11 +13,11 @@
 
 > You ask an AI agent to write a small JavaScript client for a free public weather API. Its first draft returns `200 OK` and a full array of numbers — it looks completely correct, and `npm start` runs fine. But it's quietly wrong: the task never said which unit, and the API defaults to Celsius. Instead of you re-prompting the model, you wire in an **oracle** — a Postman Collection with a test script *you* authored, run through the Postman MCP Server — that requires Fahrenheit. The agent's first attempt fails that one assertion, and because a tool-restricted verifier subagent can't read the test, the agent has to *discover* the fix from the failure message and loop until it passes. The payoff: `npm start` prints Fahrenheit temperatures, and the fix came from the API itself, not from you.
 
-> **Self-contained:** the full demo project is bundled in this folder under [`./app`](./app) — setup does **not** clone anything at demo time. `./app` is a copy of the [open-meteo-looping-demo](https://github.com/Postman-Devrel/open-meteo-looping-demo) repo (source of truth; refresh from there if it changes upstream).
+> **Self-contained:** the full demo project is bundled in this folder under [`./app`](./app) — setup does **not** clone anything at demo time. This folder is the single source of truth for the demo; everything it needs lives here.
 
 **Call to action (for attendees):**
 
-- Clone the demo to try at home: `git clone https://github.com/Postman-Devrel/open-meteo-looping-demo.git`
+- Grab the demo: `git clone https://github.com/Postman-Devrel/booth-demos.git` → `cd booth-demos/demos/open-meteo-loop-eng`
 - Postman MCP Server docs: <https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/overview>
 - Loop engineering, explained: <https://addyosmani.com/blog/loop-engineering/>
 
@@ -207,7 +207,7 @@ No manual Postman cleanup is needed — teardown removes the cloud artifacts for
 
 | Resource | Link |
 |---|---|
-| Demo repository (open-meteo-looping-demo) | <https://github.com/Postman-Devrel/open-meteo-looping-demo> |
+| This demo (booth-demos repo) | <https://github.com/Postman-Devrel/booth-demos/tree/main/demos/open-meteo-loop-eng> |
 | Postman MCP Server — overview | <https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/overview> |
 | Postman MCP Server — local setup | <https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/postman-mcp-local-server> |
 | Postman API key — authentication | <https://learning.postman.com/docs/developer/postman-api/authentication/> |
