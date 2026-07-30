@@ -1,5 +1,5 @@
 {
-  "name": "ai-looping-tuto",
+  "name": "open-meteo-loop-eng",
   "version": "1.0.0",
   "description": "Hands-on loop engineering: an AI agent verifies its own API code against a Postman oracle until the tests pass.",
   "type": "module",
