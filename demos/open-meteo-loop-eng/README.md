@@ -161,12 +161,15 @@ Five acts, ~10 minutes. Talk track is **verbatim** (blockquotes) — read it if 
 
 > "And you don't have to drive it by hand. What we just did manually is exactly what Claude Code's `/goal` automates: you give it the same verifiable condition, and it keeps looping — writing, checking with the oracle, fixing — until the oracle passes, then stops. Same loop, hands-free."
 
-- **Do (optional, hands-free variant):** instead of driving the loop yourself, wrap it in `/goal`. Same as the manual prompt, it reads the UIDs from `oracle.ids.json` — nothing to swap in:
+- **Do (optional, hands-free variant):** instead of driving the loop yourself, wrap it in `/goal`. Same as the manual prompt, it reads the UIDs from `oracle.ids.json` — nothing to swap in. The `or stop after 5 turns` clause is the budget guard (see note):
   ```text
   /goal getParisHourlyTemps in src/weather-client.js is correct: verifying its URL
   with @agent-oracle-check (using the collectionUid and environmentUid from
-  ./oracle.ids.json) reports zero failed assertions. Do not read postman/ or the test.
+  ./oracle.ids.json) reports zero failed assertions, or stop after 5 turns.
+  Do not read postman/ or the test.
   ```
+  > **Budget / tokenmaxxing:** `/goal` has **no** token/cost cap — but you can bound it with a **turn limit inside the condition** (`… or stop after N turns`, as above). This is the `/goal` equivalent of the manual loop's 3-attempt cap. Check spend anytime by running `/goal` with no args (it shows turn count + tokens); abort with `/goal clear`. Heads-up: if the **turn cap** is what trips, `/goal` reports the goal met and clears even if the oracle isn't passing yet — so glance at the last `oracle-check` result, don't just trust "goal met."
+
   > Note: for a live booth, prefer the manual loop (Act 4) — it's watchable and you control the pacing. Use `/goal` to show the productized, unattended version, or for headless runs (`claude -p "/goal ..."`).
 
 - **Show:** advance the deck to slide 5 (CTA).
@@ -209,6 +212,7 @@ No manual Postman cleanup is needed — teardown removes the cloud artifacts for
 | `setup.sh` fails provisioning the oracle | Usually a bad/expired API key or no network. Re-export `POSTMAN_API_KEY`; confirm you can reach `api.getpostman.com`. Then re-run `./scripts/setup.sh` (it's idempotent). |
 | Workspace isn't in my Postman workspace list | Expected on a **team** account: the API creates it with **Personal** visibility, so it's not in the shared team list. Open it via the **workspace URL** setup printed, or the **Personal** section of the sidebar. To make it appear team-wide instead, change `type: "personal"` to `type: "team"` in `scripts/postman-setup.mjs` (note: that exposes it to your whole team) and re-run setup. |
 | The agent "passes" on the very first attempt | It read the test. Re-emphasize the rule in the prompt: do NOT read `postman/`, do NOT call Postman tools directly — only delegate to `@agent-oracle-check`. Re-run `./scripts/teardown.sh` then `setup.sh` to reset the client. |
+| `/goal` runs too long / burns tokens | `/goal` has no token cap. Bound it with a turn limit in the condition (`… or stop after N turns`). Run `/goal` (no args) to see turn count + spend; `/goal clear` aborts immediately. If the turn cap trips, it reports "goal met" even if the oracle didn't pass — check the last `oracle-check` result. |
 | `runCollection` returns 404 | Wrong ID *form*. `runCollection` needs the collection **uid** (`<owner>-<uuid>`), and the environment **uid** for `environmentId`. Re-copy the exact IDs `setup.sh` printed (also saved in `app/oracle.ids.json`). |
 | Loop passes but I edited the test and nothing changed | Editing `postman/hourly-forecast.test.js` does NOT update Postman. Re-run `./scripts/setup.sh` — it refreshes the collection in place (same IDs) with the new test. |
 | `npm start` errors / hangs | Booth network can't reach `api.open-meteo.com`. Check Wi-Fi; the API needs no key but does need connectivity. |
