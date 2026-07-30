@@ -18,7 +18,7 @@ else
 fi
 
 # 2. Remove the Postman cloud oracle (collection, environment, and the workspace
-#    if setup created it). This reads app/postman/oracle.ids.json and also deletes it.
+#    if setup created it). This reads app/oracle.ids.json and also deletes it.
 echo ""
 echo "Removing the Postman oracle (workspace, collection, environment)..."
 node "$DEMO_DIR/scripts/postman-teardown.mjs" "$APP_DIR"

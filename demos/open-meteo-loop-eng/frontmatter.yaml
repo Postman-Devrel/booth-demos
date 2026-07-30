@@ -9,6 +9,8 @@ key_messages:
   - Generated code that returns 200 OK and a full array can still be quietly wrong — "runs fine" is not "correct"
   - Loop engineering beats turn-by-turn prompting — design a loop where the agent verifies its own work and fixes itself
   - Postman is the oracle — its test assertions are the binary pass/fail signal that drives the loop
+  - A loop only works when "done" is verifiable — a clear, binary success criterion is what makes the agent converge instead of drift
+  - The manual loop is what you watch; Claude Code's /goal automates the exact same verify-until-pass loop, hands-free
   - The Postman MCP Server is the interface — the verifier agent calls it (putEnvironment, runCollection) to run the oracle each loop iteration
   - You own the contract — a tool-restricted verifier subagent can't read the test, so the discovery is real, not rubber-stamped
 cta:

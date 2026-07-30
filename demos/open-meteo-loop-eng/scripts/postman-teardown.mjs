@@ -22,7 +22,7 @@ if (!APP_DIR) {
   process.exit(1);
 }
 
-const idsPath = join(APP_DIR, "postman", "oracle.ids.json");
+const idsPath = join(APP_DIR, "oracle.ids.json");
 if (!existsSync(idsPath)) {
   console.log("[OK] No oracle.ids.json — nothing to remove in Postman.");
   process.exit(0);

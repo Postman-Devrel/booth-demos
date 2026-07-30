@@ -3,7 +3,7 @@
 // oracle-setup agent. Idempotent: finds or creates a dedicated workspace, a
 // "Hourly forecast" collection whose request URL is {{forecast_url}} with the
 // human-authored test attached, and an "open-meteo-loop-eng" environment.
-// Writes the resulting IDs to app/postman/oracle.ids.json and prints them.
+// Writes the resulting IDs to app/oracle.ids.json and prints them.
 //
 // Usage: node postman-setup.mjs <APP_DIR>
 // Requires: POSTMAN_API_KEY in the environment, Node 18+ (built-in fetch).
@@ -127,7 +127,7 @@ if (existingEnv) {
 // 5. Persist the IDs for the loop and for teardown.
 const workspaceUrl = `https://go.postman.co/workspace/${workspaceId}`;
 const ids = { workspaceId, workspaceCreated, collectionUid, environmentUid, workspaceUrl };
-const idsPath = join(APP_DIR, "postman", "oracle.ids.json");
+const idsPath = join(APP_DIR, "oracle.ids.json");
 writeFileSync(idsPath, JSON.stringify(ids, null, 2) + "\n");
 console.log(`[OK] Wrote ${idsPath}`);
 
@@ -141,18 +141,21 @@ console.log(`  collectionUid  = ${collectionUid}`);
 console.log(`  environmentUid = ${environmentUid}`);
 console.log("");
 console.log("Ready-to-paste loop prompt (in Claude Code, inside ./app):");
+console.log("(No hand-editing needed — it reads the UIDs from oracle.ids.json)");
 console.log("-----------------------------------------------------------");
 console.log(`Build getParisHourlyTemps() in src/weather-client.js: fetch the hourly
 temperature forecast for Paris (lat 48.85, lon 2.35) from
 https://api.open-meteo.com/v1/forecast and return the array of temperatures.
 
 Rules:
+- The collectionUid and environmentUid are in ./oracle.ids.json — read them from
+  that file and pass them to @agent-oracle-check.
 - The ONLY way you may check your work is by delegating to @agent-oracle-check.
   Do NOT call any Postman tool yourself and do NOT read postman/ or the test.
   You do not know what the oracle checks beyond its failure messages.
 - Loop, up to 3 attempts: (1) write the whole client; (2) call @agent-oracle-check
-  with the exact URL your client fetches, collectionUid ${collectionUid}, and
-  environmentUid ${environmentUid}; (3) if it reports failures, use the messages
-  to fix the client, then go to step 1.
+  with the exact URL your client fetches plus the collectionUid and environmentUid
+  from oracle.ids.json; (3) if it reports failures, use the messages to fix the
+  client, then go to step 1.
 - Stop when oracle-check reports zero failed assertions.`);
 console.log("-----------------------------------------------------------");
