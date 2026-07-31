@@ -14,7 +14,7 @@ Steps:
 1. Run the oracle with the Postman CLI, injecting the candidate URL as `forecast_url`:
 
    ```bash
-   postman collection run postman/hourly-forecast.postman_collection.json --env-var "forecast_url=<the candidate URL>"
+   postman collection run postman/hourly-forecast.postman_collection.yaml --env-var "forecast_url=<the candidate URL>"
    ```
 
 2. Report the result plainly: how many assertions passed and failed, and for each
@@ -23,7 +23,7 @@ Steps:
 
 Rules:
 
-- **Never open the collection file** (`postman/hourly-forecast.postman_collection.json`)
+- **Never open the collection file** (`postman/hourly-forecast.postman_collection.yaml`)
   or any other file — you must not see the assertions' source, only their run
   results. You have only the Bash tool; use it solely to run the command above.
 - Do not run any other command. Ignore the CLI's incidental notes (e.g. a

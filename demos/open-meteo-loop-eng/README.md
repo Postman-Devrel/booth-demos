@@ -33,7 +33,7 @@
 | **Postman CLI** | Runs the local oracle collection — **no Postman account or API key needed**. Install: `curl -o- "https://dl-cli.pstmn.io/install/unix.sh" \| sh` (docs: <https://learning.postman.com/docs/postman-cli/postman-cli-installation/>). Verify: `postman --version`. |
 | **Network to `api.open-meteo.com`** | The oracle runs the collection against the live Open-Meteo API (no key). Confirm the booth Wi-Fi can reach it. |
 
-> **No cloud, no auth.** There is deliberately no Postman account, API key, MCP server, or workspace here — the oracle is a JSON collection in the repo (`app/postman/hourly-forecast.postman_collection.json`) and the Postman CLI runs it locally. Nothing is created in or sent to the Postman cloud.
+> **No cloud, no auth.** There is deliberately no Postman account, API key, MCP server, or workspace here — the oracle is a YAML collection in the repo (`app/postman/hourly-forecast.postman_collection.yaml`) and the Postman CLI runs it locally. Nothing is created in or sent to the Postman cloud.
 
 ---
 
@@ -51,7 +51,7 @@ It checks and prepares (all against the bundled `./app` project — nothing is c
 2. **Node.js 18+** is installed (fails clearly if older — the built-in `fetch` requires 18).
 3. **Claude Code** is on the PATH.
 4. **Postman CLI** is installed (fails with the install command if missing).
-5. **Oracle collection present** at `app/postman/hourly-forecast.postman_collection.json`.
+5. **Oracle collection present** at `app/postman/hourly-forecast.postman_collection.yaml`.
 6. **Resets `app/src/weather-client.js`** to its "looks correct" Celsius starting state by copying the pristine template `scripts/starting-client.js` (git-independent, so it's reliable no matter the repo state). This is essential, or the loop has nothing to fix.
 7. **Runs `npm install`** in `./app` (no runtime deps; just wires up `npm start`).
 8. **Sanity-runs the starting client** (`npm start`) so you can see it returns a Celsius array before the demo.
@@ -59,7 +59,7 @@ It checks and prepares (all against the bundled `./app` project — nothing is c
 10. **Prints the ready-to-paste loop prompt** — fully static now (no IDs to swap in), so you can copy it straight into Claude Code.
 11. **Opens the presentation** in your browser as the last step.
 
-> **Why a local collection + CLI, not the cloud?** The oracle never touches client code — it's just a contract. Keeping it as a JSON collection in the repo, run by the Postman CLI, means the booth environment is ready instantly with **no account, key, workspace, or teardown of cloud resources**. The only agent in the live demo is `oracle-check`, the verifier that runs the CLI and reports pass/fail.
+> **Why a local collection + CLI, not the cloud?** The oracle never touches client code — it's just a contract. Keeping it as a YAML collection in the repo, run by the Postman CLI, means the booth environment is ready instantly with **no account, key, workspace, or teardown of cloud resources**. The only agent in the live demo is `oracle-check`, the verifier that runs the CLI and reports pass/fail.
 
 ### Authentication
 
@@ -105,7 +105,7 @@ Five acts, ~10 minutes. Talk track is **verbatim** (blockquotes) — read it if 
 > "And that's the real lesson: a loop only works when *done* is something you can verify — a clear, binary check. Give the agent that and it converges; leave it vague and it just drifts. The oracle is how we make 'correct' verifiable."
 
 - **Show:** advance the deck to slide 3 (The Journey): Generate → Run against the real API → Verify with the Postman CLI → fix and loop.
-- **Do:** (optional, for a curious crowd) point to `postman/hourly-forecast.postman_collection.json` in the file tree — "this collection is mine, the oracle; the agent is told never to open it."
+- **Do:** (optional, for a curious crowd) point to `postman/hourly-forecast.postman_collection.yaml` in the file tree — "this collection is mine, the oracle; the agent is told never to open it."
 
 ### Act 3: Meet the oracle — a Postman collection in the repo (1.5 min)
 
@@ -113,7 +113,7 @@ Five acts, ~10 minutes. Talk track is **verbatim** (blockquotes) — read it if 
 
 - **Show (payoff):** in a terminal, run the oracle once against the *current* (Celsius) client URL so the audience sees the contract fail:
   ```bash
-  postman collection run postman/hourly-forecast.postman_collection.json \
+  postman collection run postman/hourly-forecast.postman_collection.yaml \
     --env-var "forecast_url=https://api.open-meteo.com/v1/forecast?latitude=48.85&longitude=2.35&hourly=temperature_2m"
   ```
 - **Show:** point at the CLI output — `assertions 3 | failed 1`, and the failure detail: **`expected temperature_2m in "°F" but got "°C"`**. This is the real artifact: a live Postman run, red on the requirement the task never mentioned. (Optional: you can drag this collection into the Postman app to view it — but the CLI is all the demo needs.)
@@ -202,7 +202,7 @@ No API keys, no workspace, no cloud artifacts to delete. The oracle collection s
 |---|---|
 | `Postman CLI not found` on setup | Install it (no account needed): `curl -o- "https://dl-cli.pstmn.io/install/unix.sh" \| sh`, or `npm install -g postman-cli`. Then re-run `./scripts/setup.sh`. Verify with `postman --version`. |
 | CLI prints "publishing run details to Postman cloud…" or a version-update hint | Harmless. A local collection run reports nothing to the cloud regardless; that line and the update notice are just noise. `oracle-check` ignores them. |
-| Oracle *passes* on the Celsius URL during setup | The Fahrenheit assertion isn't firing — check `app/postman/hourly-forecast.postman_collection.json` still contains the "Temperatures are reported in Fahrenheit" test. Without a failing assertion the loop has nothing to do. |
+| Oracle *passes* on the Celsius URL during setup | The Fahrenheit assertion isn't firing — check `app/postman/hourly-forecast.postman_collection.yaml` still contains the "Temperatures are reported in Fahrenheit" test. Without a failing assertion the loop has nothing to do. |
 | The agent "passes" on the very first attempt | It read the collection. Re-emphasize the rule: do NOT open `postman/`, do NOT run the Postman CLI directly — only delegate to `@agent-oracle-check`. Re-run `./scripts/teardown.sh` then `setup.sh` to reset the client. |
 | `/goal` runs too long / burns tokens | `/goal` has no token cap. Bound it with a turn limit in the condition (`… or stop after N turns`). Run `/goal` (no args) to see turn count + spend; `/goal clear` aborts immediately. If the turn cap trips, it reports "goal met" even if the oracle didn't pass — check the last `oracle-check` result. |
 | `oracle-check` reports a network/connection error | The collection runs against live Open-Meteo. Confirm the booth Wi-Fi can reach `api.open-meteo.com`. |

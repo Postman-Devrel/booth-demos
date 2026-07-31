@@ -5,7 +5,7 @@ loop-engineering example where an AI coding agent verifies its own Open-Meteo
 API client against a Postman oracle and fixes itself until the oracle passes.
 
 The oracle is a Postman Collection stored right here in the repo
-(`postman/hourly-forecast.postman_collection.json`) and is run by the **Postman
+(`postman/hourly-forecast.postman_collection.yaml`) and is run by the **Postman
 CLI** — no Postman account, API key, or cloud workspace involved. This folder is
 what you open in Claude Code during the demo, and it's kept lean.
 
