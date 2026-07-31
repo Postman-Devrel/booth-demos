@@ -8,7 +8,7 @@ A hands-on **loop-engineering** demo. You will be asked to write a small
 JavaScript client for the free [Open-Meteo](https://open-meteo.com/en/docs)
 weather API, and to verify your work by looping against an **oracle** — a
 human-authored Postman Collection whose test decides pass/fail. The oracle lives
-in this repo (`postman/hourly-forecast.postman_collection.json`) and is run by the
+in this repo (`postman/hourly-forecast.postman_collection.yaml`) and is run by the
 Postman CLI; no Postman account, key, or cloud is involved.
 
 The point of the demo is that you *discover* what "correct" means by running,
@@ -36,7 +36,7 @@ not by being told. So the rules below are not optional.
 |------|---------|
 | `src/weather-client.js` | The client you edit. Ships in a "looks correct" state that runs fine but does not yet satisfy the oracle. |
 | `src/run.js` | CLI runner. `npm start` runs the client and prints its output. |
-| `postman/hourly-forecast.postman_collection.json` | The oracle (a Postman Collection with the test embedded). **Off-limits — do not read.** |
+| `postman/hourly-forecast.postman_collection.yaml` | The oracle (a Postman Collection with the test embedded). **Off-limits — do not read.** |
 | `.claude/agents/oracle-check.md` | The verifier subagent. It runs the Postman CLI against the collection and reports only assertion results. |
 
 ## Conventions

@@ -3,7 +3,7 @@ set -euo pipefail
 
 DEMO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 APP_DIR="$DEMO_DIR/app"
-COLLECTION="$APP_DIR/postman/hourly-forecast.postman_collection.json"
+COLLECTION="$APP_DIR/postman/hourly-forecast.postman_collection.yaml"
 CELSIUS_URL="https://api.open-meteo.com/v1/forecast?latitude=48.85&longitude=2.35&hourly=temperature_2m"
 
 echo "=== Meteo API Loop Engineering — Booth Demo Setup ==="
@@ -50,7 +50,7 @@ fi
 
 # 4. Verify the oracle collection is present
 if [ -f "$COLLECTION" ]; then
-  echo "[OK] Oracle collection present (app/postman/hourly-forecast.postman_collection.json)"
+  echo "[OK] Oracle collection present (app/postman/hourly-forecast.postman_collection.yaml)"
 else
   echo "[FAIL] Oracle collection missing at $COLLECTION"
   exit 1
@@ -75,7 +75,7 @@ echo "Verifying the starting client runs (expect a Celsius array, ~24 for Paris)
 #    the Fahrenheit assertion failing (that failing assertion is what drives the loop).
 echo ""
 echo "Sanity-checking the oracle (Celsius URL — expect 1 failed assertion: Fahrenheit)..."
-if ( cd "$APP_DIR" && postman collection run postman/hourly-forecast.postman_collection.json --env-var "forecast_url=$CELSIUS_URL" >/tmp/meteo_oracle_check.txt 2>&1 ); then
+if ( cd "$APP_DIR" && postman collection run postman/hourly-forecast.postman_collection.yaml --env-var "forecast_url=$CELSIUS_URL" >/tmp/meteo_oracle_check.txt 2>&1 ); then
   echo "[WARN] Oracle PASSED on the Celsius URL — it should fail Fahrenheit. Check the collection."
 else
   echo "[OK] Oracle correctly reports a failure on Celsius (the Fahrenheit assertion) — the loop has a fix to find."
