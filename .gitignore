@@ -1,2 +1,15 @@
 .DS_Store
 .claude/settings.local.json
+demos/*/.demo-state
+
+# Project-scoped MCP servers added live during a demo; teardown.sh removes these.
+demos/*/.mcp.json
+demos/*/.mcp.dryrun.json
+demos/*/.mcp.offline.json
+
+# Recorded offline fallbacks. Regenerated in ~60s by refresh-fixtures.sh, and
+# they vendor third-party documentation, so they are not checked in.
+# fixtures/baseline.tsv IS tracked — it is our own measurement and the scorecard
+# quotes its median on stage.
+demos/*/fixtures/snapshots/
+demos/*/fixtures/corpus/
