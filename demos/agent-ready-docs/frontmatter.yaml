@@ -1,0 +1,23 @@
+product: Fern
+name: Agent-Ready Docs — Grade Your API Documentation
+use_case: Show that docs built for humans are invisible to agents, grade any docs site live with a one-file audit script, and prove the difference by letting Claude Code query a Fern-generated MCP server instead of crawling HTML.
+primary_api:
+  - ElevenLabs docs (https://elevenlabs.io/docs) — Fern-powered, the all-green anchor site
+  - Cohere docs (https://docs.cohere.com) — Fern-powered backup target, scores 100/100
+  - Fern-hosted docs MCP server (https://elevenlabs.io/docs/_mcp/server) — generated for every Fern site
+  - Bundled audit script in ./scripts/agent-audit.sh (one bash file, no dependencies)
+key_messages:
+  - developer_friendly == agent_friendly — everything that makes docs good for people makes them usable by agents
+  - Your docs have a second reader now, and nobody shipped for it — one API reference page is 1.4 MB of HTML that does not fit in a 200K context window
+  - Appending .md to any Fern docs URL returns the same page 98.6% smaller — that is the whole trick
+  - Agent-readiness is four layers — discovery (llms.txt, sitemap), content (.md, content negotiation), contract (OpenAPI, RFC 9727 api-catalog), and interface (MCP server)
+  - A hosted MCP server means agents query your docs instead of crawling them — no scraper, no vector database, no RAG pipeline to keep in sync
+  - Fern generates all of it from the same spec that generates the SDKs, and regenerates on every change, so nothing drifts
+  - The audit script only checks open standards, not Fern features — that is why the scorecard is credible
+cta:
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (see demos/agent-ready-docs)"
+  - "Grade your own docs: ./scripts/agent-audit.sh yourdomain.com"
+  - "Fern: https://buildwithfern.com"
+demo_length: 10m
+presentation_title: developer_friendly == agent_friendly
+brand_style: design-sync
