@@ -44,6 +44,7 @@ COMPARE=""
 JSON=0
 ANIM=1
 COLOR=auto
+SAVE_SNAP=""
 
 [ -f "$DEMO_DIR/demo.conf" ] && . "$DEMO_DIR/demo.conf" 2>/dev/null
 
@@ -81,6 +82,7 @@ while [ $# -gt 0 ]; do
     --json)     JSON=1; ANIM=0; shift ;;
     --no-color) COLOR=off; shift ;;
     --no-anim)  ANIM=0; shift ;;
+    --save-snapshot) SAVE_SNAP="${2:-}"; shift 2 ;;
     -h|--help)  usage; exit 0 ;;
     -*)         echo "unknown option: $1" >&2; usage >&2; exit 1 ;;
     *)          [ -z "$TARGET" ] && TARGET="$1" || true; shift ;;
@@ -873,7 +875,13 @@ audit_one() {
       echo "agent-audit: --live requested but the network is unreachable." >&2
       return 2
     fi
-    if ! load_snapshot "$TARGET_URL"; then
+    if load_snapshot "$TARGET_URL"; then
+      # The banner and the row markers already say CACHED, but a presenter who
+      # expected a live run deserves to be told why it went cached, on stderr,
+      # before the card starts drawing.
+      [ "$MODE" = "auto" ] && \
+        echo "  note: network preflight failed — replaying the cached snapshot. Use --live to force." >&2
+    else
       echo "agent-audit: offline, and no cached snapshot for $TARGET_URL." >&2
       echo "             Snapshots available:" >&2
       ls -1 "$DEMO_DIR/fixtures/snapshots" 2>/dev/null | sed 's/^/               /' >&2
@@ -882,6 +890,27 @@ audit_one() {
   fi
 
   compute_score
+
+  # Persist everything the renderer needs so an offline replay is a real
+  # recording of a real audit, not a hand-written fixture.
+  if [ -n "$SAVE_SNAP" ] && [ "$LIVE" -eq 1 ]; then
+    mkdir -p "$SAVE_SNAP"
+    cp "$RES" "$SAVE_SNAP/results.tsv"
+    {
+      printf 'base=%s\n'    "$BASE"
+      printf 'page=%s\n'    "$PAGE"
+      printf 'html=%s\n'    "${HTML_BYTES:-0}"
+      printf 'md=%s\n'      "${MD_BYTES:-0}"
+      printf 'mcptool=%s\n' "$MCP_TOOL"
+      printf 'score=%s\n'   "$SCORE"
+      printf 'grade=%s\n'   "$GRADE"
+      printf 'date=%s\n'    "$(date -u '+%Y-%m-%d %H:%M UTC')"
+    } > "$SAVE_SNAP/meta"
+    for art in llms mcp catalog md; do
+      [ -s "$TMP/$art.body" ] && cp "$TMP/$art.body" "$SAVE_SNAP/$art.body"
+    done
+  fi
+
   if [ "$JSON" -eq 1 ]; then render_json; else echo; render_card; echo; fi
   return 0
 }
