@@ -138,7 +138,7 @@ _(wait for sync to complete)_
 **Do:** Type this prompt into Claude Code:
 
 ```
-Sync my sample-api/openapi.yaml spec with Postman. Create a collection and environment for it.
+Sync my sample-api/openapi.yaml spec with Postman. Create a collection and environment for it and put in the the Liftoff Content API workspace. If this workspace doesn't exist, go ahead and create it now.
 ```
 
 Wait for the async sync to complete (~15-30 seconds). Claude will poll and confirm.
