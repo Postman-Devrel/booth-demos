@@ -178,7 +178,7 @@ Create a mock server for the Liftoff Content API collection. Generate example re
 **Do:** Type this follow-up to prove it works:
 
 ```
-Show me a curl command to test the mock server's GET /learning-paths endpoint
+Create  a curl command to test the mock server's GET /learning-paths endpoint. And run it.
 ```
 
 **Show:** Run the curl command Claude provides (or let Claude run it) — the audience sees a real HTTP response from the mock server.
