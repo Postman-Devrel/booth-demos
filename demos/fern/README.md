@@ -13,8 +13,9 @@ real Fern-generated SDKs (Act 4), and the live customers-page walk (Act 6). Ever
 deck itself runs fully offline with no accounts or installs.
 
 > **The deck is provided, not generated.** `presentation/index.html` is a pre-branded Fern
-> deck used verbatim. It is a **vertical scroll deck** — you advance by **scrolling**, and
-> press **`t`** to toggle light/dark. It does not use arrow-key or click slide navigation.
+> deck used verbatim (**13 full-viewport slides**). It is a **vertical scroll deck** — you
+> advance by **scrolling**, and press **`t`** to toggle light/dark. It does not use arrow-key
+> or click slide navigation.
 
 ---
 
@@ -125,11 +126,11 @@ terminal — the `.md` reveal (Act 3), the authoring deep-dive (slide 6), two re
 you need to. The click track is mostly **Do: scroll to the next slide** (plus `t` to toggle
 theme), with every live beat called out explicitly.
 
-The deck's slides, in order: **(1)** title · **(2)** 8,000+ teams · **(3)** one source of
+The deck's 13 slides, in order: **(1)** title · **(2)** 8,000+ teams · **(3)** one source of
 truth · **(4)** docs for developers + agents · **(5)** designed for the AI era · **(6)**
 author in multiple ways · **(7)** SDKs by language experts · **(8)** just run `fern generate` ·
-**(9)** a CLI for your API · **(10)** what teams ship · **(11)** enterprise, migration, get in
-touch.
+**(9)** a CLI for your API · **(10)** what teams ship · **(11)** enterprise-ready · **(12)**
+migrate to the enterprise platform · **(13)** get in touch.
 
 ---
 
@@ -362,15 +363,17 @@ this.* Open a browser tab to **<https://buildwithfern.com/customers>**.
 
 ---
 
-### Act 7: Enterprise-ready and migration (1 min) — slide 11
+### Act 7: Enterprise-ready and migration (1 min) — slides 11–12
 
-**Do:** scroll to slide 11 — "Enterprise-ready by default" / "Migrate to the enterprise platform."
+**Do:** scroll to slide 11 — "Enterprise-ready by default."
 
 > "And it's enterprise-ready by default — SAML or OIDC, role-based access so customers see
 > only what's relevant to them, the whole security story built in, not bolted on."
 
-**Show (payoff):** the three "Migrate to the enterprise platform" cards on this slide — real
-names, grouped by what each team left behind.
+**Do:** scroll to slide 12 — "Migrate to the enterprise platform."
+
+**Show (payoff):** the three migration cards on this slide — real names, grouped by what each
+team left behind.
 
 > "And look who's on here — grouped by what they migrated *off* of. **From ReadMe: Webflow** —
 > they now run their docs *and* their SDKs with no dedicated engineering headcount. **From an
@@ -382,9 +385,9 @@ names, grouped by what each team left behind.
 
 ---
 
-### Act 8: The close (45 sec)
+### Act 8: The close (45 sec) — slide 13
 
-**Do:** scroll to the deck's final slide 11 — "Get in touch" — or leave the customers page up.
+**Do:** scroll to the deck's final slide 13 — "Get in touch" — or leave the customers page up.
 
 > "One sentence to take away: you maintain the spec, and Fern ships the entire developer
 > experience — docs, SDKs, and a CLI, for developers and agents, regenerated on every change.
