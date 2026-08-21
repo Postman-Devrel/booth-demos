@@ -1,0 +1,20 @@
+# MyHealthcare API Portal
+#
+# Our documentation is for our customers, and the API explorer is interactive.
+# Crawling it costs us bandwidth and returns nothing useful, so we ask
+# automated clients not to.
+
+User-agent: *
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /

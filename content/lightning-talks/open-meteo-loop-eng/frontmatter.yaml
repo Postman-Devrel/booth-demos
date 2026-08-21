@@ -1,3 +1,14 @@
+format: lightning-talk
+length: 10m
+owner: Anthony Viard <anthony.viard@postman.com>
+status: ready
+audience: >
+  Developers using AI coding agents who have shipped something that passed review and was
+  still wrong. No Postman account needed to follow along.
+venues:
+  - booth
+  - meetup
+  - conference
 product: Postman CLI
 name: Meteo API Loop Engineering — Postman as the Oracle
 use_case: Show how an AI coding agent stops guessing and fixes its own mistakes by looping against a real API, with a human-authored Postman collection as the pass/fail oracle.
@@ -14,9 +25,8 @@ key_messages:
   - The Postman CLI runs the oracle — a local collection in the repo, no account, key, or cloud workspace needed
   - You own the contract — the agent verifies only through a subagent and is told never to read the collection, so the discovery is real, not rubber-stamped
 cta:
-  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (see demos/open-meteo-loop-eng)"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (see content/lightning-talks/open-meteo-loop-eng)"
   - "Postman CLI docs: https://learning.postman.com/docs/postman-cli/postman-cli-overview/"
   - "Loop engineering, explained: https://addyosmani.com/blog/loop-engineering/"
-demo_length: 10m
 presentation_title: Stop Prompting. Start Looping.
 brand_style: design-sync

@@ -1,3 +1,12 @@
+format: lightning-talk
+length: 10m
+owner: Quinton Wall <quintonwall@gmail.com>
+status: ready
+audience: >
+  Developers who already use an AI coding agent and want their APIs to be usable by it.
+venues:
+  - booth
+  - meetup
 product: Postman Claude Code Plugin
 name: Claude Code + Postman Booth Demo
 use_case: Help developers turn their APIs into AI- and production-ready services using natural language in Claude Code.
@@ -8,6 +17,5 @@ key_messages:
 cta:
   - Claude Code Plugin install command
   - "Try the build with AI liftoff path: https://www.postman.com/liftoff/learning-paths/building-with-ai/"
-demo_length: 10m
 presentation_title: From API to AI-Ready in 10 Minutes with The Postman Claude Code Plugin
 brand_style: design-sync

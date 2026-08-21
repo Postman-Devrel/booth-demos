@@ -1,0 +1,55 @@
+format: short-talk
+length: 25-30m
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  API and platform teams who already publish documentation and are being asked why agents
+  cannot use it. No prior MCP knowledge assumed.
+venues:
+  - conference
+  - meetup
+  - webinar
+product: Fern (docs, llms.txt, per-page Markdown, and an MCP server from one OpenAPI spec)
+name: Make MCPs Your Documentation Best Friend
+use_case: >
+  Show the same API documented twice — once the way we have always done it, for humans only,
+  and once generated so that a human and an agent can both use it — and prove the difference
+  by asking an agent the same question against each.
+primary_api:
+  - appointments-service — openapi/appointments.openapi.yaml (domain appointments, port 8600)
+  - appointment-slots-service — openapi/appointment-slots.openapi.yaml (domain appointments, port 8601)
+  - prescriptions-service — openapi/prescriptions.openapi.yaml (domain pharmacy, port 8501)
+  - "The 'before' portal: site/ — a human-first docs site served on http://localhost:4173"
+  - "The 'after' site: https://devreliance-health.docs.buildwithfern.com — the same three specs, built by Fern"
+  - "The MCP server: https://devreliance-health.docs.buildwithfern.com/_mcp/server"
+key_messages:
+  - Your docs now have two readers — a developer who skims, and an agent that has to discover, authenticate, parse, and recover from errors on its own
+  - A docs site can be excellent for humans and useless to agents at the same time; that is the normal condition, not a bug someone introduced
+  - The agent-facing surface is three things — an llms.txt index, per-page Markdown, and an MCP server — and each one removes work the agent otherwise has to guess its way through
+  - MCP turns docs from something an agent scrapes into something it queries; answers stay grounded in what the docs actually say
+  - Maintaining those surfaces by hand means four artifacts, four owners, and four chances to drift — so generate them from the spec instead
+  - One spec plus guides produces the human site, the Markdown, the llms.txt, and the MCP server together, which is the only way they stay in sync
+cta:
+  - "The 'after' site: https://devreliance-health.docs.buildwithfern.com"
+  - "The MCP server: https://devreliance-health.docs.buildwithfern.com/_mcp/server"
+  - "Fern: https://buildwithfern.com"
+  - "Postman Discord: https://discord.gg/postman"
+presentation_title: Make MCPs Your Documentation Best Friend
+brand_style: manual
+notes: >
+  Two brands on purpose. The DECK is Postman-branded (dark, orange #FF6C37) and mirrors the
+  12 slides of the Google Slides source, "Make_MCPs_Your_Documentation_Best_Friend" — the
+  live demo lands on slide 10. The PORTAL under site/ is a separate fictional brand,
+  "MyHealthcare API Portal", blue-forward (#1256E0), built to look like the API explorer
+  everyone recognises without carrying its name. It is hand-built, not vendored, so it has no
+  third-party CSS to fight and no attribution to strip.
+
+  The portal is deliberately hostile to agents, and every one of those properties is real
+  rather than staged: the served HTML is an empty root div, there is no llms.txt, no per-page
+  Markdown, no MCP server, no fetchable spec (the three YAML files are compiled into
+  site/assets/spec-bundle.js by scripts/build-spec-bundle.py and never published at a URL),
+  and robots.txt disallows everything. Check these still hold before presenting — setup.sh
+  asserts them for you.
+
+  The "Try it" panel is fully mocked and sends no requests, so nothing needs to be running
+  and nothing needs cleaning up afterwards. The healthcare-org services do NOT need to be up.

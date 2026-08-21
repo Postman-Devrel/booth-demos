@@ -1,0 +1,36 @@
+# Front matter for a piece of content in this repo.
+# Copy to content/<format-folder>/<slug>/frontmatter.yaml and fill in.
+# Validate with ./scripts/validate-content.sh
+
+# ---- Required ----------------------------------------------------------------
+
+format:               # lightning-talk | short-talk | standard-talk | bootcamp
+                      # Must match the folder it lives in. See templates/formats/.
+length:               # The real target. "10m", "25-30m", "45m", "~3h (4 modules)"
+product:              # The product being shown
+name:                 # Human-readable title of the content
+use_case:             # One sentence: the problem this content solves for the audience
+key_messages:         # What the audience should be able to repeat afterwards
+  - ""
+cta:                  # Links or commands the audience leaves with
+  - ""
+presentation_title:   # Title on the deck (may differ from `name`)
+
+# ---- Recommended -------------------------------------------------------------
+
+owner:                # Who maintains this. Name or email.
+status:               # draft | ready | retired
+audience:             # One line: who this is for and what they already know
+venues:               # Where this has been or can be delivered
+  - ""                # booth | meetup | conference | webinar | workshop | internal
+primary_api:          # The API(s), spec(s), or repo(s) the content uses
+  - ""
+brand_style:          # design-sync | manual
+
+# ---- Optional ----------------------------------------------------------------
+
+derived_from:         # Slug of the content this was cut down from or expanded out of,
+                      # when the same material exists in more than one format.
+notes: >              # Anything a future presenter needs that is not in the README:
+                      # deliberate design choices, why something is faked, what must
+                      # not be "fixed".
