@@ -1,19 +1,22 @@
 .DS_Store
 .claude/settings.local.json
-demos/*/.demo-state
+content/*/*/.demo-state
 
-# Project-scoped MCP servers added live during a demo; teardown.sh removes these.
-demos/*/.mcp.json
-demos/*/.mcp.dryrun.json
-demos/*/.mcp.offline.json
+# Project-scoped MCP servers added live during a session; teardown.sh removes these.
+content/*/*/.mcp.json
+content/*/*/.mcp.dryrun.json
+content/*/*/.mcp.offline.json
 
-# Provisioned live-authoring workspace for the fern demo (cloned starters + skills).
-# setup.sh --authoring recreates it on demand; nothing here is hand-authored.
-demos/*/workspace/
+# Provisioned live-authoring workspace for the fern talk. setup.sh --authoring
+# recreates it on demand; nothing here is hand-authored.
+content/*/*/workspace/
 
 # Recorded offline fallbacks. Regenerated in ~60s by refresh-fixtures.sh, and
 # they vendor third-party documentation, so they are not checked in.
 # fixtures/baseline.tsv IS tracked — it is our own measurement and the scorecard
 # quotes its median on stage.
-demos/*/fixtures/snapshots/
-demos/*/fixtures/corpus/
+content/*/*/fixtures/snapshots/
+content/*/*/fixtures/corpus/
+
+# Retired demo, local fixtures only.
+demos/

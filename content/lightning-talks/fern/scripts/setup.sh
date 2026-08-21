@@ -110,7 +110,7 @@ if [ "$WITH_AUTHORING" -eq 1 ]; then
   fi
 
   echo ""
-  echo "[OK]   Authoring workspace ready at demos/fern/workspace/ (gitignored)"
+  echo "[OK]   Authoring workspace ready at content/lightning-talks/fern/workspace/ (gitignored)"
 fi
 
 # --- Open the deck (always, last) -------------------------------------------
@@ -135,7 +135,7 @@ if [ "$WITH_AUTHORING" -eq 1 ]; then
   echo "  A) Fern Editor (browser): log into your project at https://dashboard.buildwithfern.com"
   echo "     and open the Editor. This is a MANUAL login — use your own Fern project."
   echo "  B) The repo + Claude Code:"
-  echo "       cd demos/fern/workspace/docs-starter"
+  echo "       cd content/lightning-talks/fern/workspace/docs-starter"
   echo "       fern docs dev          # live preview at http://localhost:3000"
   echo "       claude                 # then ask it to make an edit — it will use the fern-docs skill"
 fi
