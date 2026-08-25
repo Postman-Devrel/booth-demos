@@ -1,7 +1,7 @@
 format: short-talk
-length: 25-30m
+length: 25m + Q&A
 owner: Anthony Viard <anthony.viard@postman.com>
-status: draft
+status: ready
 audience: >
   API and platform teams who already publish documentation and are being asked why agents
   cannot use it. No prior MCP knowledge assumed.
@@ -9,47 +9,62 @@ venues:
   - conference
   - meetup
   - webinar
-product: Fern (docs, llms.txt, per-page Markdown, and an MCP server from one OpenAPI spec)
+product: Fern (docs, llms.txt, per-page Markdown, and an MCP server from one OpenAPI spec managed in Postman)
 name: Make MCPs Your Documentation Best Friend
 use_case: >
-  Show the same API documented twice — once the way we have always done it, for humans only,
-  and once generated so that a human and an agent can both use it — and prove the difference
-  by asking an agent the same question against each.
+  Cold-open on a good-looking API portal with JavaScript disabled to show what an agent
+  actually receives, then walk the pipeline that fixes it end to end — spec in Postman,
+  deployed by Fern, out come the human site, per-page Markdown, llms.txt and an MCP server —
+  and finish by connecting that MCP server to a live Claude Code session on stage.
 primary_api:
   - appointments-service — openapi/appointments.openapi.yaml (domain appointments, port 8600)
   - appointment-slots-service — openapi/appointment-slots.openapi.yaml (domain appointments, port 8601)
   - prescriptions-service — openapi/prescriptions.openapi.yaml (domain pharmacy, port 8501)
   - "The 'before' portal: site/ — a human-first docs site served on http://localhost:4173"
-  - "The 'after' site: https://devreliance-health.docs.buildwithfern.com — the same three specs, built by Fern"
-  - "The MCP server: https://devreliance-health.docs.buildwithfern.com/_mcp/server"
+  - "The app being documented: https://myhealthcare.dev/"
+  - "The Fern config repo: https://github.com/avdev4j/myhealthcare-fern-doc"
+  - "The 'after' site: https://myhealthcare.docs.buildwithfern.com — the same three specs, built by Fern"
+  - "The MCP server: https://myhealthcare.docs.buildwithfern.com/_mcp/server (one tool: searchDocs)"
 key_messages:
   - Your docs now have two readers — a developer who skims, and an agent that has to discover, authenticate, parse, and recover from errors on its own
   - A docs site can be excellent for humans and useless to agents at the same time; that is the normal condition, not a bug someone introduced
   - The agent-facing surface is three things — an llms.txt index, per-page Markdown, and an MCP server — and each one removes work the agent otherwise has to guess its way through
-  - MCP turns docs from something an agent scrapes into something it queries; answers stay grounded in what the docs actually say
+  - MCP turns docs from something an agent scrapes into something it queries; answers stay grounded and cited
   - Maintaining those surfaces by hand means four artifacts, four owners, and four chances to drift — so generate them from the spec instead
-  - One spec plus guides produces the human site, the Markdown, the llms.txt, and the MCP server together, which is the only way they stay in sync
+  - One spec, authored in Postman and referenced (not copied) by Fern, produces the human site, the Markdown, the llms.txt and the MCP server together, which is the only way they stay in sync
 cta:
-  - "The 'after' site: https://devreliance-health.docs.buildwithfern.com"
-  - "The MCP server: https://devreliance-health.docs.buildwithfern.com/_mcp/server"
+  - "The docs site: https://myhealthcare.docs.buildwithfern.com"
+  - "The MCP server: https://myhealthcare.docs.buildwithfern.com/_mcp/server"
   - "Fern: https://buildwithfern.com"
   - "Postman Discord: https://discord.gg/postman"
 presentation_title: Make MCPs Your Documentation Best Friend
+presentation_url: https://claude.ai/design/p/34e5524b-4e2d-436a-97bc-9a59609fb288?file=MCP+Docs+Best+Friend.dc.html&via=share
+presentation_fallback: presentation/index.html
 brand_style: manual
 notes: >
-  Two brands on purpose. The DECK is Postman-branded (dark, orange #FF6C37) and mirrors the
-  12 slides of the Google Slides source, "Make_MCPs_Your_Documentation_Best_Friend" — the
-  live demo lands on slide 10. The PORTAL under site/ is a separate fictional brand,
-  "MyHealthcare API Portal", blue-forward (#1256E0), built to look like the API explorer
-  everyone recognises without carrying its name. It is hand-built, not vendored, so it has no
-  third-party CSS to fight and no attribution to strip.
+  The deck of record is the Claude design artifact above (12 slides, demo lands on slide 10);
+  setup.sh opens it and it needs a claude.ai session. presentation/index.html is the same
+  12 slides as an offline fallback — keep the two in sync if you edit either.
+
+  The talk opens in the BROWSER, not on a slide. Act 0 is a show of hands on the localhost
+  portal in Chrome, then the same URL in SAFARI with Develop -> Disable JavaScript, which
+  renders the portal's <noscript> block and nothing else. That toggle is the single most
+  fragile prerequisite — verify it every time.
+
+  The PORTAL under site/ is a separate fictional brand, "MyHealthcare API Portal",
+  blue-forward (#1256E0), built to look like the API explorer everyone recognises without
+  carrying its name. It is hand-built, not vendored, so it has no third-party CSS to fight
+  and no attribution to strip.
 
   The portal is deliberately hostile to agents, and every one of those properties is real
-  rather than staged: the served HTML is an empty root div, there is no llms.txt, no per-page
-  Markdown, no MCP server, no fetchable spec (the three YAML files are compiled into
-  site/assets/spec-bundle.js by scripts/build-spec-bundle.py and never published at a URL),
-  and robots.txt disallows everything. Check these still hold before presenting — setup.sh
-  asserts them for you.
+  rather than staged: the served HTML is a 1,402-byte shell with an empty root div, there is
+  no llms.txt, no per-page Markdown, no MCP server, no fetchable spec (the three YAML files
+  are compiled into site/assets/spec-bundle.js by scripts/build-spec-bundle.py and never
+  published at a URL), and robots.txt disallows everything. setup.sh asserts all of it.
 
   The "Try it" panel is fully mocked and sends no requests, so nothing needs to be running
   and nothing needs cleaning up afterwards. The healthcare-org services do NOT need to be up.
+
+  Stage numbers, all verified 2026-08-24: served shell 1,402 bytes; llms.txt lists 24
+  endpoints in 6 KB; the update endpoint is 900 KB as HTML and 9 KB as .md (~100x); a
+  searchDocs call takes 7-15s warm, 40s+ cold.
