@@ -85,8 +85,19 @@ cd content/short-talks/mcp-docs-best-friend
 4. Check every live surface: `myhealthcare.dev`, the Fern docs site, its `llms.txt`, and the
    MCP server (a real JSON-RPC `initialize` handshake, not just a ping).
 5. Create the empty **`/tmp/myhealthcare`** working folder for Act 7e.
-6. Open, in order: the **Claude-design deck**, the portal in Chrome, the portal **in Safari**
-   (your JS-off tab), and the **Postman desktop app**.
+6. Open every surface, in the order you use them: the **Claude-design deck**, the portal in
+   Chrome *(Act 0a)*, the portal **in Safari** (your JS-off tab, *Act 0b*),
+   <https://myhealthcare.dev/> *(Act 7a)*, the **Postman desktop app** and the appointments
+   service repo <https://github.com/healthcare-org-app/healthcare-appointments> *(Act 7b)*,
+   the Fern config repo at [generators.yml#L18](https://github.com/avdev4j/myhealthcare-fern-doc/blob/main/fern/apis/healthcare-org/generators.yml#L18)
+   *(Act 7c)*, the Fern docs site <https://myhealthcare.docs.buildwithfern.com> *(Act 7d)*,
+   and <https://buildwithfern.com/> for the CTA *(Act 8)*.
+
+7. Print the paste-ready **Act 7e** sequence (`cd`, `claude mcp add`, `claude`, `/mcp`) and
+   both **Act 7f** prompts verbatim, so you never have to come back to this README on stage.
+
+That is the whole pre-demo checklist below, minus the terminal — you only have to arrange the
+windows and verify Safari.
 
 Set `SKIP_OPEN=1` to run all the checks without opening anything.
 
@@ -107,14 +118,17 @@ Tabs and windows, left to right, in the order you will use them:
 - [ ] **Chrome tab 2** — the **deck**, fullscreen, slide 1 *(Acts 1–6, 8)*
 - [ ] **Chrome tab 3** — <https://myhealthcare.dev/> *(Act 7a)*
 - [ ] **Postman desktop** — healthcare-org spec open on the **appointments** definition *(7b)*
-- [ ] **Chrome tab 4** — [generators.yml#L18](https://github.com/avdev4j/myhealthcare-fern-doc/blob/main/fern/apis/healthcare-org/generators.yml#L18) *(Act 7c)*
-- [ ] **Chrome tab 5** — <https://myhealthcare.docs.buildwithfern.com> *(Act 7d)*
+- [ ] **Chrome tab 4** — <https://github.com/healthcare-org-app/healthcare-appointments>, the
+      service the spec describes *(Act 7b, optional aside)*
+- [ ] **Chrome tab 5** — [generators.yml#L18](https://github.com/avdev4j/myhealthcare-fern-doc/blob/main/fern/apis/healthcare-org/generators.yml#L18) *(Act 7c)*
+- [ ] **Chrome tab 6** — <https://myhealthcare.docs.buildwithfern.com> *(Act 7d)*
+- [ ] **Chrome tab 7** — <https://buildwithfern.com/>, parked for the CTA *(Act 8)*
 - [ ] **Terminal**, large font, in `/tmp/myhealthcare`, **empty Claude Code context** *(7e–7f)*
 - [ ] You have run the Act 7f prompts once already today, so nothing is cold on stage
 - [ ] You know the four numbers cold: **1,402 bytes · 404 · 900 KB → 9 KB · 24 endpoints**
 - [ ] Browser zoom set so text reads from 6 feet (`Cmd+=` / `Cmd+-`)
 
-That is eight surfaces. Rehearse the switching order once — it is the only fragile part of
+That is ten surfaces. Rehearse the switching order once — it is the only fragile part of
 this talk.
 
 ---
@@ -346,9 +360,17 @@ description — the `⚠️` note about `appointment.cancelled`.
 
 > "The important property is that there is exactly one of these. Not one per output. One."
 
+**Do (optional, 20 sec — skip it if you are running long):** switch to **Chrome tab 4** —
+<https://github.com/healthcare-org-app/healthcare-appointments>. Show the repo root, and the
+`openapi.yaml` sitting next to the service code.
+
+> "And for the sceptics: here is the service itself. Real code, in a real repo, with its
+> `openapi.yaml` checked in beside it — that is the file Fern reads in a second, and it is the
+> same spec you just watched me work on. Nothing here is a demo prop."
+
 #### 7c — Where the spec gets consumed: Fern (1.5 min)
 
-**Do:** switch to Chrome tab 4 —
+**Do:** switch to Chrome tab 5 —
 [fern/apis/healthcare-org/generators.yml#L18](https://github.com/avdev4j/myhealthcare-fern-doc/blob/main/fern/apis/healthcare-org/generators.yml#L18)
 
 **Show (payoff):** the highlighted line is a `repo:` pointing at the appointments service, with
@@ -371,7 +393,7 @@ description — the `⚠️` note about `appointment.cancelled`.
 
 #### 7d — Four outputs from one spec (2 min)
 
-**Do:** switch to Chrome tab 5 — <https://myhealthcare.docs.buildwithfern.com>.
+**Do:** switch to Chrome tab 6 — <https://myhealthcare.docs.buildwithfern.com>.
 
 **Do:** browse it like a human for twenty seconds — Welcome, Business domains, then into
 **API Reference → Appointments Service → Update an appointment**.
@@ -591,6 +613,7 @@ hand:
 | The deck (offline fallback) | `presentation/index.html` |
 | The "before" portal (this repo) | `site/` — served at <http://localhost:4173> |
 | The app being documented (Act 7a) | <https://myhealthcare.dev/> |
+| The appointments service repo (Act 7b) | <https://github.com/healthcare-org-app/healthcare-appointments> |
 | The Fern config repo (Act 7c) | <https://github.com/avdev4j/myhealthcare-fern-doc> |
 | The exact line to open (Act 7c) | [generators.yml#L18](https://github.com/avdev4j/myhealthcare-fern-doc/blob/main/fern/apis/healthcare-org/generators.yml#L18) |
 | The docs site, built by Fern (Act 7d) | <https://myhealthcare.docs.buildwithfern.com> |

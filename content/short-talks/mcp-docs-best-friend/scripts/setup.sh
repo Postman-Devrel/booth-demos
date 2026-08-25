@@ -3,15 +3,17 @@ set -uo pipefail
 
 # Make MCPs Your Documentation Best Friend — setup.
 #
-# Eight surfaces have to be ready before you walk on:
-#   1. The deck               — Claude design (falls back to presentation/index.html)
-#   2. The "before" portal    — served on localhost, opened in Chrome        (Act 0a)
-#   3. The same portal in SAFARI with JavaScript disabled                    (Act 0b)
-#   4. myhealthcare.dev       — the running app                              (Act 7a)
-#   5. Postman desktop        — where the OpenAPI spec is managed            (Act 7b)
-#   6. The Fern config repo   — generators.yml#L18                           (Act 7c)
-#   7. The Fern docs site     — human page, .md, llms.txt, MCP              (Act 7d)
-#   8. /tmp/myhealthcare      — an empty folder for the Claude Code session  (Act 7e)
+# Ten surfaces have to be ready before you walk on:
+#    1. The deck              — Claude design (falls back to presentation/index.html)
+#    2. The "before" portal   — served on localhost, opened in Chrome        (Act 0a)
+#    3. The same portal in SAFARI with JavaScript disabled                   (Act 0b)
+#    4. myhealthcare.dev      — the running app                              (Act 7a)
+#    5. Postman desktop       — where the OpenAPI spec is managed            (Act 7b)
+#    6. The service repo      — healthcare-appointments, the code behind it  (Act 7b)
+#    7. The Fern config repo  — generators.yml#L18                           (Act 7c)
+#    8. The Fern docs site    — human page, .md, llms.txt, MCP               (Act 7d)
+#    9. buildwithfern.com     — the product site, for the CTA                (Act 8)
+#   10. /tmp/myhealthcare     — an empty folder for the Claude Code session  (Act 7e)
 #
 # Set SKIP_OPEN=1 to run every check without opening anything.
 
@@ -24,8 +26,10 @@ PORTAL="http://localhost:$PORT"
 
 DECK="https://claude.ai/design/p/34e5524b-4e2d-436a-97bc-9a59609fb288?file=MCP+Docs+Best+Friend.dc.html&via=share"
 APP="https://myhealthcare.dev/"
+SERVICE="https://github.com/healthcare-org-app/healthcare-appointments"
 REPO="https://github.com/avdev4j/myhealthcare-fern-doc/blob/main/fern/apis/healthcare-org/generators.yml#L18"
 DOCS="https://myhealthcare.docs.buildwithfern.com"
+FERN="https://buildwithfern.com/"
 MCP="$DOCS/_mcp/server"
 MCP_NAME="myhealthcare-docs"
 WORKDIR="/tmp/myhealthcare"
@@ -142,6 +146,7 @@ check_url() {  # check_url <label> <url> [timeout]
 }
 
 check_url "myhealthcare.dev is up (Act 7a)"                "$APP"
+check_url "Appointments service repo reachable (Act 7b)"   "$SERVICE"
 check_url "Fern config repo reachable (Act 7c)"            "$REPO"
 check_url "Fern docs site is up (Act 7d)"                  "$DOCS" 30
 check_url "llms.txt is published (Act 7d)"                 "$DOCS/llms.txt"
@@ -189,11 +194,17 @@ if [ "${SKIP_OPEN:-0}" = "1" ]; then
   echo "[OK]   SKIP_OPEN=1 — checks only, nothing opened."
 else
   echo ""
-  echo "Opening the deck, the portal (Chrome + Safari), and Postman..."
+  echo "Opening the deck, the portal (Chrome + Safari), myhealthcare.dev, Postman,"
+  echo "the service repo, the Fern config repo, the Fern docs site, and buildwithfern.com..."
   open_url "$DECK"           || echo "[WARN] Open the deck manually: $DECK"
   open_url "$PORTAL"         || echo "[WARN] Open $PORTAL manually."
   open_in Safari "$PORTAL"   || echo "[WARN] Open $PORTAL in Safari manually (Act 0b)."
+  open_url "$APP"            || echo "[WARN] Open $APP manually (Act 7a)."
   open -a Postman 2>/dev/null || echo "[WARN] Open the Postman desktop app manually (Act 7b)."
+  open_url "$SERVICE"        || echo "[WARN] Open $SERVICE manually (Act 7b)."
+  open_url "$REPO"           || echo "[WARN] Open $REPO manually (Act 7c)."
+  open_url "$DOCS"           || echo "[WARN] Open $DOCS manually (Act 7d)."
+  open_url "$FERN"           || echo "[WARN] Open $FERN manually (Act 8 / CTA)."
 fi
 
 cat <<EOF
@@ -206,9 +217,11 @@ Surfaces, in the order you use them:
   Acts 1-6, 8       the deck (Claude design; fallback presentation/index.html)
   Act 7a  Chrome    $APP
   Act 7b  Postman   healthcare-org -> appointments definition
+  Act 7b  Chrome    $SERVICE
   Act 7c  Chrome    generators.yml#L18
   Act 7d  Chrome    $DOCS
   Act 7e  Terminal  cd $WORKDIR
+  Act 8   Chrome    $FERN                 <- CTA, keep it behind the deck
 
 Before you walk on:
   [ ] SAFARI: Develop -> Disable JavaScript is ON. Reload $PORTAL.
@@ -219,8 +232,19 @@ Before you walk on:
   [ ] You have run the Act 7f prompts once today (first searchDocs call can take 40s).
   [ ] The four numbers: ${SHELL_BYTES} bytes . 404 . 900 KB -> 9 KB . 24 endpoints
 
-Act 7e command, ready to paste:
+Act 7e, ready to paste:
+  cd $WORKDIR && ls -la
   claude mcp add --transport http $MCP_NAME $MCP
+  claude
+  /mcp            <- expect $MCP_NAME connected, one tool: searchDocs
+
+Act 7f prompt 1 (discovery), ready to paste:
+  Using the $MCP_NAME MCP server, what endpoints does the appointments
+  service expose, and what does each one do?
+
+Act 7f prompt 2 (the payoff), ready to paste:
+  I want to change only the \`reason\` field on an existing appointment using that
+  PATCH endpoint. What side effects does that have on the appointment slot?
 
 When you are done:  ./scripts/teardown.sh
 EOF
