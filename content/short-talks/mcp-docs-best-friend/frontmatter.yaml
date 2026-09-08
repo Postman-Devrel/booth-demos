@@ -1,0 +1,170 @@
+format: short-talk
+length: 25m (Q&A included)
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  API and platform teams who already publish documentation and are being asked why agents
+  cannot use it. No prior Fern or MCP knowledge assumed. At a booth someone may join mid-run,
+  so every act has to make sense from where it starts.
+venues:
+  - conference
+  - meetup
+  - webinar
+  - booth
+product: Fern (docs site, per-page Markdown, llms.txt, and an MCP server generated from one OpenAPI spec)
+name: Make MCPs Your Documentation Best Friend
+use_case: >
+  Cold-open on a good-looking API portal with JavaScript disabled to show what an agent
+  actually receives, then build the whole agent-facing surface live from nothing: one OpenAPI
+  file in an empty folder, fern init, two small YAML files, fern generate --docs — and finish
+  by connecting the site's own MCP server to a local Claude Code session and asking it a
+  question about the API that no model can guess the answer to.
+primary_api:
+  - appointments-service — openapi/appointments.openapi.yaml (10 operations, the ONLY spec published)
+  - appointment-slots-service — openapi/appointment-slots.openapi.yaml (portal only, never published)
+  - prescriptions-service — openapi/prescriptions.openapi.yaml (portal only, never published)
+  - "The 'before' portal: site/ — a human-first docs site served on http://localhost:4173"
+  - "The spec is copied to $WORKDIR (default /tmp/appointments-docs) by scripts/setup.sh — the build never touches this repo"
+  - "The Fern organization: postman-devrel — permanent, shared with the DevRel team, NOT the subdomain"
+  - "The site the demo publishes: https://$FERN_HANDLE.docs.buildwithfern.com (default booth-demo), inside that org"
+  - "Its MCP server: https://$FERN_HANDLE.docs.buildwithfern.com/_mcp/server (one tool: searchDocs)"
+  - "The REAL MyHealthcare documentation, used read-only as the warm fallback and NEVER a publish target: https://myhealthcare.docs.buildwithfern.com"
+  - "The app being documented: https://myhealthcare.dev/"
+key_messages:
+  - Your docs now have two readers — a developer who skims, and an agent that has to discover, authenticate, parse, and recover from errors on its own
+  - A docs site can be excellent for humans and useless to agents at the same time; that is the normal condition, not a bug someone introduced
+  - The agent-facing surface is three things — an llms.txt index, per-page Markdown, and an MCP server — and none of them existed as a requirement when your portal was built
+  - MCP turns docs from something an agent scrapes into something it queries; answers stay grounded and cited
+  - You do not write those three by hand; maintaining four artifacts means four owners and four chances to drift
+  - One OpenAPI spec plus five lines of docs.yml produces all four outputs together, which is the only way they stay in sync
+  - The proof is a fact the agent could not have guessed — a plain PATCH on an appointment emits appointment.cancelled and the slot gets reopened — travelling from the spec on disk to a cited MCP answer without anyone copying it
+  - The whole build is three steps, none of them is "write documentation", and none of them needs a repository
+cta:
+  - "Fern: https://buildwithfern.com"
+  - "Try the same flow on your own spec: npm i -g fern-api && fern init --openapi ./your-spec.yaml"
+  - "Postman Discord: https://discord.gg/postman"
+presentation_title: Make MCPs Your Documentation Best Friend
+presentation_url: https://claude.ai/design/p/34e5524b-4e2d-436a-97bc-9a59609fb288?file=MCP+Docs+Best+Friend.dc.html&via=share
+presentation_fallback: presentation/index.html
+brand_style: manual
+notes: >
+  ONE FOLDER, ONE DEMO, TWO LENGTHS. This is the 25-minute cut. The 10-minute booth cut is
+  README section 9, not a separate folder: same scripts, same build, same cold open, and NO
+  SLIDES AT ALL — the argument gets spoken over what is already on screen. An earlier version
+  of this repo carried the booth cut as its own lightning-talk folder; it was merged back
+  because the two duplicated the build steps and the warnings, and duplicated instructions
+  drift — which is the exact failure this talk is about.
+
+  DECK OF RECORD vs FALLBACK ARE OUT OF SYNC as of 2026-09-08. The deck of record is the
+  Claude design artifact above and it is now SEVEN slides, with the argument on slides 3-7.
+  presentation/index.html is still the older TWELVE-slide cut, and every per-act slide number
+  in README section 4 still refers to that twelve-slide numbering. Re-map the act headings and
+  re-cut the offline fallback against the seven-slide deck before presenting from the
+  fallback. The act CONTENT and its order are unaffected — only the slide numbers are.
+
+  The talk opens in the BROWSER, not on a slide. Act 0 is a show of hands on the localhost
+  portal in Chrome, then the same URL in SAFARI with Develop -> Disable JavaScript, which
+  renders the portal's <noscript> block and nothing else. That toggle is the single most
+  fragile prerequisite of the cold open — verify it every time.
+
+  THE DEMO IS A LIVE BUILD, not a walkthrough. Act 7 starts with one OpenAPI file in an empty
+  /tmp folder and ends with a published site, its Markdown, its llms.txt and its MCP server.
+  It publishes ONE service (appointments, 10 operations), which means the single-API Fern
+  layout: generators.yml directly under fern/, and `- api: API Reference` with NO api-name.
+  Adding api-name to a single-API project fails the publish. Page paths are therefore
+  /api-reference/appointments/update, NOT the multi-API form the fallback site uses.
+
+  The portal under site/ still renders all THREE services while the build publishes one. That
+  is deliberate and it needs the Act 7a bridge sentence — "we're going to fix one of these
+  three tonight". Do not add the other two specs to the build to make the numbers match; the
+  multi-API layout is a different talk.
+
+  DO NOT RUN `fern check` IN ACT 7b. Verified against fern 5.114.1 on 2026-09-07 and 5.115.0 on 2026-09-08: `fern init`
+  scaffolds a TypeScript SDK generator group, and the SDK validator throws exactly 5 errors on
+  this spec's request examples (`starts_at`, `duration_minutes`, `reason` on create and
+  update). The cause is real and not fixable in the spec: the request schemas are open
+  (`additionalProperties`, because appointments-service stores a free-form JSONB `data`
+  document), so the examples use keys Fern cannot see declared. Docs generation is unaffected.
+  Act 7c rewrites generators.yml down to `api.specs` alone, which removes the SDK group, and
+  `fern check` then passes. Any presence of the `groups:` block re-triggers it. setup.sh
+  reproduces this whole sequence in a throwaway folder on every run, so a CLI upgrade or a
+  spec edit cannot break Act 7 silently.
+
+  NO GIT, NO GITHUB, ON PURPOSE. `fern init`, `fern check` and `fern generate --docs` need no
+  repository whatsoever — setup.sh's preflight proves it every run by scaffolding in a mktemp
+  folder that is not one. If someone asks for the CI story, answer it; do not demo it.
+
+  THE PAYOFF FACT IS REAL AND IT IS ALREADY IN THE SPEC. openapi/appointments.openapi.yaml
+  documents, both in info.description and on the PATCH operation, that a plain update emits
+  `appointment.cancelled` and that appointment-slots-service therefore reopens the slot named
+  by slot_id while the appointment is still active. Nothing was staged. Act 7a shows that
+  warning in the file on disk; Act 7f gets it back out of the MCP server with a citation. That
+  round trip is the whole demo — if you cut anything, do not cut either end.
+
+  RUN THE AGENT IN AN EMPTY FOLDER. Act 7f runs in AGENTDIR (/tmp/appointments-agent), NOT in
+  WORKDIR. This came out of a live run on 2026-09-07: with the agent started where
+  appointments.yaml sits, a slow search index made it answer "The docs site isn't indexed yet,
+  but the local OpenAPI spec has the answer. Let me read the relevant sections." It then
+  produced the CORRECT answer from the WRONG source — the worst outcome available, because it
+  looks like the demo worked. With an empty folder there is no escape hatch: a slow index makes
+  the agent wait, retry, or say it cannot answer, all of which are honest and recoverable.
+  setup.sh creates AGENTDIR and asserts it is empty.
+
+  THE ACT 7f PROMPT MUST NOT NAME THE MCP SERVER. Observed 2026-09-08: the agent opened with
+  "no server named appointments-docs is connected; the only docs server available is
+  booth-demo-docs-buildwithfern-com". One server, at least three names in circulation —
+  `appointments-docs` (this talk's command), `booth-demo-docs-buildwithfern-com` (the docs
+  site's own UI snippet) and `fern_mcp_booth-demo-docs-buildwithfern-com` (the
+  usage.claudeCode field of /_mcp/server). The prompt therefore says "the connected docs MCP
+  server — the only MCP server in this folder". Do not reintroduce a name. For the same reason
+  setup.sh and teardown.sh detect registrations by URL, never by name.
+
+  MCP REGISTRATIONS ARE DIRECTORY-SCOPED. `claude mcp add` defaults to --scope local, keyed to
+  the cwd and stored in ~/.claude.json rather than in the folder. So teardown.sh MUST
+  unregister from inside the folder BEFORE deleting it — reverse that order and the entry is
+  orphaned, setup.sh recreates the path, the stale entry returns with it, and Act 7f opens with
+  `claude mcp add` erroring on a duplicate name in front of the audience. Worse, local scope is
+  INHERITED BY SUBDIRECTORIES: a registration made in /private/tmp is visible from every /tmp/*
+  folder, AGENTDIR included, so it silently makes "a genuine first-time connect" false forever.
+  Found exactly that on 2026-09-08. Both scripts therefore search $AGENTDIR, $WORKDIR and
+  /private/tmp, and match on the MCP URL.
+
+  THE INDEX IS THE FRAGILE PART, and it is slower than first assumed. Measured 2026-09-07:
+  searchDocs was still unavailable when `fern generate --docs` had just finished, and answering
+  normally about FIVE MINUTES later (in 13s). A warm site answers in 5-15s. A 25-minute slot
+  has ~4.5 minutes of Q&A and no other slack, so the site must already exist before you
+  present: run the full demo once, run teardown, then present. On stage `fern generate --docs`
+  republishes to a subdomain that already has an index, which is both faster and much safer.
+  setup.sh tells you which case you are in and refuses to pretend. If the index is cold anyway,
+  fall back to myhealthcare.docs.buildwithfern.com — same spec, same warning, permanently warm.
+  That is a READ-ONLY use and it must never appear in the demo's docs.yml.
+
+  THE ORGANIZATION IS NOT THE SUBDOMAIN, and conflating them cost a demo on 2026-09-07.
+  FERN_ORG (default `postman-devrel`) is the DevRel team's shared, permanent Fern tenant; it
+  goes in fern.config.json. FERN_HANDLE (default `booth-demo`) is the per-demo site inside it;
+  it goes in docs.yml. They are independent — `postman-devrel` also publishes
+  myhealthcare.docs.buildwithfern.com, which is the proof. Passing a made-up name to
+  `fern init --organization` does NOT fail: Fern silently provisions an organization under
+  whatever name you invent, on first publish. The mistake only surfaced when the presenter
+  deleted that organization to "reset" the demo — after which the account belonged to no
+  organization at all and every publish died with a 500 "Failed to resolve organization".
+  `fern org get` is the diagnostic: "No org-level CLI config set for X" means X resolves, 403
+  means no access — and it 403s on ANY name when you belong to nothing, so a 403 does not mean
+  "name taken". setup.sh runs that check before you walk on.
+
+  NEVER DELETE A FERN ORGANIZATION to reset this demo. There is nothing up there to reset. The
+  org is permanent, the site lives inside it, and republishing over the same subdomain IS the
+  reset. Deleting the org does NOT take the published site down, which makes the failure even
+  more confusing than it needs to be.
+
+  FERN_HANDLE must NOT be `myhealthcare`. That subdomain is the REAL MyHealthcare
+  documentation, living in the same organization as this demo, which is exactly what makes it
+  easy to clobber — `fern generate --docs` publishes wherever docs.yml points. setup.sh
+  hard-fails on that exact string, but read docs.yml before every publish anyway. WORKDIR and
+  AGENTDIR are configurable too, so two people can run this from the same machine.
+
+  Stage numbers, verified 2026-09-07 against the published site: served portal shell 1,402
+  bytes; the update page 796,338 bytes as HTML and 9,189 as Markdown (~87x, say "nearly ninety
+  times", NOT "a hundred" — that was the three-service number); a warm searchDocs call 5-15s;
+  Act 7f end to end ~33s, prompt to finished answer, which is the number that matters because
+  it is silence to fill. Re-measure if the spec or Fern changes.

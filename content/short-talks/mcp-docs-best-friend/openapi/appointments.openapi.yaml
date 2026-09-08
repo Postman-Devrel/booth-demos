@@ -1,0 +1,794 @@
+openapi: 3.1.0
+
+info:
+  title: appointments-service
+  version: 1.0.0
+  summary: "Appointment booking, cancellation and check-in for the healthcare-org appointments domain."
+  description: |
+    HTTP API for `appointments-service` (domain: **appointments**, port **8600**).
+
+    Records are stored as a fixed envelope (`id`, `status`, `created_at`,
+    `updated_at`) around a free-form JSONB `data` document. Responses flatten the
+    two: envelope fields sit alongside the caller-supplied `data` keys at the top
+    level of the object. That is why `Appointment` allows additional properties.
+
+    ### Side effects
+    Every mutating endpoint publishes a Kafka domain event, and *every* endpoint
+    (reads included) publishes an `audit.event`. The events are listed per
+    operation below.
+
+    ### `slot_id` and the slot lifecycle
+    If an appointment carries a `slot_id`, that value drives
+    `appointment-slots-service`, which consumes this service's events and flips
+    the referenced slot between `booked` and `open`. Note that
+    `appointments-service` never validates `slot_id` — it is stored as an
+    ordinary `data` key and no lookup is performed, even though
+    `appointment-slots-service` is declared as an HTTP dependency.
+
+    > ⚠️ **`appointment.cancelled` is published more widely than its name
+    > suggests.** The service sets its generic "record updated" event to
+    > `appointment.cancelled`, so `PATCH`, `PUT` and `DELETE` all emit it —
+    > not just `POST /cancel`. Because `appointment-slots-service` reopens a slot
+    > whenever it sees that event, an unrelated `PATCH` will free the
+    > appointment's slot while the appointment itself remains active. Treat this
+    > as documented current behaviour, not intended design.
+
+    ### Peer enrichment on create
+    `POST /api/appointments/` calls out to peer services to snapshot related
+    records. Each lookup is best-effort: on failure the response carries a
+    `*_warn` string instead of a `*_snapshot` object.
+
+    | Request field  | Peer service        | Adds on success      | Adds on failure  |
+    |----------------|---------------------|----------------------|------------------|
+    | `patient_id`   | `patients-service`  | `patient_snapshot`   | `patient_warn`   |
+    | `provider_id`  | `providers-service` | `provider_snapshot`  | `provider_warn`  |
+
+servers:
+  - url: https://myhealthcare.dev
+    description: Production
+    x-fern-server-name: Production
+  - url: http://localhost:8600
+    description: Local development (host)
+    x-fern-server-name: Local
+  - url: http://appointments-service:8600
+    description: Docker compose, on the `healthcare_net` network
+    x-fern-server-name: Docker
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Appointments
+    description: CRUD, cancellation and check-in over appointment records.
+  - name: Health
+    description: Unauthenticated liveness and readiness probes.
+
+paths:
+  /api/appointments/:
+    get:
+      operationId: listAppointments
+      summary: List appointments
+      description: |
+        Returns a page of appointments plus the total count matching the filter.
+
+        **Ad-hoc filtering.** Any query parameter other than `limit`, `offset` and
+        `status` is treated as a JSON field filter and compiled to
+        `data->>'<key>' = '<value>'`. Multiple filters are ANDed. This is how you
+        query by `patient_id`, `provider_id` or `slot_id`. Because the set of keys
+        is open-ended it cannot be enumerated here.
+
+        Publishes: `audit.event` (`appointments.list`).
+      tags: [Appointments]
+      x-fern-sdk-group-name: appointments
+      x-fern-sdk-method-name: list
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - name: limit
+          in: query
+          required: false
+          description: |
+            Page size. Defaults to 50. Values above 500 are silently clamped to
+            500 rather than rejected.
+          schema:
+            type: integer
+            format: int32
+            default: 50
+          example: 25
+        - name: offset
+          in: query
+          required: false
+          description: Number of rows to skip, applied after ordering by `id` ascending.
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          example: 0
+        - name: status
+          in: query
+          required: false
+          description: |
+            Exact match on the envelope `status` column (not on `data`).
+            See `Appointment.status` for the observed vocabulary.
+          schema:
+            type: string
+          example: active
+      responses:
+        '200':
+          description: A page of appointments.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      operationId: createAppointment
+      summary: Book an appointment
+      description: |
+        Creates an appointment. The request body is stored verbatim as the record's
+        `data` document, except for `id`, which is stripped if present.
+
+        Before insert, the service enriches the payload with snapshots from
+        `patients-service` and `providers-service` (see the peer-enrichment table
+        in the API description). Those snapshots are persisted into `data`, so they
+        appear on every subsequent read of the record.
+
+        No availability check is performed: the service does not verify that
+        `slot_id` exists, is open, or does not collide with another booking.
+
+        Publishes: `appointment.booked`, `audit.event` (`appointments.create`).
+      tags: [Appointments]
+      x-fern-sdk-group-name: appointments
+      x-fern-sdk-method-name: create
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: false
+        description: |
+          Optional. A missing or unparseable body is treated as `{}` and creates an
+          empty record rather than failing.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentCreateRequest'
+      responses:
+        '201':
+          description: The created appointment, including any peer snapshots.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/appointments/{record_id}:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+      - $ref: '#/components/parameters/RequestId'
+
+    get:
+      operationId: getAppointment
+      summary: Get an appointment
+      description: |
+        Fetches a single appointment by id. Cancelled and deactivated records are
+        still returned, carrying their respective `status`.
+
+        Publishes: `audit.event` (`appointments.read`).
+      tags: [Appointments]
+      x-fern-sdk-group-name: appointments
+      x-fern-sdk-method-name: get
+      responses:
+        '200':
+          description: The appointment.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      operationId: updateAppointment
+      summary: Update an appointment
+      description: |
+        Shallow-merges the request body into the record's existing `data` document:
+        keys present in the body overwrite, keys absent are preserved. Nested
+        objects are replaced wholesale, not merged recursively.
+
+        `status` is lifted out of the body and written to the envelope column.
+        `id` is stripped and ignored.
+
+        Publishes: `appointment.cancelled`, `audit.event` (`appointments.update`).
+
+        > ⚠️ Yes — a plain update emits `appointment.cancelled`, because that topic
+        > is wired as this service's generic update event. Downstream,
+        > `appointment-slots-service` will reopen the slot named by `slot_id`.
+        > See the warning in the API description.
+      tags: [Appointments]
+      x-fern-sdk-group-name: appointments
+      x-fern-sdk-method-name: update
+      requestBody:
+        required: false
+        description: Fields to merge. A missing or unparseable body is treated as `{}`.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentUpdateRequest'
+      responses:
+        '200':
+          description: The updated appointment.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      operationId: replaceAppointment
+      # Handled by the exact same Flask view as PATCH — it merges, it does not
+      # replace. Documented for completeness, but excluded from SDK generation so
+      # Fern emits one `update` method instead of two identical ones. Drop this
+      # extension if you want both surfaced.
+      x-fern-ignore: true
+      summary: Update an appointment (PUT alias)
+      description: |
+        Identical to `PATCH /api/appointments/{record_id}` — the same handler is
+        bound to both verbs, so this performs a **shallow merge**, not a
+        replacement, and emits the same `appointment.cancelled` event. Prefer
+        `PATCH`.
+      tags: [Appointments]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentUpdateRequest'
+      responses:
+        '200':
+          description: The updated appointment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      operationId: deactivateAppointment
+      summary: Deactivate an appointment
+      description: |
+        Soft delete. Sets `status` to `inactive` and bumps `updated_at`; the row and
+        its `data` document are retained and remain readable via
+        `GET /api/appointments/{record_id}`.
+
+        This is distinct from `POST /api/appointments/{record_id}/cancel`, which
+        sets `status` to `cancelled` and returns the full record. Use `cancel` for
+        the business action and `DELETE` for record retirement.
+
+        Safe to repeat — a second call on an already inactive record still
+        returns `200`.
+
+        Publishes: `appointment.cancelled`, `audit.event`
+        (`appointments.deactivate`).
+      tags: [Appointments]
+      x-fern-sdk-group-name: appointments
+      x-fern-sdk-method-name: deactivate
+      responses:
+        '200':
+          description: Acknowledgement carrying the deactivated record id.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/appointments/{record_id}/cancel:
+    post:
+      operationId: cancelAppointment
+      summary: Cancel an appointment
+      description: |
+        Sets `status` to `cancelled` and returns the full updated record.
+
+        No guard conditions: the endpoint does not check the current status, so
+        cancelling an already-cancelled or already-checked-in appointment succeeds
+        and re-emits the event.
+
+        Publishes: `appointment.cancelled`, `audit.event`
+        (`appointment.cancel`).
+      tags: [Appointments]
+      x-fern-sdk-group-name: appointments
+      x-fern-sdk-method-name: cancel
+      parameters:
+        - $ref: '#/components/parameters/RecordId'
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          description: The cancelled appointment.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/TerseNotFound'
+
+  /api/appointments/{record_id}/check-in:
+    post:
+      operationId: checkInAppointment
+      summary: Check in an appointment
+      description: |
+        Sets `status` to `checked_in` and returns the full updated record.
+
+        No guard conditions: the endpoint does not check the current status, so a
+        cancelled appointment can be checked in. Unlike `cancel`, this publishes
+        **no domain event** — only an audit record.
+
+        Publishes: `audit.event` (`appointment.check_in`).
+      tags: [Appointments]
+      x-fern-sdk-group-name: appointments
+      x-fern-sdk-method-name: checkIn
+      parameters:
+        - $ref: '#/components/parameters/RecordId'
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          description: The checked-in appointment.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/TerseNotFound'
+
+  /health:
+    get:
+      operationId: getHealth
+      summary: Liveness probe
+      description: Always returns `200` if the process is up. Performs no dependency checks.
+      tags: [Health]
+      security: []
+      x-fern-sdk-group-name: health
+      x-fern-sdk-method-name: check
+      responses:
+        '200':
+          description: The process is alive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /ready:
+    get:
+      operationId: getReadiness
+      summary: Readiness probe
+      description: |
+        Checks the Postgres connection with `SELECT 1`. Kafka is not probed — the
+        producer is created lazily — so a green `/ready` does not imply a reachable
+        broker.
+      tags: [Health]
+      security: []
+      x-fern-sdk-group-name: health
+      x-fern-sdk-method-name: ready
+      responses:
+        '200':
+          description: All probed dependencies are reachable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessStatus'
+              example:
+                status: ok
+                service: appointments-service
+                problems: []
+        '503':
+          description: At least one dependency check failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessStatus'
+              example:
+                status: degraded
+                service: appointments-service
+                problems:
+                  - 'db: connection refused'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        HS256 JWT issued by `auth-service`, sent as `Authorization: Bearer <token>`.
+        The token must carry `sub` and `exp` claims and a `scopes` array.
+
+        Required scopes, enforced per operation:
+
+        - `appointments.read` — `GET` on the collection and on a single record
+        - `appointments.write` — `POST`, `PUT`, `PATCH`, `DELETE`, cancel and check-in
+
+        A token with `scopes: ["*"]` satisfies any requirement. Scopes are not
+        modelled as OpenAPI scopes because this is an HTTP bearer scheme, not
+        OAuth 2 — there is no token endpoint on `auth-service`.
+
+        Setting `AUTH_DISABLED=1` on the service bypasses verification entirely
+        and injects a `dev-user` principal. That is a local-development switch;
+        the shipped `.env.example` enables it.
+
+  parameters:
+    RecordId:
+      name: record_id
+      in: path
+      required: true
+      description: Primary key of the appointment record.
+      schema:
+        type: integer
+        format: int64
+      example: 2317
+
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      description: |
+        Correlation id propagated across HTTP hops and onto published Kafka
+        events. Generated by the service if omitted, and echoed on every response.
+      schema:
+        type: string
+      example: 9f1c2b7a4e8d4c1fa0b3e6d5c4a29187
+
+  headers:
+    XRequestId:
+      description: The correlation id for this request, echoed back.
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Malformed request — for the list endpoint, a non-integer `limit` or `offset`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: offset/limit must be integers
+
+    Unauthorized:
+      description: The bearer token is missing, malformed, expired, or fails signature verification.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            missing:
+              summary: No Authorization header
+              value:
+                error: missing bearer token
+            invalid:
+              summary: Token rejected
+              value:
+                error: invalid token
+
+    Forbidden:
+      description: The token is valid but lacks the scope this operation requires.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScopeError'
+          example:
+            error: insufficient scope
+            required:
+              - appointments.write
+            have:
+              - appointments.read
+
+    NotFound:
+      description: No appointment exists with the given id.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: appointments 999999 not found
+
+    TerseNotFound:
+      description: |
+        No appointment exists with the given id. The action endpoints return the
+        terse body `{"error": "not found"}` rather than the resource-qualified
+        message used by the CRUD endpoints.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: not found
+
+  schemas:
+    Appointment:
+      type: object
+      description: |
+        An appointment record. The four envelope fields are always present and
+        server-managed; everything else is the caller's `data` document, flattened
+        to the top level. Additional properties are therefore expected, not an error.
+      required:
+        - id
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          description: Server-assigned primary key.
+        status:
+          type: string
+          description: |
+            Lifecycle state. Observed values, in the order the service produces
+            them:
+
+            - `active` — default on create
+            - `checked_in` — set by the check-in endpoint
+            - `cancelled` — set by the cancel endpoint
+            - `inactive` — set by `DELETE`
+
+            Not a closed enum: any string can be written through the `status`
+            field on update, so it is left as a free string.
+          default: active
+          example: active
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        patient_id:
+          type: integer
+          format: int64
+          description: Foreign key into `patients-service`.
+        provider_id:
+          type: integer
+          format: int64
+          description: Foreign key into `providers-service`.
+        slot_id:
+          type: integer
+          format: int64
+          description: |
+            Foreign key into `appointment-slots-service`. Never validated by this
+            service, but consumed downstream to flip the slot between `booked` and
+            `open`.
+        patient_snapshot:
+          type: object
+          additionalProperties: true
+          description: Patient record captured from `patients-service` at booking time.
+        provider_snapshot:
+          type: object
+          additionalProperties: true
+          description: Provider record captured from `providers-service` at booking time.
+        patient_warn:
+          type: string
+          description: Present instead of `patient_snapshot` when the patient lookup failed.
+        provider_warn:
+          type: string
+          description: Present instead of `provider_snapshot` when the provider lookup failed.
+      additionalProperties: true
+      example:
+        id: 2317
+        status: active
+        created_at: '2026-08-12T09:14:22.481930+00:00'
+        updated_at: '2026-08-12T09:14:22.481930+00:00'
+        patient_id: 77
+        provider_id: 12
+        slot_id: 5501
+        starts_at: '2026-08-20T14:30:00+00:00'
+        duration_minutes: 30
+        reason: Annual physical
+
+    AppointmentCreateRequest:
+      type: object
+      description: |
+        Free-form appointment payload. The listed properties are the ones the
+        service or its downstream consumers act on; any other key is stored as-is
+        on the record. An `id` key is discarded.
+      properties:
+        patient_id:
+          type: integer
+          format: int64
+          description: Triggers a snapshot lookup against `patients-service`.
+        provider_id:
+          type: integer
+          format: int64
+          description: Triggers a snapshot lookup against `providers-service`.
+        slot_id:
+          type: integer
+          format: int64
+          description: |
+            Stored without validation. Downstream,
+            `appointment-slots-service` marks this slot `booked` on
+            `appointment.booked`.
+      additionalProperties: true
+      example:
+        patient_id: 77
+        provider_id: 12
+        slot_id: 5501
+        starts_at: '2026-08-20T14:30:00+00:00'
+        duration_minutes: 30
+        reason: Annual physical
+
+    AppointmentUpdateRequest:
+      type: object
+      description: |
+        Fields to shallow-merge into the record's `data`. `status` is special-cased
+        onto the envelope column; `id` is discarded.
+      properties:
+        status:
+          type: string
+          description: New envelope status. Omit to leave unchanged.
+          example: rescheduled
+        patient_id:
+          type: integer
+          format: int64
+        provider_id:
+          type: integer
+          format: int64
+        slot_id:
+          type: integer
+          format: int64
+      additionalProperties: true
+      example:
+        starts_at: '2026-08-21T09:00:00+00:00'
+        reason: Rescheduled at patient request
+
+    AppointmentPage:
+      type: object
+      required:
+        - count
+        - items
+      properties:
+        count:
+          type: integer
+          format: int64
+          description: |
+            Total rows matching the filter, ignoring `limit` and `offset` — use it
+            to drive pagination, not `items.length`.
+        items:
+          type: array
+          description: The requested page, ordered by `id` ascending.
+          items:
+            $ref: '#/components/schemas/Appointment'
+      additionalProperties: false
+
+    DeactivateResponse:
+      type: object
+      required:
+        - deactivated
+      properties:
+        deactivated:
+          type: integer
+          format: int64
+          description: Id of the record that was set to `inactive`.
+      additionalProperties: false
+      example:
+        deactivated: 2317
+
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - service
+      properties:
+        status:
+          type: string
+          const: ok
+        service:
+          type: string
+          example: appointments-service
+      additionalProperties: false
+
+    ReadinessStatus:
+      type: object
+      required:
+        - status
+        - service
+        - problems
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+        service:
+          type: string
+          example: appointments-service
+        problems:
+          type: array
+          description: One entry per failed dependency check. Empty when `status` is `ok`.
+          items:
+            type: string
+      additionalProperties: false
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable failure message.
+      additionalProperties: false
+
+    ScopeError:
+      type: object
+      description: Returned on `403` — carries the scope gap alongside the message.
+      required:
+        - error
+        - required
+        - have
+      properties:
+        error:
+          type: string
+          const: insufficient scope
+        required:
+          type: array
+          description: Scopes the operation demands.
+          items:
+            type: string
+        have:
+          type: array
+          description: Scopes present on the presented token, sorted.
+          items:
+            type: string
+      additionalProperties: false
