@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The API You Can't Name — Searching by Intent Instead</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    /* Postman Brand Tokens — FDE Design System */
+    --orange: #FF6C37;
+    --orange-dark: #E0531F;
+    --orange-light: #FFA17F;
+    --purple: #7A24F0;
+    --purple-dark: #491591;
+    --dark: #0A0A0A;
+    --gray-900: #212121;
+    --gray-800: #454545;
+    --gray-600: #737373;
+    --gray-400: #A1A1A1;
+    --white: #FFFFFF;
+    --green: #22A06B;
+    --blue: #198CF7;
+    --yellow: #FFA90A;
+    --magenta: #F37FFE;
+    --border: #E0DDD8;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .slideshow { width: 100%; height: 100%; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 56px 88px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+  }
+  .slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+  .slide.exit { opacity: 0; transform: translateX(-40px); }
+
+  .kicker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 22px;
+  }
+
+  h1 { font-size: 5.2rem; font-weight: 900; line-height: 1.02; letter-spacing: -0.03em; }
+  h2 { font-size: 3.4rem; font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 34px; }
+  .lede { font-size: 1.6rem; color: var(--gray-400); line-height: 1.45; max-width: 34ch; }
+
+  code, .mono { font-family: 'IBM Plex Mono', monospace; }
+  .hl { color: var(--orange); }
+  .hl-p { color: var(--magenta); }
+  .hl-g { color: var(--green); }
+
+  /* --- Slide 1: Title --- */
+  .slide-title { background: radial-gradient(120% 120% at 12% 8%, var(--gray-900) 0%, var(--dark) 55%); }
+  .slide-title h1 { max-width: 26ch; }
+  .slide-title h1 em { font-style: normal; color: var(--orange); }
+  .slide-title .sub { margin-top: 30px; font-size: 1.75rem; color: var(--gray-400); max-width: 40ch; line-height: 1.4; }
+  .byline {
+    margin-top: 52px; display: flex; align-items: center; gap: 16px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 1rem; color: var(--gray-600);
+  }
+  .byline .bar { width: 42px; height: 3px; background: var(--orange); border-radius: 2px; }
+
+  /* --- Slide 2: The Problem --- */
+  .loop { display: flex; flex-direction: column; gap: 12px; max-width: 940px; }
+  .loop-step {
+    display: flex; align-items: center; gap: 20px;
+    background: var(--gray-900); border-left: 4px solid var(--gray-800);
+    border-radius: 8px; padding: 17px 24px;
+    font-size: 1.4rem; color: var(--gray-400);
+  }
+  .loop-step .n {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.95rem;
+    color: var(--gray-600); min-width: 26px;
+  }
+  .loop-step.fail { border-left-color: var(--orange-dark); color: var(--white); }
+  .loop-step.fail .n { color: var(--orange); }
+  .verdict {
+    margin-top: 34px; font-size: 1.7rem; font-weight: 700; max-width: 44ch; line-height: 1.35;
+  }
+
+  /* --- Slide 3: The Journey --- */
+  .flow { display: flex; align-items: stretch; gap: 22px; margin-bottom: 34px; }
+  .card {
+    flex: 1; background: var(--gray-900); border: 1px solid var(--gray-800);
+    border-radius: 12px; padding: 26px 28px;
+  }
+  .card .tool {
+    font-family: 'IBM Plex Mono', monospace; font-size: 1.4rem; font-weight: 700;
+    color: var(--orange); margin-bottom: 14px;
+  }
+  .card .in-out { font-size: 1.12rem; color: var(--gray-400); line-height: 1.5; }
+  .card .in-out b { color: var(--white); font-weight: 600; }
+  .card .field {
+    display: inline-block; margin-top: 16px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 1rem;
+    background: rgba(122,36,240,0.18); color: var(--magenta);
+    border: 1px solid rgba(122,36,240,0.45);
+    border-radius: 5px; padding: 5px 11px;
+  }
+  .arrow { display: flex; align-items: center; font-size: 2.2rem; color: var(--gray-600); }
+  .pull {
+    background: rgba(255,108,55,0.09); border-left: 4px solid var(--orange);
+    border-radius: 8px; padding: 22px 28px; font-size: 1.42rem; line-height: 1.45; max-width: 88ch;
+  }
+  .pull b { color: var(--orange); }
+  .quote {
+    background: #000; border: 1px solid var(--gray-800); border-radius: 8px;
+    padding: 20px 26px; margin-bottom: 20px; max-width: 92ch;
+    font-family: 'IBM Plex Mono', monospace; font-size: 1.14rem;
+    line-height: 1.62; color: var(--gray-400);
+  }
+  .quote em { font-style: normal; color: var(--white); background: rgba(255,108,55,0.16); }
+  .quote .cite {
+    display: block; margin-top: 14px; font-size: 0.86rem;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--gray-600);
+  }
+
+  /* --- Slide 4: Live demo + scoreboard --- */
+  .split { display: flex; gap: 44px; align-items: flex-start; }
+  .split-l { flex: 0 0 40%; }
+  .split-r { flex: 1; }
+  .steps { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  .steps li {
+    display: flex; gap: 16px; align-items: flex-start;
+    font-size: 1.28rem; color: var(--gray-400); line-height: 1.4;
+  }
+  .steps li .dot {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+    background: var(--orange); color: var(--dark);
+    font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .steps li b { color: var(--white); font-weight: 600; }
+
+  table.score { width: 100%; border-collapse: collapse; font-size: 1.16rem; }
+  table.score th, table.score td { padding: 13px 14px; text-align: left; }
+  table.score thead th {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem;
+    letter-spacing: 0.11em; text-transform: uppercase; color: var(--gray-600);
+    border-bottom: 1px solid var(--gray-800);
+  }
+  table.score tbody tr { border-bottom: 1px solid #1a1a1a; }
+  table.score td:first-child { color: var(--gray-400); }
+  table.score td.orbit { color: var(--green); font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+  table.score td.docs  { color: var(--orange-light); font-family: 'IBM Plex Mono', monospace; }
+  table.score tbody tr.punch td { font-weight: 700; }
+  table.score tbody tr.punch td.docs { color: var(--orange); }
+  .measured {
+    margin-top: 18px; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.92rem; color: var(--gray-600); line-height: 1.6;
+  }
+
+  /* --- Slide 5: CTA --- */
+  .slide-cta { background: radial-gradient(120% 120% at 88% 12%, var(--purple-dark) 0%, var(--dark) 58%); }
+  .cmd {
+    background: #000; border: 1px solid var(--gray-800); border-radius: 10px;
+    padding: 26px 30px; font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.42rem; color: var(--green); margin: 12px 0 30px;
+    overflow-wrap: anywhere;
+  }
+  .cmd .p { color: var(--gray-600); }
+  .prompt-box {
+    background: var(--gray-900); border: 1px dashed var(--gray-800); border-radius: 10px;
+    padding: 24px 30px; font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.16rem; color: var(--gray-400); line-height: 1.65; max-width: 92ch;
+  }
+  .prompt-box .q { color: var(--orange); }
+  .links {
+    margin-top: 34px; display: flex; gap: 44px; flex-wrap: wrap;
+    font-size: 1.16rem; color: var(--gray-400);
+  }
+  .links div span { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem;
+    letter-spacing: 0.11em; text-transform: uppercase; color: var(--gray-600); margin-bottom: 7px; }
+  .links div b { color: var(--white); font-weight: 600; }
+
+  /* --- Chrome --- */
+  .nav { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); display: flex; gap: 11px; z-index: 10; }
+  .nav-dot {
+    width: 9px; height: 9px; border-radius: 50%; border: none; padding: 0;
+    background: var(--gray-800); cursor: pointer; transition: all 0.25s ease;
+  }
+  .nav-dot.active { background: var(--orange); width: 26px; border-radius: 5px; }
+  .slide-counter {
+    position: fixed; bottom: 24px; right: 32px; z-index: 10;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.88rem; color: var(--gray-600);
+  }
+
+  @media (max-height: 800px) {
+    h1 { font-size: 4rem; } h2 { font-size: 2.7rem; margin-bottom: 26px; }
+    .slide { padding: 40px 64px; }
+    .loop-step { font-size: 1.2rem; padding: 13px 20px; }
+    table.score th, table.score td { padding: 9px 12px; font-size: 1.02rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="slideshow">
+
+  <!-- 1 — TITLE -->
+  <section class="slide slide-title active">
+    <div class="kicker">Lightning talk &middot; 10 minutes</div>
+    <h1>The API you <em>can't name</em></h1>
+    <div class="sub">Searching by intent instead &mdash; and the three bugs the search caught before I shipped them.</div>
+    <div class="byline"><div class="bar"></div><div>Orbit MCP &nbsp;/&nbsp; search &rarr; integrate</div></div>
+  </section>
+
+  <!-- 2 — THE PROBLEM -->
+  <section class="slide">
+    <div class="kicker">The problem</div>
+    <h2>I knew the feature.<br>I didn't know the vendor.</h2>
+    <div class="loop">
+      <div class="loop-step"><span class="n">01</span><span>Guess a product name. Search the web.</span></div>
+      <div class="loop-step"><span class="n">02</span><span>Open the docs site. Find the API reference.</span></div>
+      <div class="loop-step"><span class="n">03</span><span>Map my three capabilities onto their endpoints.</span></div>
+      <div class="loop-step"><span class="n">04</span><span>Work out the auth model and the scoping rules.</span></div>
+      <div class="loop-step fail"><span class="n">05</span><span>Discover it can't do one of the three. Go back to 01.</span></div>
+    </div>
+    <div class="verdict">Every candidate fails <span class="hl">after</span> you've paid to understand it.</div>
+  </section>
+
+  <!-- 3 — THE JOURNEY -->
+  <section class="slide">
+    <div class="kicker">The shift &middot; Orbit by Postman</div>
+    <h2>Describe the outcome. Get the interfaces.</h2>
+    <div class="flow">
+      <div class="card">
+        <div class="tool">search</div>
+        <div class="in-out">
+          In: <b>a sentence about what you need to do.</b><br>
+          Out: <b>callable endpoints</b> &mdash; method, URL, and an evaluation of what each one does and what it <b>won't</b>.
+        </div>
+        <div class="field">evaluateGuide</div>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="card">
+        <div class="tool">integrate</div>
+        <div class="in-out">
+          In: <b>the task + the endpoints you picked.</b><br>
+          Out: <b>one brief</b> &mdash; FIT, AUTH, BASE URL, STEPS, GOTCHAS. Parameters, bodies, response shapes, order.
+        </div>
+        <div class="field">taskBrief</div>
+      </div>
+    </div>
+    <div class="quote">
+      "Find and evaluate public API endpoints that match a plain-language goal. &hellip;
+      <em>Review `evaluateGuide` to pick the best fit, then pass each chosen result's `id` and
+      `resourceType` (as `type`) to `integrate`.</em> No authentication required."
+      <span class="cite">&mdash; Orbit MCP server, the <code>search</code> tool description, verbatim</span>
+    </div>
+    <div class="pull">
+      Orbit doesn't just wrap its API. The <b>tool description carries the workflow</b> &mdash; so the
+      agent runs both steps because <b>Orbit</b> told it how, not because I did.
+    </div>
+  </section>
+
+  <!-- 4 — LIVE DEMO + SCOREBOARD -->
+  <section class="slide">
+    <div class="kicker">Live &middot; two calls, no API key</div>
+    <div class="split">
+      <div class="split-l">
+        <h2 style="font-size:2.5rem;margin-bottom:26px;">Watch for<br>three things.</h2>
+        <ul class="steps">
+          <li><span class="dot">1</span><span>My product sentence becomes <b>domain vocabulary</b>.</span></li>
+          <li><span class="dot">2</span><span><b>"Not supported"</b> kills a candidate in one line.</span></li>
+          <li><span class="dot">3</span><span><b>GOTCHAS</b> names the bugs before I write the client.</span></li>
+        </ul>
+      </div>
+      <div class="split-r">
+        <table class="score">
+          <thead>
+            <tr><th>Same three capabilities</th><th>Orbit</th><th>Read the docs</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Round trips</td><td class="orbit">2 calls</td><td class="docs">4 pages, minimum</td></tr>
+            <tr><td>Bytes retrieved</td><td class="orbit">8.5 KB</td><td class="docs">1.23 MB</td></tr>
+            <tr><td>Into the context window</td><td class="orbit">~2.4k tokens</td><td class="docs">~26k tokens</td></tr>
+            <tr><td>Input cost, Opus 5</td><td class="orbit">~$0.012</td><td class="docs">~$0.128</td></tr>
+            <tr class="punch"><td>API limitations &amp; gotchas</td><td class="orbit">stated up front</td><td class="docs">0 hits in 1.23 MB</td></tr>
+          </tbody>
+        </table>
+        <div class="measured">
+          Measured 2026-09-01, same three capabilities. Token and cost rows are a<br>
+          one-off measurement from that date; the rest is re-measured before<br>
+          every talk. I grepped all 1.23 MB for the three things that would have<br>
+          broken my integration &mdash; <code>epoch</code>, <code>start_time</code>,
+          <code>Idempotency</code>. Zero hits, all three.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 — CTA -->
+  <section class="slide slide-cta">
+    <div class="kicker">Try it on something you're stuck on</div>
+    <h2 style="margin-bottom:16px;">One command.</h2>
+    <div class="cmd"><span class="p">$</span> claude mcp add --transport http orbit https://mcp.buildwithorbit.ai/mcp</div>
+    <div class="prompt-box">
+      <span class="q">&gt;</span> We need to &lt;the capability you're missing&gt;. Search Orbit for an API that<br>
+      &nbsp;&nbsp;does it, show me the <span class="hl">evaluateGuide</span> for the top results, then get the<br>
+      &nbsp;&nbsp;integration brief for whichever ones you'd pick.
+    </div>
+    <div class="links">
+      <div><span>Two habits</span><b>Read evaluateGuide before a docs site.<br>Read GOTCHAS before the client.</b></div>
+      <div><span>Docs</span><b>buildwithorbit.ai/welcome</b></div>
+      <div><span>The full story</span><b>blog.postman.com</b></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav" id="nav"></div>
+<div class="slide-counter" id="counter">1 / 5</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const nav = document.getElementById('nav');
+  const counter = document.getElementById('counter');
+  const TOTAL = slides.length;
+  let current = 0;
+
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    nav.appendChild(dot);
+  }
+
+  function goTo(index) {
+    if (index === current) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+
+    const prev = current;
+    current = index;
+
+    slides[current].classList.add('active');
+
+    nav.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+    counter.textContent = `${current + 1} / ${TOTAL}`;
+
+    setTimeout(() => slides[prev].classList.remove('exit'), 600);
+  }
+
+  function next() { goTo((current + 1) % TOTAL); }
+  function prev() { goTo((current - 1 + TOTAL) % TOTAL); }
+
+  // Keyboard nav — no auto-advance anywhere in this deck
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  });
+
+  // Click nav (left half = prev, right half = next)
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.nav')) return;
+    if (e.clientX < window.innerWidth / 2) prev();
+    else next();
+  });
+
+  counter.textContent = `1 / ${TOTAL}`;
+</script>
+
+</body>
+</html>
