@@ -1,0 +1,674 @@
+openapi: 3.1.0
+
+info:
+  title: appointment-slots-service
+  version: 1.0.0
+  summary: "Bookable appointment slot inventory for the healthcare-org appointments domain."
+  description: |
+    HTTP API for `appointment-slots-service` (domain: **appointments**, port **8601**).
+
+    Records are stored as a fixed envelope (`id`, `status`, `created_at`,
+    `updated_at`) around a free-form JSONB `data` document. Responses flatten the
+    two: envelope fields sit alongside the caller-supplied `data` keys at the top
+    level of the object. That is why `AppointmentSlot` allows additional properties.
+
+    ### This service publishes no domain events
+    Unlike its sibling `appointments-service`, this service has no domain topic
+    wired up — mutations emit an `audit.event` and nothing else. Reads emit audit
+    too.
+
+    ### Slot state is driven from outside
+    The interesting state transitions do not come through this HTTP API. The
+    service subscribes to two Kafka topics from `appointments-service` and updates
+    slots by `slot_id`:
+
+    | Consumed event          | Effect on the referenced slot |
+    |-------------------------|-------------------------------|
+    | `appointment.booked`    | `status` → `booked`           |
+    | `appointment.cancelled` | `status` → `open`             |
+
+    The slot targeted is the one whose primary key equals the `slot_id` field on
+    the incoming appointment record. If the appointment carries no `slot_id`, the
+    handler does nothing.
+
+    > ⚠️ `appointments-service` emits `appointment.cancelled` on **any** update or
+    > delete, not only on an explicit cancel. A routine `PATCH` on an appointment
+    > will therefore reopen its slot here while the appointment is still active.
+    > Documented so the state you observe is explicable, not because it is intended.
+
+    ### Path naming
+    The route prefix is `/api/appointment_slots` with an **underscore**, which does
+    not match the hyphenated service and repository name. This is derived from the
+    table name and is intentional to document as-is.
+
+servers:
+  - url: https://myhealthcare.dev
+    description: Production
+    x-fern-server-name: Production
+  - url: http://localhost:8601
+    description: Local development (host)
+    x-fern-server-name: Local
+  - url: http://appointment-slots-service:8601
+    description: Docker compose, on the `healthcare_net` network
+    x-fern-server-name: Docker
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Appointment Slots
+    description: CRUD over bookable slot inventory.
+  - name: Health
+    description: Unauthenticated liveness and readiness probes.
+
+paths:
+  /api/appointment_slots/:
+    get:
+      operationId: listAppointmentSlots
+      summary: List appointment slots
+      description: |
+        Returns a page of slots plus the total count matching the filter.
+
+        **Ad-hoc filtering.** Any query parameter other than `limit`, `offset` and
+        `status` is treated as a JSON field filter and compiled to
+        `data->>'<key>' = '<value>'`. Multiple filters are ANDed. This is how you
+        query by `provider_id` or a date field. Because the set of keys is
+        open-ended it cannot be enumerated here.
+
+        Filtering by `status=open` is the natural way to find bookable inventory —
+        but see `AppointmentSlot.status`: newly created slots default to `active`,
+        not `open`.
+
+        Publishes: `audit.event` (`appointment_slots.list`).
+      tags: [Appointment Slots]
+      x-fern-sdk-group-name: slots
+      x-fern-sdk-method-name: list
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - name: limit
+          in: query
+          required: false
+          description: |
+            Page size. Defaults to 50. Values above 500 are silently clamped to
+            500 rather than rejected.
+          schema:
+            type: integer
+            format: int32
+            default: 50
+          example: 25
+        - name: offset
+          in: query
+          required: false
+          description: Number of rows to skip, applied after ordering by `id` ascending.
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          example: 0
+        - name: status
+          in: query
+          required: false
+          description: |
+            Exact match on the envelope `status` column (not on `data`).
+            See `AppointmentSlot.status` for the observed vocabulary.
+          schema:
+            type: string
+          example: open
+      responses:
+        '200':
+          description: A page of slots.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentSlotPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      operationId: createAppointmentSlot
+      summary: Create a slot
+      description: |
+        Creates a slot. The request body is stored verbatim as the record's `data`
+        document, except for `id`, which is stripped if present.
+
+        Plain insert — this service performs no peer lookups and no enrichment,
+        and publishes no domain event.
+
+        Note the created slot's `status` defaults to `active`, not `open`.
+
+        Publishes: `audit.event` (`appointment_slots.create`).
+      tags: [Appointment Slots]
+      x-fern-sdk-group-name: slots
+      x-fern-sdk-method-name: create
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: false
+        description: |
+          Optional. A missing or unparseable body is treated as `{}` and creates an
+          empty record rather than failing.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentSlotCreateRequest'
+      responses:
+        '201':
+          description: The created slot.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentSlot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/appointment_slots/{record_id}:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+      - $ref: '#/components/parameters/RequestId'
+
+    get:
+      operationId: getAppointmentSlot
+      summary: Get a slot
+      description: |
+        Fetches a single slot by id. Booked and deactivated slots are still
+        returned, carrying their respective `status`.
+
+        Publishes: `audit.event` (`appointment_slots.read`).
+      tags: [Appointment Slots]
+      x-fern-sdk-group-name: slots
+      x-fern-sdk-method-name: get
+      responses:
+        '200':
+          description: The slot.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentSlot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      operationId: updateAppointmentSlot
+      summary: Update a slot
+      description: |
+        Shallow-merges the request body into the record's existing `data` document:
+        keys present in the body overwrite, keys absent are preserved. Nested
+        objects are replaced wholesale, not merged recursively.
+
+        `status` is lifted out of the body and written to the envelope column —
+        this is the only way to change a slot's status over HTTP. Be aware that a
+        subsequent `appointment.booked` or `appointment.cancelled` event will
+        overwrite it without regard to what you set.
+
+        `id` is stripped and ignored.
+
+        Publishes: `audit.event` (`appointment_slots.update`). No domain event —
+        this service has none wired.
+      tags: [Appointment Slots]
+      x-fern-sdk-group-name: slots
+      x-fern-sdk-method-name: update
+      requestBody:
+        required: false
+        description: Fields to merge. A missing or unparseable body is treated as `{}`.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentSlotUpdateRequest'
+      responses:
+        '200':
+          description: The updated slot.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentSlot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      operationId: replaceAppointmentSlot
+      # Handled by the exact same Flask view as PATCH — it merges, it does not
+      # replace. Documented for completeness, but excluded from SDK generation so
+      # Fern emits one `update` method instead of two identical ones. Drop this
+      # extension if you want both surfaced.
+      x-fern-ignore: true
+      summary: Update a slot (PUT alias)
+      description: |
+        Identical to `PATCH /api/appointment_slots/{record_id}` — the same handler
+        is bound to both verbs, so this performs a **shallow merge**, not a
+        replacement. Prefer `PATCH`.
+      tags: [Appointment Slots]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentSlotUpdateRequest'
+      responses:
+        '200':
+          description: The updated slot.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentSlot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      operationId: deactivateAppointmentSlot
+      summary: Deactivate a slot
+      description: |
+        Soft delete. Sets `status` to `inactive` and bumps `updated_at`; the row and
+        its `data` document are retained and remain readable via
+        `GET /api/appointment_slots/{record_id}`.
+
+        Deactivation is not enforced downstream: an `appointment.booked` event
+        naming this slot will still flip it to `booked`.
+
+        Safe to repeat — a second call on an already inactive record still
+        returns `200`.
+
+        Publishes: `audit.event` (`appointment_slots.deactivate`).
+      tags: [Appointment Slots]
+      x-fern-sdk-group-name: slots
+      x-fern-sdk-method-name: deactivate
+      responses:
+        '200':
+          description: Acknowledgement carrying the deactivated record id.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /health:
+    get:
+      operationId: getHealth
+      summary: Liveness probe
+      description: Always returns `200` if the process is up. Performs no dependency checks.
+      tags: [Health]
+      security: []
+      x-fern-sdk-group-name: health
+      x-fern-sdk-method-name: check
+      responses:
+        '200':
+          description: The process is alive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /ready:
+    get:
+      operationId: getReadiness
+      summary: Readiness probe
+      description: |
+        Checks the Postgres connection with `SELECT 1`. Kafka is not probed — the
+        producer is created lazily — so a green `/ready` does not imply a reachable
+        broker. That matters more here than elsewhere: this service's real work
+        arrives over Kafka, so it can report ready while consuming nothing.
+      tags: [Health]
+      security: []
+      x-fern-sdk-group-name: health
+      x-fern-sdk-method-name: ready
+      responses:
+        '200':
+          description: All probed dependencies are reachable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessStatus'
+              example:
+                status: ok
+                service: appointment-slots-service
+                problems: []
+        '503':
+          description: At least one dependency check failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessStatus'
+              example:
+                status: degraded
+                service: appointment-slots-service
+                problems:
+                  - 'db: connection refused'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        HS256 JWT issued by `auth-service`, sent as `Authorization: Bearer <token>`.
+        The token must carry `sub` and `exp` claims and a `scopes` array.
+
+        Required scopes, enforced per operation:
+
+        - `appointment_slots.read` — `GET` on the collection and on a single record
+        - `appointment_slots.write` — `POST`, `PUT`, `PATCH`, `DELETE`
+
+        Note the underscore: scopes are derived from the table name, so they are
+        `appointment_slots.*`, not `appointment-slots.*`.
+
+        A token with `scopes: ["*"]` satisfies any requirement. Scopes are not
+        modelled as OpenAPI scopes because this is an HTTP bearer scheme, not
+        OAuth 2 — there is no token endpoint on `auth-service`.
+
+        Setting `AUTH_DISABLED=1` on the service bypasses verification entirely
+        and injects a `dev-user` principal. That is a local-development switch;
+        the shipped `.env.example` enables it.
+
+  parameters:
+    RecordId:
+      name: record_id
+      in: path
+      required: true
+      description: |
+        Primary key of the slot record. This is the value that appointments carry
+        as `slot_id`.
+      schema:
+        type: integer
+        format: int64
+      example: 5501
+
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      description: |
+        Correlation id propagated across HTTP hops and onto published Kafka
+        events. Generated by the service if omitted, and echoed on every response.
+      schema:
+        type: string
+      example: 9f1c2b7a4e8d4c1fa0b3e6d5c4a29187
+
+  headers:
+    XRequestId:
+      description: The correlation id for this request, echoed back.
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Malformed request — for the list endpoint, a non-integer `limit` or `offset`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: offset/limit must be integers
+
+    Unauthorized:
+      description: The bearer token is missing, malformed, expired, or fails signature verification.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            missing:
+              summary: No Authorization header
+              value:
+                error: missing bearer token
+            invalid:
+              summary: Token rejected
+              value:
+                error: invalid token
+
+    Forbidden:
+      description: The token is valid but lacks the scope this operation requires.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScopeError'
+          example:
+            error: insufficient scope
+            required:
+              - appointment_slots.write
+            have:
+              - appointment_slots.read
+
+    NotFound:
+      description: No slot exists with the given id.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: appointment_slots 999999 not found
+
+  schemas:
+    AppointmentSlot:
+      type: object
+      description: |
+        A bookable slot. The four envelope fields are always present and
+        server-managed; everything else is the caller's `data` document, flattened
+        to the top level. Additional properties are therefore expected, not an error.
+      required:
+        - id
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          description: |
+            Server-assigned primary key. Appointments reference this value as
+            `slot_id`.
+        status:
+          type: string
+          description: |
+            Slot state. Observed values:
+
+            - `active` — default on create. Note this is the table default, not a
+              slot-specific value; a freshly created slot is **not** `open`.
+            - `booked` — set by the `appointment.booked` consumer
+            - `open` — set by the `appointment.cancelled` consumer
+            - `inactive` — set by `DELETE`
+
+            Any string can also be written directly through the `status` field on
+            update, so this is left as a free string rather than an enum.
+          default: active
+          example: open
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        provider_id:
+          type: integer
+          format: int64
+          description: |
+            Foreign key into `providers-service`. Not validated by this service —
+            it performs no peer lookups.
+      additionalProperties: true
+      example:
+        id: 5501
+        status: open
+        created_at: '2026-08-12T09:14:22.481930+00:00'
+        updated_at: '2026-08-12T09:14:22.481930+00:00'
+        provider_id: 12
+        starts_at: '2026-08-20T14:30:00+00:00'
+        duration_minutes: 30
+        location: Clinic A, Room 3
+
+    AppointmentSlotCreateRequest:
+      type: object
+      description: |
+        Free-form slot payload. Stored verbatim; an `id` key is discarded. This
+        service interprets none of these fields — the listed property is
+        conventional rather than enforced.
+      properties:
+        provider_id:
+          type: integer
+          format: int64
+          description: Conventionally the owning provider. Stored without validation.
+      additionalProperties: true
+      example:
+        provider_id: 12
+        starts_at: '2026-08-20T14:30:00+00:00'
+        duration_minutes: 30
+        location: Clinic A, Room 3
+
+    AppointmentSlotUpdateRequest:
+      type: object
+      description: |
+        Fields to shallow-merge into the record's `data`. `status` is special-cased
+        onto the envelope column; `id` is discarded.
+      properties:
+        status:
+          type: string
+          description: |
+            New envelope status. Omit to leave unchanged. A later
+            `appointment.booked` or `appointment.cancelled` event will overwrite
+            whatever you set here.
+          example: open
+        provider_id:
+          type: integer
+          format: int64
+      additionalProperties: true
+      example:
+        status: open
+        location: Clinic A, Room 4
+
+    AppointmentSlotPage:
+      type: object
+      required:
+        - count
+        - items
+      properties:
+        count:
+          type: integer
+          format: int64
+          description: |
+            Total rows matching the filter, ignoring `limit` and `offset` — use it
+            to drive pagination, not `items.length`.
+        items:
+          type: array
+          description: The requested page, ordered by `id` ascending.
+          items:
+            $ref: '#/components/schemas/AppointmentSlot'
+      additionalProperties: false
+
+    DeactivateResponse:
+      type: object
+      required:
+        - deactivated
+      properties:
+        deactivated:
+          type: integer
+          format: int64
+          description: Id of the record that was set to `inactive`.
+      additionalProperties: false
+      example:
+        deactivated: 5501
+
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - service
+      properties:
+        status:
+          type: string
+          const: ok
+        service:
+          type: string
+          example: appointment-slots-service
+      additionalProperties: false
+
+    ReadinessStatus:
+      type: object
+      required:
+        - status
+        - service
+        - problems
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+        service:
+          type: string
+          example: appointment-slots-service
+        problems:
+          type: array
+          description: One entry per failed dependency check. Empty when `status` is `ok`.
+          items:
+            type: string
+      additionalProperties: false
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable failure message.
+      additionalProperties: false
+
+    ScopeError:
+      type: object
+      description: Returned on `403` — carries the scope gap alongside the message.
+      required:
+        - error
+        - required
+        - have
+      properties:
+        error:
+          type: string
+          const: insufficient scope
+        required:
+          type: array
+          description: Scopes the operation demands.
+          items:
+            type: string
+        have:
+          type: array
+          description: Scopes present on the presented token, sorted.
+          items:
+            type: string
+      additionalProperties: false
