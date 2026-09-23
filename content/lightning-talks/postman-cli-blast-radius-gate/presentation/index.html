@@ -426,12 +426,12 @@
   <!-- Slide 3: The Journey -->
   <div class="slide slide-how" data-index="2">
     <h2>Agent &rarr; Postman CLI &rarr; Context Graph</h2>
-    <p class="slide-subhead">One chain, three jobs. The same command runs in the pipeline and in the agent's shell.</p>
+    <p class="slide-subhead">One chain, three jobs &mdash; and it is one command, so the check has a <i>time</i>, not a place.</p>
     <div class="flow">
       <div class="flow-step">
         <div class="flow-num">1</div>
-        <h3>The Gate Runs</h3>
-        <p>In CI, or in your<br>terminal. It diffs the<br>contract you publish.</p>
+        <h3>The Agent Runs It</h3>
+        <p>Before the push. It<br>diffs the contract<br>you publish.</p>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step">
@@ -466,31 +466,32 @@
         <div class="what">The awareness that does not fit in a repo. Postman, GitHub and New Relic, refreshed nightly.</div>
       </div>
     </div>
+    <p class="loop-note">The same command is the second job in the pipeline &mdash; <b>later, and more expensive</b>. CI is the backstop, not where you want to learn this.</p>
   </div>
 
   <!-- Slide 4: Live demo -->
   <div class="slide slide-demo" data-index="3">
-    <h2>Red, Then Green</h2>
-    <p class="slide-subhead">The change is already made and the suite is already passing. Watch the second gate.</p>
+    <h2>Red, Then Green &mdash; Before the Push</h2>
+    <p class="slide-subhead">The change is already made and the suite is already passing. One prompt, one actor, one continuous run.</p>
     <div class="prompt-examples">
       <div class="prompt-row">
-        <span class="prompt-label label-pass">Your tests</span>
+        <span class="prompt-label label-pass">Everything I own</span>
         <div class="prompt-box">$ npm test &nbsp;&rarr;&nbsp; &#x2713; 3 passing &mdash; nothing in this repo is wrong</div>
       </div>
       <div class="prompt-row">
-        <span class="prompt-label label-fail">The gate</span>
-        <div class="prompt-box">$ ./ci/blast-radius-check.sh &nbsp;&rarr;&nbsp; &#x2717; BLOCKED &middot; exit 1</div>
+        <span class="prompt-label label-cmd">The prompt</span>
+        <div class="prompt-box">&gt; Before you push this, run ./ci/blast-radius-check.sh<span class="cursor"></span></div>
       </div>
       <div class="prompt-row">
-        <span class="prompt-label label-cmd">The agent</span>
-        <div class="prompt-box">&gt; The gate is blocking this branch. Run it, use the CLI to find out why, and fix it.<span class="cursor"></span></div>
+        <span class="prompt-label label-fail">The agent runs it</span>
+        <div class="prompt-box">postman context-graph ask &hellip; &nbsp;&rarr;&nbsp; &#x2717; BLOCKED &middot; exit 1</div>
       </div>
       <div class="prompt-row">
-        <span class="prompt-label label-pass">The fix</span>
-        <div class="prompt-box">$ ./ci/blast-radius-check.sh &nbsp;&rarr;&nbsp; &#x2713; exit 0 &mdash; field restored, sunset dated, IMPACT.md written</div>
+        <span class="prompt-label label-pass">The agent fixes it</span>
+        <div class="prompt-box">&#x2713; exit 0 &mdash; field restored, sunset dated, IMPACT.md written</div>
       </div>
     </div>
-    <p class="demo-note">Three services call the endpoint. <b>Two</b> read the field. Three teams to tell. None of that was in the repo, and all of it arrived through <b>one CLI command</b>.</p>
+    <p class="demo-note">Three services call the endpoint. <b>Two</b> read the field. Three teams to tell. None of it was in the repo, all of it arrived through <b>one command</b> &mdash; and no commit existed yet.</p>
   </div>
 
   <!-- Slide 5: CTA -->
@@ -511,10 +512,10 @@
     </div>
     <p class="stat-source">Postman's published figures for models working with the graph versus from code alone &mdash; postman.com/context-graph. The launch post reports up to &minus;74% tokens, &minus;52% tool calls and &minus;72% cost across 468 repositories. Not measured in this demo.</p>
     <div class="cta-features">
-      <span class="cta-feat"><span class="check">&#x2713;</span> Your terminal</span>
       <span class="cta-feat"><span class="check">&#x2713;</span> Your agent's shell</span>
-      <span class="cta-feat"><span class="check">&#x2713;</span> Your pipeline</span>
-      <span class="cta-feat"><span class="check">&#x2713;</span> Pipeline-aware exit codes</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Your terminal</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Your pipeline &mdash; the backstop</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Earliest wins</span>
     </div>
     <div class="cta-links">
       <a href="https://www.postman.com/product/postman-cli/">postman.com/product/postman-cli</a>

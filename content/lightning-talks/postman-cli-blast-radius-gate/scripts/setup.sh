@@ -151,8 +151,8 @@ if [ "$SKIP_ASK" = "1" ]; then
   fi
 else
   echo ""
-  echo "Running the gate against the live graph (the ask takes 20-40s — it reasons"
-  echo "over the estate). Setup absorbs that wait so the stage never does..."
+  echo "Rehearsing the check against the live graph — the same run the agent will do"
+  echo "on stage (the ask takes 20-40s; it reasons over the estate)..."
   (cd "$APP" && BLAST_RADIUS_SAVE_ANSWER="$ASK_TXT" "$GATE") > "$GATE_LOG" 2>&1
   GATE_EXIT=$?
 fi
@@ -222,18 +222,20 @@ response, in the serializer and in the spec. The test suite passes.
 Answer from this repository only: do not call any external tool, CLI, or network.
 Is this safe to merge? Give me a one-line verdict.
 
-## Act 3 — hand it the gate and let it orchestrate
-Our CI gate is blocking this branch. Run it and read the output:
+## Act 3 — the agent runs the check BEFORE the push, then fixes it
+Before you push this, run the check we have for exactly this situation:
 
   ./ci/blast-radius-check.sh
 
-That gate uses the Postman CLI to ask our API Context Graph who depends on this
-API, because that is not answerable from inside this repository. Use the same
-tool yourself if you need more detail than the gate printed:
+It uses the Postman CLI to ask our API Context Graph who depends on this API,
+because that is not answerable from inside this repository. It is also the second
+job in our pipeline, so whatever it says now is what CI will say later.
+
+If it blocks, use the same tool to get the detail you need:
 
   postman context-graph ask "<your question>" --wait --interval 5
 
-Then fix the change so the gate goes green, and tell me what you did:
+Then fix the change so the check goes green, and tell me what you did:
   - keep the intent — this field is deprecated and should eventually go away
   - do not break the consumers the graph named
   - write IMPACT.md containing the verdict, every service in the blast radius of
@@ -244,7 +246,7 @@ Then fix the change so the gate goes green, and tell me what you did:
 Cite the graph as your source. Do not guess anything it did not tell you.
 
 ## If the network dies, add this line to the Act 3 prompt
-The graph is unreachable from here, so run the gate with the cached answer:
+The graph is unreachable from here, so run the check with the cached answer:
   BLAST_RADIUS_ANSWER_FILE=../.demo-state/ask.txt ./ci/blast-radius-check.sh
 EOF
 echo ""
@@ -273,7 +275,8 @@ Pre-flight checklist:
   [ ] \`git diff app/\` ready in a pane — that is the change under review
   [ ] .demo-state/prompts.txt open in a pane you can copy from
   [ ] No app/IMPACT.md yet — the agent writes it live
-  [ ] A second terminal pane in ./app for the gate runs
+  [ ] A second terminal pane in ./app — NOT for you to run the check (the agent
+      does that, once, in Act 3), only for the fallbacks in README section 6
 
 When you are done:  ./scripts/teardown.sh
 EOF

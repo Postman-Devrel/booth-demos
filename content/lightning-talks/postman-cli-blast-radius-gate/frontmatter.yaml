@@ -14,9 +14,10 @@ product: Postman CLI
 name: The Check Your CI Is Missing — the Postman CLI as a Blast-Radius Gate
 use_case: >
   Show that a pipeline can only fail on what it can see, and that the Postman CLI
-  is what lets it see past the repository — one binary that runs a blast-radius
-  check in CI, in your terminal, and in your coding agent's shell, so the agent
-  can find out who a change breaks and fix it before the merge.
+  is what lets it see past the repository. Because it is one command, the
+  blast-radius check has a time rather than a place — so the agent runs it before
+  the push, finds out who the change breaks, and corrects it while the fix is
+  still free. CI runs the same command as the backstop.
 primary_api:
   - postman context-graph ask — the CLI command the gate and the agent both run
   - The gate itself — app/ci/blast-radius-check.sh (our policy, ~150 lines of shell, on top of the CLI)
@@ -30,7 +31,11 @@ key_messages:
   - >-
     Three roles, one chain: the agent orchestrates and fixes, the Postman CLI is
     the connector, the Context Graph is the awareness that does not fit in a repo.
-  - The CLI is what makes the graph a gate. One binary with the same exit-code contract in your terminal, in your agent's shell, and in your pipeline — no SDK, no MCP server to stand up, no separate test infrastructure.
+  - >-
+    It is one command, so the check has a TIME, not a place. The pipeline is not a
+    different environment, it is a later and more expensive moment. Agent's shell,
+    terminal, pipeline — earliest wins, and CI is the backstop.
+  - The CLI is what makes that possible. One binary with the same exit-code contract everywhere — no SDK, no MCP server to stand up, no separate test infrastructure.
   - Pipeline-aware exit codes are the whole trick — 0 pass, 1 blocked, 2 could-not-prove-it. A check that cannot answer must not silently pass.
   - >-
     The gate is policy you own, not a product feature. The CLI hands you the
@@ -47,6 +52,17 @@ cta:
 presentation_title: The Check Your CI Is Missing
 brand_style: design-sync
 notes: >
+  ONE MECHANISM, ONE ACTOR. DO NOT RE-SPLIT THIS TALK. An earlier cut demoed the CI
+  gate AND the agent as two beats, and it read as two talks stapled together: the
+  audience had to hold a pipeline story and an agent story in ten minutes. The fix
+  is the whole point of the current structure — the pipeline and the agent are the
+  SAME command at two different times. So: the presenter never runs the check. The
+  agent runs it, once, in Act 3. The pipeline appears twice for fifteen seconds, as
+  the reason the check exists (Act 2) and as the backstop (Act 4). If you are tempted
+  to add a beat where you run the gate yourself "to show the raw output", don't — the
+  CLI line is already visible inside the agent's run, and that beat is exactly what
+  made the earlier cut feel bolted together.
+
   THE GATE IS OURS, NOT A CLI FEATURE. SAY SO ON STAGE. `postman context-graph ask`
   is a Postman command; app/ci/blast-radius-check.sh is about a hundred and fifty
   lines of shell that this repo wrote on top of it. Never imply Postman ships a

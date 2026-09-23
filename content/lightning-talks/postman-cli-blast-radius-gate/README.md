@@ -16,7 +16,7 @@
 
 **The story (the narrative arc):**
 
-> You own `orders-api`. You have removed `legacy_customer_ref` from the `GET /orders/{id}` response — deprecated three years ago, written once by the serializer, never read anywhere in this repository. `npm test` is green, and it is *honestly* green: nobody writes a test for a field their own service never reads. Your coding agent, asked from inside the repo, tells you it is safe to merge. Everything you own agrees with you. **Then the second gate runs.** It is a shell script in your own repo, and what makes it possible is the **Postman CLI**: the same binary you have in your terminal, running `postman context-graph ask` against your team's Context Graph, in the pipeline, with a pipeline-aware exit code. It comes back **exit 1 — merge blocked**: three services call that endpoint, two of them read that field, and three different teams own them. Then you hand the failure to the agent. It runs the *same* command the pipeline runs, finds out who it was about to break, puts the field back on a dated sunset, writes `IMPACT.md` naming every consumer and owner with the graph's evidence, and re-runs the gate until it is green. The payoff is a change that got corrected before the merge, by an agent that could finally see who it was about to hurt.
+> You own `orders-api`. You have removed `legacy_customer_ref` from the `GET /orders/{id}` response — deprecated three years ago, written once by the serializer, never read anywhere in this repository. `npm test` is green, and it is *honestly* green: nobody writes a test for a field their own service never reads. Your coding agent, asked from inside the repo, tells you it is safe to merge. Everything you own agrees with you, and every one of them is answering the same narrow question: *is `orders-api` still correct against itself?* **Nobody is checking whether anyone else is still correct against you** — and you cannot check it from in here, because your consumers are not on this laptop. What you can do is run one command. `postman context-graph ask`, through the **Postman CLI**: the same binary, the same exit-code contract, wherever you run it. Which means the check has a *time*, not a place — and the cheapest time is before the push. So you tell the agent to run it first. It comes back **exit 1**: three services call that endpoint, two of them read that field, three different teams own them. The agent asks the graph for the detail, puts the field back on a dated sunset, writes `IMPACT.md` naming every consumer with the graph's evidence, and re-runs until the check is green — all before a commit exists. The same command is the second job in the pipeline, so if the agent had skipped it, the merge would have been blocked anyway. The payoff is a change that got corrected at the cheapest possible moment, by an agent that could finally see who it was about to hurt.
 
 > **Offline and network reality:** Act 1 is fully local. Act 3 needs the network and a Context Graph-enabled team. `setup.sh` runs the real gate ahead of time and caches the graph's answer to `.demo-state/ask.txt`, and the gate takes `BLAST_RADIUS_ANSWER_FILE` so a dead venue network degrades Act 3 to a cached answer rather than killing it. See [section 6](#6-troubleshooting).
 
@@ -95,7 +95,7 @@ Environment switches worth knowing on stage: `BLAST_RADIUS_ANSWER_FILE=<path>` r
 - [ ] No `[MISSING]` service in setup's check (if there is one, drop it from the story and adjust the numbers you say)
 - [ ] Terminal in `./app` with `claude` running — **not** in the content folder (see the warning below)
 - [ ] `git diff app/` ready in a pane — that is the change under review
-- [ ] A second terminal pane in `./app` for the gate runs
+- [ ] A second terminal pane in `./app` — **not** for you to run the check (the agent does that), only for the fallbacks in section 6
 - [ ] `.demo-state/prompts.txt` open in a pane you can copy from
 - [ ] No `app/IMPACT.md` yet — the agent writes it live
 - [ ] Editor and terminal font readable from 6 feet (`Cmd+=`)
@@ -108,6 +108,8 @@ Environment switches worth knowing on stage: `BLAST_RADIUS_ANSWER_FILE=<path>` r
 Four acts, 10 minutes. Talk track is **verbatim** (blockquotes) — read it if the room goes cold. Click track is interleaved at the exact point each action happens. The live demo starts on **slide 4**.
 
 > ⚠️ **Stay in `./app` for the whole demo.** The consumer repos are checked into `estate/repos/` so they can be seeded, and if you run the agent from the content folder it can grep them — Act 1's wrong answer becomes a right answer and the talk has no point. The agent's working directory is `./app` and nothing else.
+
+> ⚠️ **One mechanism, one actor.** The pipeline and the agent are **not two stories** — they are the same command at two different times, and the whole talk turns on that. You never run the check yourself: the agent runs it, in Act 3, once. The pipeline appears twice, for fifteen seconds each time: as the reason the check exists (Act 2) and as the backstop (Act 4). If you find yourself demoing CI *and* the agent, you have split the talk in half and the audience is now holding two ideas.
 
 ### Act 1: The hook — everything I own says yes (2 min)
 
@@ -135,63 +137,48 @@ Four acts, 10 minutes. Talk track is **verbatim** (blockquotes) — read it if t
   ```
 - **Show (payoff):** the agent greps, finds no readers, and says **safe to merge**. Leave it on screen.
 
-> "So: tests green, spec updated, agent agrees. Everything I own says yes. And every one of them is answering the same narrow question — *is `orders-api` still correct against itself?* Nobody in this pipeline is checking whether anyone else is still correct against *me*. CI can only fail on what it can see, and my consumers are not on this laptop."
+> "So: tests green, spec updated, agent agrees. Everything I own says yes — and every one of them is answering the same narrow question. *Is `orders-api` still correct against itself?* Nobody here is asking whether anyone **else** is still correct against me. And I cannot ask it from in here: my consumers are in other repos, owned by other teams, deployed somewhere else. A pipeline can only fail on what it can see."
 
 - **Show:** advance the deck to **slide 2** (A Pipeline Can Only Fail on What It Sees).
 
-### Act 2: The setup — the second gate (1.5 min)
+### Act 2: The one idea — it is a command, so run it early (1.5 min)
 
-- **Show:** open [app/.github/workflows/blast-radius.yml](app/.github/workflows/blast-radius.yml).
+> "So there is a check missing, and I know exactly what it has to ask: who depends on what I just removed? The interesting part is not that Postman can answer that. It is *where* I get to ask."
 
-> "So I added a second job to the pipeline. The first one asks: is this service still correct against its own spec? The second one asks: is anyone *else* still correct against this service? And that second question cannot be answered from inside this repository — which is exactly why it is the **Postman CLI** that runs it."
+- **Show:** open [app/ci/blast-radius-check.sh](app/ci/blast-radius-check.sh) and scroll it once, fast. **Do not run it.**
+
+> "This is the check. It diffs the contract I publish, and for anything I removed it asks my team's API Context Graph who was reading it — through the Postman CLI. And to be completely straight with you: Postman does not ship a blast-radius gate. This file is mine, about a hundred and fifty lines of shell. The CLI hands me an answer and a pipeline-aware exit code — zero pass, one blocked, two *I could not prove it was safe* — and what blocks a merge is my policy. That is all a gate is."
+
+- **Show:** open [app/.github/workflows/blast-radius.yml](app/.github/workflows/blast-radius.yml) for about fifteen seconds.
+
+> "Yes, it is a CI job. Two jobs, two questions: am I still correct against myself, and is anyone else still correct against me. But here is the thing I actually want you to take away —"
 
 - **Show:** advance the deck to **slide 3** (Agent → Postman CLI → Context Graph). Point at the three roles as you say them.
 
-> "Three pieces, and I want to be precise about who does what. The **Context Graph** holds the awareness that does not fit in a repo — it ingests my Postman workspaces, my GitHub org, and my New Relic telemetry, resolves them into one graph, refreshes nightly, and every edge carries its evidence: commit SHA, source, last observed. The **agent** orchestrates and corrects. And in between them, doing the actual work, is the **Postman CLI** — the connector. One binary. The same command, with the same exit-code contract, in my terminal, in my agent's shell, and in my pipeline. No SDK to wire up, no MCP server to stand up, no separate test infrastructure to maintain."
+> "— it is *one command*. Not an SDK I bind, not an MCP server I stand up, not test infrastructure I maintain. One binary with one exit-code contract, which means this check does not have a *place*. It has a **time**. The pipeline is not a different environment, it is just a later and more expensive moment — after the push, after the review, in front of my team. My terminal is earlier. And my agent's shell is earlier still, before a commit even exists."
 
-- **Do:** open [app/ci/blast-radius-check.sh](app/ci/blast-radius-check.sh) and scroll it once, fast.
+> "Three pieces, and I want to be precise about who does what. The **Context Graph** holds the awareness that does not fit in a repo — Postman workspaces, GitHub, New Relic, resolved into one graph, refreshed nightly, every edge carrying its evidence: commit SHA, source, last observed. The **Postman CLI** is the connector — the one binary that makes that answer available anywhere I can run a command. And the **agent** orchestrates and corrects. So let's run it at the earliest possible moment."
 
-> "And to be completely straight with you: Postman does not ship a blast-radius gate. This file is mine — about a hundred and fifty lines of shell. The CLI hands me the answer and a pipeline-aware exit code; *what blocks a merge* is my policy. Zero, pass. One, blocked. Two, I could not prove it was safe — and a check that cannot answer must not silently pass. That is all a gate is."
+### Act 3: The demo — the agent runs it before the push (5 min)
 
-### Act 3: The demo — red, then green (5.5 min)
+**One actor, one prompt, one continuous run.** You do not touch the check.
 
-**Beat 1 — the gate (1.5 min, including the wait)**
-
-- **Show:** the second terminal pane, in `./app`.
-- **Do:**
-  ```bash
-  ./ci/blast-radius-check.sh
-  ```
-- **Show:** it prints the field it found removed, then the CLI line — `postman context-graph ask ... --wait`.
-
-> "Twenty to forty seconds, and I want to be honest about why: this is not a lookup. The graph is reasoning over the estate. While it works — this is the thing I could not do by hand in a sprint. To answer it myself I would grep every repository in the org, guess which HTTP clients are ours, then go and find out who owns each hit."
-
-- **Show (payoff):** the answer, then the verdict: **`[BLOCKED] ... Merge blocked. Exit 1.`** Read out what it actually returned — the named services, the owning teams, the evidence.
-- **Do:** show the exit code out loud, because that is the CI story:
-  ```bash
-  echo $?
-  ```
-
-> "One. In the pipeline, that is a blocked merge. Three services call this endpoint. Two of them read this specific field — and those are not the same number, which is the distinction I could not make five minutes ago. One keys the billing entity off it. One is a nightly job that runs at two in the morning, which is when I would have found out."
-
-> ⚠️ **Say what it said today, not what this README says.** The graph is live and its prose varies. `setup.sh` already grepped this morning's answer and printed `[found]` / `[MISSING]`. Never promise a service the graph did not name.
-
-**Beat 2 — hand it to the agent (2.5 min)**
-
-- **Show:** back to the Claude Code pane in `./app` — the "safe to merge" verdict is still above it.
+- **Show:** the Claude Code pane in `./app` — the "safe to merge" verdict from Act 1 is still above it.
 - **Do:** paste the **Act 3 prompt** from `.demo-state/prompts.txt`:
   ```
-  Our CI gate is blocking this branch. Run it and read the output:
+  Before you push this, run the check we have for exactly this situation:
 
     ./ci/blast-radius-check.sh
 
-  That gate uses the Postman CLI to ask our API Context Graph who depends on this
-  API, because that is not answerable from inside this repository. Use the same
-  tool yourself if you need more detail than the gate printed:
+  It uses the Postman CLI to ask our API Context Graph who depends on this API,
+  because that is not answerable from inside this repository. It is also the second
+  job in our pipeline, so whatever it says now is what CI will say later.
+
+  If it blocks, use the same tool to get the detail you need:
 
     postman context-graph ask "<your question>" --wait --interval 5
 
-  Then fix the change so the gate goes green, and tell me what you did:
+  Then fix the change so the check goes green, and tell me what you did:
     - keep the intent — this field is deprecated and should eventually go away
     - do not break the consumers the graph named
     - write IMPACT.md containing the verdict, every service in the blast radius of
@@ -201,27 +188,47 @@ Four acts, 10 minutes. Talk track is **verbatim** (blockquotes) — read it if t
 
   Cite the graph as your source. Do not guess anything it did not tell you.
   ```
-- **Show:** the agent runs the gate itself, reaches for the same CLI command for detail, and starts editing.
 
-> "Watch what the agent is actually doing. It is not being told the answer — it is running the same command my pipeline runs, and it is now the only participant in this story who can see both sides: my code, and who consumes it. Notice also what it did *not* have to do. It did not read four hundred repositories. It asked one question, got three service names back, and now it knows exactly which corners of the estate matter. That is where the savings come from — the graph does not make the model smarter, it makes the search space smaller."
+**Beat 1 — the check comes back red (1.5 min, including the wait)**
+
+- **Show:** the agent runs the script. It prints the removed field, then the CLI line — `postman context-graph ask ... --wait`.
+
+> "Twenty to forty seconds, and I want to be honest about why: this is not a lookup. The graph is reasoning over the estate. While it works — this is the thing I could not do by hand in a sprint. To answer it myself I would grep every repository in the org, guess which HTTP clients are ours, then go and find out who owns each hit."
+
+- **Show (payoff):** the answer, then the verdict: **`[BLOCKED] ... Merge blocked. Exit 1.`** Read out what it actually returned — the named services, the owning teams, the evidence.
+
+> "Exit one. Three services call this endpoint. Two of them read this specific field — and those are not the same number, which is the distinction I could not make ninety seconds ago. One keys the billing entity off it. One is a nightly job that runs at two in the morning, which is when I would have found out."
+
+> ⚠️ **Say what it said today, not what this README says.** The graph is live and its prose varies. `setup.sh` already grepped this morning's answer and printed `[found]` / `[MISSING]`. Never promise a service the graph did not name.
+
+**Beat 2 — the agent corrects it (2 min)**
+
+- **Show:** the agent reaching for the same CLI command for detail, then editing the serializer and the spec.
+
+> "Watch what the agent is actually doing. Nobody told it the answer — it ran the same command my pipeline runs, and it is now the only participant in this story that can see both sides: my code, and who consumes it. Notice also what it did *not* have to do. It did not read four hundred repositories. It asked one question, got three service names back, and now it knows exactly which corners of the estate matter. That is where the savings come from — the graph does not make the model smarter, it makes the search space smaller."
+
+- **Show:** the agent's final check run — **exit 0**.
 
 **Beat 3 — the payoff (1.5 min)**
 
-- **Show:** the agent's final gate run — **exit 0**.
 - **Do:** switch to the editor. **End here, not on the terminal.**
 - **Show (payoff):** two files, in this order:
   1. `git diff app/` — the field is **back**, now with a dated sunset rather than deleted. The intent was kept; the break was not shipped.
   2. **`app/IMPACT.md`** — the verdict, every service in the endpoint's blast radius with its owning team, which of them read the field, the graph's evidence, and the migration path.
 
-> "So the change got corrected before the merge, not after the incident. The field still goes away — on a date, with the two teams that read it told first. And the thing that turned 'safe to merge' into that was one command, available in the same binary my terminal, my agent, and my pipeline all already have."
+> "So the change got corrected before a commit existed. Not after the review, not after the incident. The field still goes away — on a date, with the two teams that read it told first."
 
-- **Say, one sentence, then move on:** "The gate has a second way to go green, by the way — if I genuinely want to ship the removal, a complete `IMPACT.md` naming every consumer unblocks it. Shipping a known break should be a decision, not an accident."
+- **Say, one sentence, then move on:** "The check has a second way to go green, by the way — if I genuinely want to ship the removal, a complete `IMPACT.md` naming every consumer unblocks it. Shipping a known break should be a decision, not an accident."
 
-### Act 4: The close (1 min)
+### Act 4: The close — and the backstop (1.5 min)
+
+- **Show:** flip back to [app/.github/workflows/blast-radius.yml](app/.github/workflows/blast-radius.yml) for about ten seconds.
+
+> "One last thing, and it is the reason this is a CI job and not just a nice habit. If my agent had skipped that step — or if I had, on a Friday — this is the job that would have blocked the merge instead. Same command, same exit code, later and more expensive. CI is the backstop. It is not where you want to *learn* this."
 
 - **Show:** advance the deck to **slide 5** (One Binary, Three Places).
 
-> "Your pipeline already blocks the merge when you break yourself. This is what it takes to block the merge when you are about to break someone else — one CLI, one command, one exit code, and about a hundred lines of your own policy on top."
+> "So: your pipeline already blocks the merge when you break yourself. This is what it takes to block it when you are about to break someone else — one CLI, one command, one exit code, and about a hundred lines of your own policy on top. And because it is one command, you get to choose when: agent, terminal, pipeline. Earliest wins."
 
 > "Postman's own benchmark puts the model side of it at twenty-nine percent fewer prompt tokens and seventeen percent fewer tool calls per run when a model works with the graph instead of from code alone, and across four hundred and sixty-eight repositories they measured up to seventy-four percent fewer tokens and seventy-two percent lower cost. Those are Postman's published numbers, not something I measured up here."
 
@@ -233,17 +240,17 @@ Four acts, 10 minutes. Talk track is **verbatim** (blockquotes) — read it if t
 
 ### What to cut when you are over
 
-In this order: the `echo $?` beat in Act 3 (say "exit one" instead of showing it); then the scroll through the gate script in Act 2 (keep the sentence that it is yours and it is small); then Beat 1's narration down to one sentence while the ask runs. **Never cut** the `IMPACT.md` payoff, the "the gate is ours, not a Postman feature" sentence, or the close.
+In this order: the workflow file in Act 2 (keep the sentence "it is also a CI job", drop the file); then Act 4's backstop beat (say the sentence, do not flip to the file); then Beat 1's narration down to one sentence while the ask runs. **Never cut** the `IMPACT.md` payoff, the "Postman does not ship a blast-radius gate" sentence, or the close.
 
 ### What survives a dead network
 
 | Act | Offline? |
 |---|---|
 | 1 — the diff, `npm test`, the agent's repo-only verdict | **Yes.** Fully local. |
-| 2 — the workflow, the gate script, the deck | **Yes.** Reading files. |
-| 3 — Beat 1, the live gate run | **No.** Run it with the cached answer instead: `BLAST_RADIUS_ANSWER_FILE=../.demo-state/ask.txt ./ci/blast-radius-check.sh`. Identical output and exit code, one extra line saying it is cached. **Say that line out loud.** |
-| 3 — Beat 2, the agent fixing it | **Partly.** The agent needs the network for the CLI. The last block of `.demo-state/prompts.txt` is the prompt variant that tells it to use the cached answer — the fix, `IMPACT.md`, and the green re-run all still happen. |
-| 4 — the close | **Yes.** Deck only. |
+| 2 — the check, the workflow, the deck | **Yes.** Reading files, running nothing. |
+| 3 — the agent's check run | **No.** The last block of `.demo-state/prompts.txt` is the prompt variant that points the check at the cached answer (`BLAST_RADIUS_ANSWER_FILE=../.demo-state/ask.txt`). Identical output and exit code, one extra line saying it is cached. **Say that line out loud** — do not narrate a live call that did not happen. |
+| 3 — the agent correcting it, `IMPACT.md`, the green re-run | **Yes**, once the check is reading the cache. All local edits. |
+| 4 — the backstop and the close | **Yes.** Deck and one file. |
 
 ---
 
