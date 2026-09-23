@@ -1,0 +1,8 @@
+{
+  "name": "mobile-bff",
+  "version": "3.0.4",
+  "private": true,
+  "description": "Backend-for-frontend for the mobile apps.",
+  "type": "module",
+  "scripts": { "start": "node src/order-screen.js" }
+}

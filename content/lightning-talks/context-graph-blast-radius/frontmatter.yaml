@@ -1,0 +1,95 @@
+format: lightning-talk
+length: 10m
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  Developers and platform engineers who let coding agents touch shared APIs, and
+  who have shipped a change that passed every local test and still broke someone
+  downstream. No Postman account needed to follow along; a Context Graph-enabled
+  team is needed to present.
+venues:
+  - booth
+  - meetup
+  - conference
+product: Postman CLI + API Context Graph
+name: The Blast Radius You Can't Grep — Postman CLI and the API Context Graph
+use_case: >
+  Show why a coding agent confidently green-lights a breaking API change, and how
+  one Postman CLI command against the API Context Graph turns "nothing in this repo
+  reads it, safe to ship" into a named blast radius with owning teams and evidence.
+primary_api:
+  - postman context-graph ask — https://learning.postman.com/docs/postman-cli/postman-cli-options
+  - API Context Graph — https://www.postman.com/context-graph/
+  - Postman CLI — https://www.postman.com/product/postman-cli/
+  - Bundled provider repo in ./app (orders-api — the only repo on the machine)
+  - Demo estate in ./estate (three consumer repos, published to GitHub once — see estate/README.md)
+key_messages:
+  - A repository shows an agent what an endpoint calls — never who calls it. Blast radius is invisible from the inside, and agents answer confidently anyway.
+  - >-
+    Postman's own framing of it: perhaps the model was not too small, perhaps its
+    view of the system was. The accuracy problem is a context problem.
+  - The API Context Graph is one map of the estate — built from Postman workspaces, GitHub and New Relic, refreshed nightly, with evidence (commit SHA, source, last-observed) on every edge.
+  - >-
+    One command, no SDK and no MCP server to stand up —
+    postman context-graph ask "..." --wait.
+  - The graph narrows the search space. It tells the agent which three services out of hundreds matter; the agent does the rest. That is where the token and tool-call savings come from.
+  - Endpoint blast radius is not field blast radius — three services call the endpoint, two read the field. The graph is what lets an agent tell those apart.
+  - The best outcome of an agent run is the change it tells you not to ship yet — an IMPACT note with owners attached, not a merged PR.
+cta:
+  - "npm install -g postman-cli@latest, then: postman context-graph ask \"what depends on <your-api>?\" --wait"
+  - "API Context Graph: https://www.postman.com/context-graph/"
+  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+  - "The launch post, with the benchmark: https://blog.postman.com/introducing-the-context-graph-api-one-map-of-your-api-ecosystem/"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/lightning-talks/context-graph-blast-radius)"
+presentation_title: The Blast Radius You Can't Grep
+brand_style: design-sync
+notes: >
+  THE NUMBERS ARE QUOTED, NOT MEASURED. Nothing in this talk benchmarks anything on
+  stage. Slide 5 and Act 4 carry Postman's own published figures and they must be
+  attributed as such every time: the product page (https://www.postman.com/context-graph/)
+  reports 29% fewer prompt tokens and 17% fewer tool calls per run; the launch post
+  reports, over 468 repositories and three frontier models on eight cross-service
+  questions, up to 74% fewer prompt tokens, 52% fewer tool calls, 72% lower cost, and
+  accuracy gains on 18 of 21 prompt-model pairs. Lead with the product-page figures
+  (they read as typical) and use the launch-post figures as the ceiling, explicitly as
+  "up to". Never present either set as something this demo measured, and never round up.
+
+  CONTEXT GRAPH IS TEAM-GATED. It is not a free-tier feature, and it ingests Postman
+  workspaces, GitHub and New Relic on a NIGHTLY cycle. You cannot provision this in the
+  hallway. The estate has to be seeded and ingested at least a day ahead — estate/README.md
+  is the whole procedure. If you are handed this talk with no graph access, the honest
+  move is to present it from the cached answer in .demo-state/ and say out loud that
+  the answer was captured earlier. Do not narrate a live call that did not happen.
+
+  NEVER HARDCODE THE SERVICE NAMES INTO THE TALK TRACK. The graph is live and its prose
+  changes between runs. setup.sh caches today's answer to .demo-state/ask.txt and greps
+  it for the three expected consumers, printing [MISSING] for any it cannot find. Read
+  that file before you present and say what it said today. If a service comes back
+  [MISSING], drop it from the story rather than promising it.
+
+  THE CLI CHECK IS A CAPABILITY PROBE, NOT A VERSION COMPARISON, AND THAT IS DELIBERATE.
+  Older Postman CLIs (1.43.0, for instance) answer `postman context-graph ask ...` with
+  "Invalid command" and still exit 0 — a naive `command -v` or exit-code check passes and
+  the demo dies on stage. setup.sh greps the root help for `context-graph` instead. Known-good
+  CLI at the time of writing: 1.62.0. Do not "simplify" that probe.
+
+  ACT 1 ONLY WORKS BECAUSE app/ IS THE ONLY REPO ON THE MACHINE. The consumer repos live
+  in estate/ for seeding, and they are never opened, cloned, or greppable from the agent's
+  working directory during the demo. If you ever cd the agent up to the content folder,
+  it can grep estate/repos/ and the premise collapses. Stay in ./app. setup.sh warns if
+  more than one file under app/ mentions the field.
+
+  SAME PRODUCT, DIFFERENT CLAIM TO open-meteo-loop-eng. That talk uses the Postman CLI as
+  a test ORACLE (collection run as a pass/fail signal). This one uses it as a CONTEXT
+  provider (the graph as a map of the estate). They can be given back to back at the same
+  booth; they are not two cuts of the same material, so there is no derived_from here.
+
+  THE DEMO DOES NOT SHIP THE BREAKING CHANGE. Nothing is deleted from the serializer and
+  no PR is opened. The payoff is app/IMPACT.md — the note that says do not ship yet, with
+  owners attached. Resist the urge to add the deletion for drama; the close depends on the
+  change NOT being shipped.
+
+  NEW RELIC IS OPTIONAL. GitHub call sites plus the Postman spec are enough for the
+  exposes / calls / owned_by edges this demo needs. If your team happens to have New Relic
+  ingested, the answer also carries runtime evidence — strictly better on stage, so say so
+  when it shows up. Do not claim runtime telemetry when the estate has none.

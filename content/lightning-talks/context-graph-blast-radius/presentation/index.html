@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Blast Radius You Can't Grep</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    /* Postman Brand Tokens — FDE Design System */
+    --orange: #FF6C37;
+    --orange-dark: #E0531F;
+    --orange-light: #FFA17F;
+    --purple: #7A24F0;
+    --purple-dark: #491591;
+    --dark: #0A0A0A;
+    --gray-900: #212121;
+    --gray-800: #454545;
+    --gray-600: #737373;
+    --gray-400: #A1A1A1;
+    --white: #FFFFFF;
+    --green: #22A06B;
+    --blue: #198CF7;
+    --yellow: #FFA90A;
+    --magenta: #F37FFE;
+    --red: #E5484D;
+    --border: #E0DDD8;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .slideshow { width: 100%; height: 100%; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+  }
+
+  .slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+  .slide.exit { opacity: 0; transform: translateX(-40px); }
+
+  /* --- Slide 1: Title --- */
+  .slide-title {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--gray-900) 50%, var(--gray-800) 100%);
+    text-align: center;
+  }
+
+  .slide-title .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .slide-title .logo-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .slide-title .logo-icon svg { width: 48px; height: 48px; }
+  .slide-title .logo-postman { background: var(--orange); }
+  .slide-title .logo-plus { font-size: 36px; color: var(--gray-400); }
+  .slide-title .logo-graph { background: linear-gradient(135deg, var(--purple), var(--purple-dark)); }
+
+  .slide-title h1 {
+    font-size: 76px;
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .slide-title .subtitle {
+    font-size: 26px;
+    color: var(--gray-400);
+    font-weight: 500;
+    max-width: 860px;
+    line-height: 1.4;
+  }
+
+  /* --- Slide 2: The Problem --- */
+  .slide-what { background: linear-gradient(160deg, var(--dark) 0%, var(--purple-dark) 100%); }
+
+  .slide-what h2, .slide-how h2, .slide-demo h2 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .slide-subhead {
+    font-size: 20px;
+    color: var(--gray-400);
+    margin-bottom: 44px;
+    text-align: center;
+    max-width: 880px;
+  }
+
+  .capabilities {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  .cap-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+
+  .cap-card:hover { transform: translateY(-4px); border-color: var(--orange); }
+  .cap-icon { font-size: 40px; margin-bottom: 16px; }
+  .cap-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .cap-card p { font-size: 15px; color: var(--gray-400); line-height: 1.5; }
+
+  /* --- Slide 3: The Journey --- */
+  .slide-how { background: linear-gradient(160deg, var(--dark) 0%, #0352A1 15%, var(--dark) 100%); }
+
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+    max-width: 1150px;
+  }
+
+  .flow-step {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 30px 22px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--orange);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .flow-step h3 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+  .flow-step p { font-size: 14px; color: var(--gray-400); line-height: 1.5; }
+  .flow-arrow { font-size: 28px; color: var(--orange); flex-shrink: 0; align-self: center; }
+
+  .loop-note {
+    margin-top: 40px;
+    font-size: 18px;
+    color: var(--gray-400);
+    text-align: center;
+    max-width: 960px;
+    line-height: 1.5;
+  }
+  .loop-note b { color: var(--orange); }
+  .loop-note code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 16px;
+    color: var(--white);
+    background: rgba(0,0,0,0.45);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  /* --- Slide 4: Live demo --- */
+  .slide-demo { background: linear-gradient(160deg, var(--dark) 0%, #5E1DC0 15%, var(--dark) 100%); }
+
+  .prompt-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1040px;
+    width: 100%;
+  }
+
+  .prompt-row { display: flex; align-items: center; gap: 20px; }
+
+  .prompt-label {
+    width: 150px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  .prompt-box {
+    flex: 1;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-size: 17px;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    color: var(--white);
+    line-height: 1.4;
+  }
+
+  .prompt-box .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background: var(--orange);
+    animation: blink 1s infinite;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+  }
+
+  @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+
+  .label-boxed { color: var(--gray-400); }
+  .label-fail { color: var(--red); }
+  .label-cmd { color: var(--blue); }
+  .label-pass { color: var(--green); }
+
+  .demo-note {
+    margin-top: 36px;
+    font-size: 18px;
+    color: var(--gray-400);
+    text-align: center;
+    max-width: 900px;
+  }
+  .demo-note b { color: var(--orange); }
+
+  /* --- Slide 5: CTA --- */
+  .slide-cta {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--gray-900) 50%, var(--gray-800) 100%);
+    text-align: center;
+  }
+
+  .slide-cta h2 { font-size: 50px; font-weight: 900; margin-bottom: 28px; }
+
+  .install-cmd {
+    background: rgba(0,0,0,0.5);
+    border: 2px solid var(--orange);
+    border-radius: 16px;
+    padding: 20px 36px;
+    font-size: 20px;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    margin-bottom: 32px;
+    display: inline-block;
+  }
+
+  .install-cmd .prefix { color: var(--orange); }
+
+  .stats { display: flex; gap: 56px; margin-bottom: 10px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 42px; font-weight: 900; color: var(--green); line-height: 1.1; }
+  .stat .lbl { font-size: 15px; color: var(--gray-400); }
+  .stat-source {
+    font-size: 13px;
+    color: var(--gray-600);
+    margin-bottom: 34px;
+    max-width: 720px;
+  }
+
+  .cta-features { display: flex; gap: 36px; margin-bottom: 34px; flex-wrap: wrap; justify-content: center; }
+  .cta-feat { font-size: 17px; color: var(--gray-400); }
+  .cta-feat .check { color: var(--green); margin-right: 8px; }
+  .cta-links { font-size: 19px; color: var(--gray-600); }
+  .cta-links a { color: var(--orange); text-decoration: none; }
+
+  /* --- Navigation --- */
+  .nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 100;
+  }
+
+  .nav-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+  }
+
+  .nav-dot.active { background: var(--orange); transform: scale(1.3); }
+
+  .slide-counter {
+    position: fixed;
+    bottom: 32px;
+    right: 40px;
+    font-size: 14px;
+    color: var(--gray-600);
+    z-index: 100;
+  }
+</style>
+</head>
+<body>
+
+<div class="slideshow" id="slideshow">
+
+  <!-- Slide 1: Title -->
+  <div class="slide slide-title active" data-index="0">
+    <div class="logo-row">
+      <div class="logo-icon logo-postman"><svg viewBox="0 0 210 208" xmlns="http://www.w3.org/2000/svg"><circle cx="105.5" cy="103.1" r="87.3" fill="#FF6C37"/><g><path fill="#FF6C37" d="M106,190.4c48.8,0,88.3-39.5,88.3-88.3S154.8,13.8,106,13.8,17.7,53.3,17.7,102.1s39.5,88.3,88.3,88.3h0Z"/><path fill="#fff" d="M160.9,54.3c-.1,0-.2.2-.3.3-.1,0-.2.2-.2.4v.4c0,.2,0,.3.1.4.3.6.4,1.2.3,1.9,0,.7-.3,1.2-.8,1.8,0,.1-.2.2-.2.4v.4c0,.1,0,.3.1.4,0,.1.1.2.3.3.1,0,.2.2.4.2h.4c.1,0,.3,0,.4-.1.1,0,.2-.2.3-.3.7-.8,1.1-1.8,1.2-2.9.1-1.1,0-2.2-.5-3.1,0-.1-.1-.2-.3-.3-.1,0-.2-.2-.4-.2h-.4c-.1,0-.3,0-.4.1h0v-.1Z"/><path fill="#fff" d="M118.2,6.9C65.7.2,17.6,37.3,10.9,89.9c-6.8,52.6,30.4,100.6,82.9,107.3,52.6,6.8,100.6-30.4,107.4-82.9,6.8-52.5-30.4-100.6-82.9-107.3h0l-.1-.1ZM138,66.8c-1.8,0-3.5.8-4.7,2l-35.6,35.6-7.6-7.6c35.1-35,41.4-35.3,47.9-30h0ZM99.1,105.7l35.5-35.5c.9-.9,2.2-1.4,3.5-1.4s2.6.5,3.5,1.4c.5.5.9,1.1,1.1,1.7s.4,1.3.3,2c0,.7-.2,1.3-.5,1.9s-.7,1.2-1.2,1.6l-37.6,33-4.7-4.7h.1ZM101.7,111.2l-8.8,1.9h-.3c-.1,0-.2-.1-.2-.2v-.3s0-.2.1-.3l5.2-5.2,4.1,4.1h-.1ZM79.3,107.5l9.4-9.4,7,7-15.8,3.4h-.4c-.1,0-.2-.2-.3-.3v-.4c0-.1,0-.2.2-.4h0l-.1.1ZM50.2,156c-.1,0-.2,0-.3-.1,0,0-.2-.2-.2-.3v-.3c0-.1,0-.2.2-.3l7.6-7.6,9.8,9.8-17-1.2h-.1ZM69.6,145.9h0c-.4.2-.6.5-.8.9s-.2.8-.1,1.2l1.6,6.9v.6c0,.2-.2.4-.4.5s-.4.1-.6.1-.4-.1-.6-.3l-9.8-9.8,30.1-30.1,14.6-3.1,7,7c-10,8.8-23.8,17.6-40.8,26.1h-.2ZM111.8,118.5l-6.7-6.7,37.6-33c.4-.3.7-.7.9-1-1.2,10.8-16.2,26-31.8,40.7h0ZM141,66.8c-2.6-2.7-4.2-6.2-4.2-10s1.3-7.4,3.8-10.1c2.5-2.8,6-4.5,9.8-4.7,3.7-.2,7.4,1,10.3,3.3l-12.9,12.9c-.2.2-.3.4-.3.7s.1.5.3.7l10,10c-2.7,1.4-5.8,1.8-8.8,1.3s-5.8-1.9-7.9-4.1h-.1ZM161.6,66.8c-.7.7-1.4,1.2-2.2,1.8l-9.6-9.7,12.3-12.3c2.5,2.8,3.9,6.4,3.8,10.2,0,3.8-1.6,7.3-4.3,10h0Z"/></g></svg></div>
+      <span class="logo-plus">+</span>
+      <div class="logo-icon logo-graph"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M24 13v9M24 26.5 13 34M24 26.5 35 34"/><circle cx="24" cy="9" r="4.2" fill="#fff" stroke="none"/><circle cx="24" cy="24" r="3.4" fill="#fff" stroke="none"/><circle cx="11" cy="36" r="3.4" fill="#fff" stroke="none"/><circle cx="37" cy="36" r="3.4" fill="#fff" stroke="none"/></svg></div>
+    </div>
+    <h1>The Blast Radius<br>You Can't Grep</h1>
+    <p class="subtitle">Your coding agent says the change is safe. It has only ever seen one repository. One Postman CLI command against the API Context Graph gives it the whole estate &mdash; and the answer flips.</p>
+  </div>
+
+  <!-- Slide 2: The Problem -->
+  <div class="slide slide-what" data-index="1">
+    <h2>The Repo Is the Horizon</h2>
+    <p class="slide-subhead">A repository shows an agent what an endpoint <i>calls</i>. It never shows who <i>calls it</i>. The agent answers anyway &mdash; confidently.</p>
+    <div class="capabilities">
+      <div class="cap-card">
+        <div class="cap-icon">&#x2705;</div>
+        <h3>Every Test Green</h3>
+        <p>Nothing in the provider repo reads the field. It is written once and never referenced again.</p>
+      </div>
+      <div class="cap-card">
+        <div class="cap-icon">&#x1F576;</div>
+        <h3>Confidently Wrong</h3>
+        <p>&ldquo;Safe to ship.&rdquo; True of the search space it had. False of production.</p>
+      </div>
+      <div class="cap-card">
+        <div class="cap-icon">&#x27A1;&#xFE0F;</div>
+        <h3>Callers Are Invisible</h3>
+        <p>Consumers live in other repos, other teams, other deploys. None of it is on the agent's disk.</p>
+      </div>
+      <div class="cap-card">
+        <div class="cap-icon">&#x1F311;</div>
+        <h3>Found Out at 02:00</h3>
+        <p>A nightly job reads that field. Nobody learns the truth until the next morning's failure.</p>
+      </div>
+      <div class="cap-card">
+        <div class="cap-icon">&#x1F465;</div>
+        <h3>Ownership Is Elsewhere</h3>
+        <p>Who to warn before you ship is not in your codebase either.</p>
+      </div>
+      <div class="cap-card">
+        <div class="cap-icon">&#x1F9E9;</div>
+        <h3>Not a Model Problem</h3>
+        <p>Perhaps the model was not too small. Perhaps its view of the system was.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: The Journey -->
+  <div class="slide slide-how" data-index="2">
+    <h2>One Map of the Estate</h2>
+    <p class="slide-subhead">The API Context Graph ingests what you already have, resolves it into one graph, and answers questions about it.</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <h3>Ingest</h3>
+        <p>Postman workspaces,<br>GitHub, New Relic.<br>Refreshed nightly.</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <h3>Resolve</h3>
+        <p>One entity per service<br>across all three sources,<br>conflicts reconciled.</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <h3>Ask</h3>
+        <p>Natural language,<br>from the terminal,<br>via the Postman CLI.</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <h3>Act</h3>
+        <p>Named consumers,<br>owning teams, and<br>the evidence for each.</p>
+      </div>
+    </div>
+    <p class="loop-note">Typed edges &mdash; <b>exposes</b>, <b>calls</b>, <b>depends_on</b>, <b>backed_by</b>, <b>owned_by</b>, <b>monitored_by</b> &mdash; and every one of them carries its evidence: commit SHA, source, last observed.<br>One command: <code>postman context-graph ask "&hellip;" --wait</code></p>
+  </div>
+
+  <!-- Slide 4: Live demo -->
+  <div class="slide slide-demo" data-index="3">
+    <h2>Watch the Answer Flip</h2>
+    <p class="slide-subhead">Same question, twice. The only thing that changes is what the agent can see.</p>
+    <div class="prompt-examples">
+      <div class="prompt-row">
+        <span class="prompt-label label-boxed">Repo only</span>
+        <div class="prompt-box">&gt; Answer from this repository only. Who breaks if I remove legacy_customer_ref?</div>
+      </div>
+      <div class="prompt-row">
+        <span class="prompt-label label-fail">Verdict 1</span>
+        <div class="prompt-box">&#x2717; &ldquo;Nothing in this repository reads it. Safe to ship.&rdquo;</div>
+      </div>
+      <div class="prompt-row">
+        <span class="prompt-label label-cmd">The estate</span>
+        <div class="prompt-box">$ postman context-graph ask "which services call GET /orders/{id}?" --wait<span class="cursor"></span></div>
+      </div>
+      <div class="prompt-row">
+        <span class="prompt-label label-pass">Verdict 2</span>
+        <div class="prompt-box">&#x2713; 3 services call the endpoint &middot; 2 read the field &middot; 3 owning teams &mdash; do not ship yet</div>
+      </div>
+    </div>
+    <p class="demo-note">The endpoint's blast radius is not the field's blast radius. The payoff is <b>IMPACT.md</b> &mdash; the change the agent tells you <i>not</i> to ship, with the owners to talk to.</p>
+  </div>
+
+  <!-- Slide 5: CTA -->
+  <div class="slide slide-cta" data-index="4">
+    <h2>Give Your Agent the Map</h2>
+    <div class="install-cmd">
+      <span class="prefix">$</span> postman context-graph ask "what depends on &lt;your-api&gt;?" --wait
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="num">&minus;29%</div>
+        <div class="lbl">prompt tokens</div>
+      </div>
+      <div class="stat">
+        <div class="num">&minus;17%</div>
+        <div class="lbl">tool calls per run</div>
+      </div>
+    </div>
+    <p class="stat-source">Postman's published figures for models working with the graph versus from code alone &mdash; postman.com/context-graph. The launch post reports up to &minus;74% tokens, &minus;52% tool calls and &minus;72% cost across 468 repositories. Not measured in this demo.</p>
+    <div class="cta-features">
+      <span class="cta-feat"><span class="check">&#x2713;</span> Postman CLI</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> API Context Graph</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Postman + GitHub + New Relic</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Refreshed nightly</span>
+    </div>
+    <div class="cta-links">
+      Start here &rarr; <a href="https://www.postman.com/context-graph/">postman.com/context-graph</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation dots -->
+<div class="nav" id="nav"></div>
+<div class="slide-counter" id="counter"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const nav = document.getElementById('nav');
+  const counter = document.getElementById('counter');
+  const TOTAL = slides.length;
+  let current = 0;
+
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    nav.appendChild(dot);
+  }
+
+  function goTo(index) {
+    if (index === current) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    const prev = current;
+    current = index;
+    slides[current].classList.add('active');
+    nav.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+    counter.textContent = `${current + 1} / ${TOTAL}`;
+    setTimeout(() => slides[prev].classList.remove('exit'), 500);
+  }
+
+  function next() { goTo((current + 1) % TOTAL); }
+  function prev() { goTo((current - 1 + TOTAL) % TOTAL); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.nav')) return;
+    if (e.clientX < window.innerWidth / 2) prev();
+    else next();
+  });
+
+  counter.textContent = `1 / ${TOTAL}`;
+</script>
+
+</body>
+</html>
