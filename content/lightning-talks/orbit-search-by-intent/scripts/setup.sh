@@ -451,8 +451,8 @@ cat <<PROMPTS
     is watching the agent translate this into calendar vocabulary.
 
 The appointments service publishes appointment.booked but nothing reaches the
-clinician's real calendar. Find me an API that can check whether a clinician is
-free before we confirm a slot. Show me the evaluateGuide for each result.
+clinician's real calendar. Find me an API that makes it easy to integrate email,
+calendar, contacts, scheduling, & meeting recordings into my app. Show me the evaluateGuide for each result.
 
 -------------------------------------------------------------------
 [2] ACT 3, beat 2 — REQUIRED. The brief. Let the agent carry the ids
