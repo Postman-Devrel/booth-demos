@@ -1,6 +1,6 @@
 ---
 name: content-generator
-description: Scaffold a new piece of DevRel content in this mono-repo — a lightning talk, short talk, standard talk, or bootcamp. Creates content/<format>/<slug>/ with frontmatter.yaml, a presenter-ready README (product summary, prerequisites, setup, act-by-act talk/click track, teardown, troubleshooting), executable setup.sh/teardown.sh, and a self-contained HTML deck sized to the format. Use when the user wants to scaffold, create, or build a new talk, booth demo, workshop, or bootcamp.
+description: Scaffold a new piece of DevRel content in this mono-repo — a lightning talk or short talk. Creates content/<format>/<slug>/ with frontmatter.yaml, a presenter-ready README (product summary, prerequisites, setup, act-by-act talk/click track, teardown, troubleshooting), executable setup.sh/teardown.sh, and a self-contained HTML deck sized to the format. Use when the user wants to scaffold, create, or build a new talk or booth demo.
 ---
 
 # Content Generator
@@ -9,7 +9,7 @@ Scaffold a new piece of content in this repo from front matter.
 
 ## Goal
 
-Every piece of content — a 10-minute booth demo or a full-day bootcamp — uses the same
+Every piece of content — a 10-minute booth demo or a 30-minute breakout — uses the same
 skeleton: front matter, a README that is the single source of truth, a self-contained deck,
 and `setup.sh` / `teardown.sh` that make it repeatable. What changes between them is the
 **format**, and the format decides the structure.
@@ -23,8 +23,6 @@ then read the matching definition file and follow it:
 |---|---|---|---|
 | `lightning-talk` | ~10 min — *an NBA quarter* | `content/lightning-talks/` | [templates/formats/lightning-talk.md](../../../templates/formats/lightning-talk.md) |
 | `short-talk` | 25–30 min — *a handball half* | `content/short-talks/` | [templates/formats/short-talk.md](../../../templates/formats/short-talk.md) |
-| `standard-talk` | 40–45 min — *a football half* | `content/standard-talks/` | [templates/formats/standard-talk.md](../../../templates/formats/standard-talk.md) |
-| `bootcamp` | 50 min+, topic-dependent | `content/bootcamps/` | [templates/formats/bootcamp.md](../../../templates/formats/bootcamp.md) |
 
 **Read the format definition file before generating anything.** It sets the act plan, the
 act budgets, the deck size, the extra folders, and the pacing rules. This SKILL.md only
@@ -55,8 +53,7 @@ content/<format-folder>/<slug>/
   presentation/index.html
   scripts/setup.sh
   scripts/teardown.sh
-  <plus whatever the format definition requires — bootcamps add modules/, exercises/,
-   solutions/, handout.md, and scripts/checkpoint.sh>
+  <plus whatever the format definition requires>
 ```
 
 Start from [templates/content/](../../../templates/content/) — `README.md`,
@@ -81,9 +78,7 @@ and the CTA. State up front which parts stand alone offline and which need the n
 
 ### 2. Pre-requisites
 A table: **Requirement** | **How to get it**. Version minimums, install links, account setup,
-and any workspace prep that must happen before the day. For bootcamps, split this into
-*facilitator* and *attendee* prerequisites — the attendee list is the one you send out the
-day before.
+and any workspace prep that must happen before the day.
 
 ### 3. Setup
 Point to `./scripts/setup.sh` and list exactly what it checks and prepares. Include an
@@ -91,8 +86,8 @@ authentication subsection if the product needs keys or OAuth. End with a **pre-f
 checklist** — markdown checkboxes covering everything that must be true before you start.
 
 ### 4. Talk track and click track (combined, act by act)
-Structure the content as **acts** — or **modules**, for a bootcamp — following the act plan in
-the format definition. For every act:
+Structure the content as **acts**, following the act plan in the format definition. For every
+act:
 
 - **Act title and duration** — e.g. "Act 2: Generate the spec (2 min)"
 - **Talk track** — the exact words the presenter says, as blockquotes (`>`). Not bullet
@@ -140,10 +135,6 @@ A table: **Resource** | **Link**.
 - Safe to run when setup never ran; never exits early on a missing artifact
 - Prints a clear status line per step
 
-### checkpoint.sh (bootcamps only)
-- `./scripts/checkpoint.sh <module>` exits 0 when the attendee's work is correct
-- The output tells them what is wrong, not just that something is
-
 ## Presentation
 
 Generate a self-contained `presentation/index.html` — one file, inline CSS and JS, no external
@@ -163,9 +154,6 @@ Set by the format definition. Every format starts from the same spine — **Titl
 - `lightning-talk` — exactly those 5.
 - `short-talk` — 10–14: one slide per key message, a before/after comparison, an architecture
   or flow diagram, an objections slide.
-- `standard-talk` — 16–20: the above plus section dividers between idea blocks and a backdrop
-  slide per demo beat.
-- `bootcamp` — modular: a short deck per module, or one deck with hard module dividers.
 
 Note in the README which slide the live demo starts on.
 

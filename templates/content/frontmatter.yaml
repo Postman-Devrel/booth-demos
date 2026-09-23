@@ -4,7 +4,7 @@
 
 # ---- Required ----------------------------------------------------------------
 
-format:               # lightning-talk | short-talk | standard-talk | bootcamp
+format:               # lightning-talk | short-talk
                       # Must match the folder it lives in. See templates/formats/.
 length:               # The real target. "10m", "25-30m", "45m", "~3h (4 modules)"
 product:              # The product being shown

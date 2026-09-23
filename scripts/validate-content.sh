@@ -31,8 +31,6 @@ dir_for_format() {
   case "$1" in
     lightning-talk) echo "lightning-talks" ;;
     short-talk)     echo "short-talks" ;;
-    standard-talk)  echo "standard-talks" ;;
-    bootcamp)       echo "bootcamps" ;;
     *)              echo "" ;;
   esac
 }
@@ -46,7 +44,7 @@ for entry in "$CONTENT"/*; do
   [ -e "$entry" ] || continue
   base="$(basename "$entry")"
   case "$base" in
-    lightning-talks|short-talks|standard-talks|bootcamps) ;;
+    lightning-talks|short-talks) ;;
     *)
       echo ""
       echo "content/$base"
@@ -55,7 +53,7 @@ for entry in "$CONTENT"/*; do
   esac
 done
 
-for format_dir in lightning-talks short-talks standard-talks bootcamps; do
+for format_dir in lightning-talks short-talks; do
   [ -d "$CONTENT/$format_dir" ] || continue
 
   for dir in "$CONTENT/$format_dir"/*/; do
@@ -80,7 +78,7 @@ for format_dir in lightning-talks short-talks standard-talks bootcamps; do
       if [ -n "$declared" ]; then
         expected_dir="$(dir_for_format "$declared")"
         if [ -z "$expected_dir" ]; then
-          fail "unknown format '$declared' — use lightning-talk, short-talk, standard-talk, or bootcamp"
+          fail "unknown format '$declared' — use lightning-talk or short-talk"
         elif [ "$expected_dir" != "$format_dir" ]; then
           fail "declares format '$declared' but lives in content/$format_dir/ (expected content/$expected_dir/)"
         else
@@ -103,19 +101,6 @@ for format_dir in lightning-talks short-talks standard-talks bootcamps; do
         fail "scripts/$s is not executable (chmod +x)"
       fi
     done
-
-    if [ "$format_dir" = "bootcamps" ]; then
-      for required in handout.md modules exercises solutions scripts/checkpoint.sh; do
-        [ -e "$dir/$required" ] || fail "bootcamp is missing $required (see templates/formats/bootcamp.md)"
-      done
-      if [ -d "$dir/exercises" ] && [ -d "$dir/solutions" ]; then
-        for ex in "$dir/exercises"/*/; do
-          [ -d "$ex" ] || continue
-          name="$(basename "$ex")"
-          [ -d "$dir/solutions/$name" ] || fail "exercises/$name has no matching solutions/$name"
-        done
-      fi
-    fi
 
     grep -q "content/$format_dir/$slug" "$ROOT/README.md" \
       || warn "not listed in the root README catalog"

@@ -17,8 +17,6 @@ and the generator follows them.
 |---|---|---|---|---|
 | `lightning-talk` | ~10 min | an NBA quarter | [content/lightning-talks/](content/lightning-talks/) | [lightning-talk.md](templates/formats/lightning-talk.md) |
 | `short-talk` | 25–30 min | a handball half | [content/short-talks/](content/short-talks/) | [short-talk.md](templates/formats/short-talk.md) |
-| `standard-talk` | 40–45 min | a football half | [content/standard-talks/](content/standard-talks/) | [standard-talk.md](templates/formats/standard-talk.md) |
-| `bootcamp` | 50 min+, set by the topic | no clock — it ends when the room can do the thing | [content/bootcamps/](content/bootcamps/) | [bootcamp.md](templates/formats/bootcamp.md) |
 
 Booth demos are lightning talks delivered at a booth — the `venues` field in the front matter
 records where a piece of content has been given, the format records how long it runs.
@@ -70,8 +68,6 @@ templates/
 content/
   lightning-talks/<slug>/
   short-talks/<slug>/
-  standard-talks/<slug>/
-  bootcamps/<slug>/
 ```
 
 ## Validation

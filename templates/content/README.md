@@ -68,7 +68,6 @@ cd content/{{format-folder}}/{{slug}}
 
 <!--
   Acts and their budgets come from the format definition in templates/formats/.
-  Bootcamps use modules instead of acts — see templates/formats/bootcamp.md.
   Every act carries BOTH tracks: what you say, and what you do, interleaved.
 -->
 
