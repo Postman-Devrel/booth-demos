@@ -5,6 +5,8 @@
   "description": "Orders API — serves order records to the rest of the estate.",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js",
+    "check:blast-radius": "./ci/blast-radius-check.sh"
   }
 }

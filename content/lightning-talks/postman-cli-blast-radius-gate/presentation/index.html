@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Blast Radius You Can't Grep</title>
+<title>The Check Your CI Is Missing</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap');
@@ -181,6 +181,11 @@
   }
 
   .flow-step h3 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+  .flow-step code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--orange);
+  }
   .flow-step p { font-size: 14px; color: var(--gray-400); line-height: 1.5; }
   .flow-arrow { font-size: 28px; color: var(--orange); flex-shrink: 0; align-self: center; }
 
@@ -201,6 +206,37 @@
     padding: 2px 8px;
     border-radius: 6px;
   }
+
+  .roles {
+    display: flex;
+    gap: 20px;
+    margin-top: 34px;
+    max-width: 1150px;
+    width: 100%;
+  }
+
+  .role {
+    flex: 1;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-left: 4px solid var(--orange);
+    border-radius: 12px;
+    padding: 18px 22px;
+    text-align: left;
+  }
+
+  .role .who {
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .role .what { font-size: 15px; color: var(--gray-400); line-height: 1.45; }
+  .role-agent { border-left-color: var(--purple); }
+  .role-agent .who { color: var(--magenta); }
+  .role-cli { border-left-color: var(--orange); }
+  .role-cli .who { color: var(--orange); }
+  .role-graph { border-left-color: var(--blue); }
+  .role-graph .who { color: var(--blue); }
 
   /* --- Slide 4: Live demo --- */
   .slide-demo { background: linear-gradient(160deg, var(--dark) 0%, #5E1DC0 15%, var(--dark) 100%); }
@@ -345,110 +381,123 @@
       <span class="logo-plus">+</span>
       <div class="logo-icon logo-graph"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M24 13v9M24 26.5 13 34M24 26.5 35 34"/><circle cx="24" cy="9" r="4.2" fill="#fff" stroke="none"/><circle cx="24" cy="24" r="3.4" fill="#fff" stroke="none"/><circle cx="11" cy="36" r="3.4" fill="#fff" stroke="none"/><circle cx="37" cy="36" r="3.4" fill="#fff" stroke="none"/></svg></div>
     </div>
-    <h1>The Blast Radius<br>You Can't Grep</h1>
-    <p class="subtitle">Your coding agent says the change is safe. It has only ever seen one repository. One Postman CLI command against the API Context Graph gives it the whole estate &mdash; and the answer flips.</p>
+    <h1>The Check<br>Your CI Is Missing</h1>
+    <p class="subtitle">Your pipeline blocks the merge when your tests fail. Nothing in it blocks the merge when you are about to break someone else. The Postman CLI is the one binary that can &mdash; in CI, in your terminal, and in your agent's shell.</p>
   </div>
 
   <!-- Slide 2: The Problem -->
   <div class="slide slide-what" data-index="1">
-    <h2>The Repo Is the Horizon</h2>
-    <p class="slide-subhead">A repository shows an agent what an endpoint <i>calls</i>. It never shows who <i>calls it</i>. The agent answers anyway &mdash; confidently.</p>
+    <h2>A Pipeline Can Only Fail on What It Sees</h2>
+    <p class="slide-subhead">Your test suite checks this service against itself. Nothing in CI checks it against the people who call it &mdash; and they are not in your repository.</p>
     <div class="capabilities">
       <div class="cap-card">
         <div class="cap-icon">&#x2705;</div>
-        <h3>Every Test Green</h3>
-        <p>Nothing in the provider repo reads the field. It is written once and never referenced again.</p>
+        <h3>Green, and Wrong</h3>
+        <p>The field was deprecated and unread here, so every test passes. Your own spec is satisfied.</p>
       </div>
       <div class="cap-card">
-        <div class="cap-icon">&#x1F576;</div>
-        <h3>Confidently Wrong</h3>
-        <p>&ldquo;Safe to ship.&rdquo; True of the search space it had. False of production.</p>
+        <div class="cap-icon">&#x1F9EA;</div>
+        <h3>Tests Point Inward</h3>
+        <p>Nobody writes a test for a field their own service never reads. There is nothing to go red.</p>
       </div>
       <div class="cap-card">
         <div class="cap-icon">&#x27A1;&#xFE0F;</div>
         <h3>Callers Are Invisible</h3>
-        <p>Consumers live in other repos, other teams, other deploys. None of it is on the agent's disk.</p>
+        <p>A repo shows what an endpoint calls, never who calls it. Consumers live in other repos entirely.</p>
       </div>
       <div class="cap-card">
         <div class="cap-icon">&#x1F311;</div>
         <h3>Found Out at 02:00</h3>
-        <p>A nightly job reads that field. Nobody learns the truth until the next morning's failure.</p>
+        <p>A nightly job reads that field. The pipeline was green twelve hours before the page.</p>
       </div>
       <div class="cap-card">
         <div class="cap-icon">&#x1F465;</div>
-        <h3>Ownership Is Elsewhere</h3>
-        <p>Who to warn before you ship is not in your codebase either.</p>
+        <h3>Owners Are Elsewhere</h3>
+        <p>Who to warn before you ship is not in your codebase either. CI cannot ask.</p>
       </div>
       <div class="cap-card">
-        <div class="cap-icon">&#x1F9E9;</div>
-        <h3>Not a Model Problem</h3>
-        <p>Perhaps the model was not too small. Perhaps its view of the system was.</p>
+        <div class="cap-icon">&#x1F916;</div>
+        <h3>Your Agent Inherits It</h3>
+        <p>Give an agent the same blind spot and it ships the same break &mdash; just faster, and confidently.</p>
       </div>
     </div>
   </div>
 
   <!-- Slide 3: The Journey -->
   <div class="slide slide-how" data-index="2">
-    <h2>One Map of the Estate</h2>
-    <p class="slide-subhead">The API Context Graph ingests what you already have, resolves it into one graph, and answers questions about it.</p>
+    <h2>Agent &rarr; Postman CLI &rarr; Context Graph</h2>
+    <p class="slide-subhead">One chain, three jobs. The same command runs in the pipeline and in the agent's shell.</p>
     <div class="flow">
       <div class="flow-step">
         <div class="flow-num">1</div>
-        <h3>Ingest</h3>
-        <p>Postman workspaces,<br>GitHub, New Relic.<br>Refreshed nightly.</p>
+        <h3>The Gate Runs</h3>
+        <p>In CI, or in your<br>terminal. It diffs the<br>contract you publish.</p>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step">
         <div class="flow-num">2</div>
-        <h3>Resolve</h3>
-        <p>One entity per service<br>across all three sources,<br>conflicts reconciled.</p>
+        <h3>The CLI Asks</h3>
+        <p><code>context-graph ask</code><br>&mdash; one binary, one<br>exit-code contract.</p>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step">
         <div class="flow-num">3</div>
-        <h3>Ask</h3>
-        <p>Natural language,<br>from the terminal,<br>via the Postman CLI.</p>
+        <h3>The Graph Answers</h3>
+        <p>Consumers, owning<br>teams, and the evidence<br>for every edge.</p>
       </div>
-      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-arrow">&#x21BA;</div>
       <div class="flow-step">
         <div class="flow-num">4</div>
-        <h3>Act</h3>
-        <p>Named consumers,<br>owning teams, and<br>the evidence for each.</p>
+        <h3>The Agent Fixes</h3>
+        <p>Runs the same gate,<br>corrects the change,<br>re-runs until green.</p>
       </div>
     </div>
-    <p class="loop-note">Typed edges &mdash; <b>exposes</b>, <b>calls</b>, <b>depends_on</b>, <b>backed_by</b>, <b>owned_by</b>, <b>monitored_by</b> &mdash; and every one of them carries its evidence: commit SHA, source, last observed.<br>One command: <code>postman context-graph ask "&hellip;" --wait</code></p>
+    <div class="roles">
+      <div class="role role-agent">
+        <div class="who">The agent</div>
+        <div class="what">Orchestrates and corrects. It reads the failure, investigates, and rewrites the change.</div>
+      </div>
+      <div class="role role-cli">
+        <div class="who">The Postman CLI</div>
+        <div class="what">The connector. Terminal, agent shell, pipeline &mdash; same binary, same exit codes. No SDK to wire up.</div>
+      </div>
+      <div class="role role-graph">
+        <div class="who">The Context Graph</div>
+        <div class="what">The awareness that does not fit in a repo. Postman, GitHub and New Relic, refreshed nightly.</div>
+      </div>
+    </div>
   </div>
 
   <!-- Slide 4: Live demo -->
   <div class="slide slide-demo" data-index="3">
-    <h2>Watch the Answer Flip</h2>
-    <p class="slide-subhead">Same question, twice. The only thing that changes is what the agent can see.</p>
+    <h2>Red, Then Green</h2>
+    <p class="slide-subhead">The change is already made and the suite is already passing. Watch the second gate.</p>
     <div class="prompt-examples">
       <div class="prompt-row">
-        <span class="prompt-label label-boxed">Repo only</span>
-        <div class="prompt-box">&gt; Answer from this repository only. Who breaks if I remove legacy_customer_ref?</div>
+        <span class="prompt-label label-pass">Your tests</span>
+        <div class="prompt-box">$ npm test &nbsp;&rarr;&nbsp; &#x2713; 3 passing &mdash; nothing in this repo is wrong</div>
       </div>
       <div class="prompt-row">
-        <span class="prompt-label label-fail">Verdict 1</span>
-        <div class="prompt-box">&#x2717; &ldquo;Nothing in this repository reads it. Safe to ship.&rdquo;</div>
+        <span class="prompt-label label-fail">The gate</span>
+        <div class="prompt-box">$ ./ci/blast-radius-check.sh &nbsp;&rarr;&nbsp; &#x2717; BLOCKED &middot; exit 1</div>
       </div>
       <div class="prompt-row">
-        <span class="prompt-label label-cmd">The estate</span>
-        <div class="prompt-box">$ postman context-graph ask "which services call GET /orders/{id}?" --wait<span class="cursor"></span></div>
+        <span class="prompt-label label-cmd">The agent</span>
+        <div class="prompt-box">&gt; The gate is blocking this branch. Run it, use the CLI to find out why, and fix it.<span class="cursor"></span></div>
       </div>
       <div class="prompt-row">
-        <span class="prompt-label label-pass">Verdict 2</span>
-        <div class="prompt-box">&#x2713; 3 services call the endpoint &middot; 2 read the field &middot; 3 owning teams &mdash; do not ship yet</div>
+        <span class="prompt-label label-pass">The fix</span>
+        <div class="prompt-box">$ ./ci/blast-radius-check.sh &nbsp;&rarr;&nbsp; &#x2713; exit 0 &mdash; field restored, sunset dated, IMPACT.md written</div>
       </div>
     </div>
-    <p class="demo-note">The endpoint's blast radius is not the field's blast radius. The payoff is <b>IMPACT.md</b> &mdash; the change the agent tells you <i>not</i> to ship, with the owners to talk to.</p>
+    <p class="demo-note">Three services call the endpoint. <b>Two</b> read the field. Three teams to tell. None of that was in the repo, and all of it arrived through <b>one CLI command</b>.</p>
   </div>
 
   <!-- Slide 5: CTA -->
   <div class="slide slide-cta" data-index="4">
-    <h2>Give Your Agent the Map</h2>
+    <h2>One Binary, Three Places</h2>
     <div class="install-cmd">
-      <span class="prefix">$</span> postman context-graph ask "what depends on &lt;your-api&gt;?" --wait
+      <span class="prefix">$</span> npm install -g postman-cli@latest
     </div>
     <div class="stats">
       <div class="stat">
@@ -462,13 +511,13 @@
     </div>
     <p class="stat-source">Postman's published figures for models working with the graph versus from code alone &mdash; postman.com/context-graph. The launch post reports up to &minus;74% tokens, &minus;52% tool calls and &minus;72% cost across 468 repositories. Not measured in this demo.</p>
     <div class="cta-features">
-      <span class="cta-feat"><span class="check">&#x2713;</span> Postman CLI</span>
-      <span class="cta-feat"><span class="check">&#x2713;</span> API Context Graph</span>
-      <span class="cta-feat"><span class="check">&#x2713;</span> Postman + GitHub + New Relic</span>
-      <span class="cta-feat"><span class="check">&#x2713;</span> Refreshed nightly</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Your terminal</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Your agent's shell</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Your pipeline</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Pipeline-aware exit codes</span>
     </div>
     <div class="cta-links">
-      Start here &rarr; <a href="https://www.postman.com/context-graph/">postman.com/context-graph</a>
+      <a href="https://www.postman.com/product/postman-cli/">postman.com/product/postman-cli</a>
     </div>
   </div>
 

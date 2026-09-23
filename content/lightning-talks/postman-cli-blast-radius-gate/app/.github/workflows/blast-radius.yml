@@ -1,0 +1,57 @@
+name: blast radius
+
+# Two gates, and they answer different questions.
+#
+#   `npm test` asks: is orders-api still correct against its own spec?
+#   blast-radius-check asks: is anyone else still correct against orders-api?
+#
+# The second one cannot be answered from inside this repository, which is why it
+# is the Postman CLI that runs it. Same binary as your terminal, same exit-code
+# contract, no extra test infrastructure to maintain.
+
+on:
+  pull_request:
+    paths:
+      - 'openapi.yaml'
+      - 'src/**'
+  workflow_dispatch:
+
+jobs:
+  contract:
+    name: own tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm test
+
+  blast-radius:
+    name: consumers of this API
+    runs-on: ubuntu-latest
+    steps:
+      # The gate diffs this branch against the PR base, so it needs real history.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install the Postman CLI
+        run: npm install -g postman-cli@latest
+
+      - name: Who depends on what this PR removes?
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          # Without a key there is no graph to ask, and a fork's PR has no secrets.
+          # Fail open in that case rather than blocking on something we cannot check,
+          # and let the step log say plainly that the gate did not run.
+          BLAST_RADIUS_ON_ERROR: ${{ secrets.POSTMAN_API_KEY && 'fail' || 'pass' }}
+        run: |
+          if [ -z "${POSTMAN_API_KEY:-}" ]; then
+            echo "::warning::No POSTMAN_API_KEY — the blast-radius gate will fail open."
+          fi
+          ./ci/blast-radius-check.sh --base "origin/${GITHUB_BASE_REF:-main}"

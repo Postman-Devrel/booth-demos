@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: Orders API
+  version: 2.5.0
+  description: >
+    Serves order records to the rest of the estate. This spec is the artifact the
+    Postman Context Graph ingests from GitHub and from the Postman workspace, and
+    it is what gives the graph its `exposes` edge to GET /orders/{id}.
+  contact:
+    name: Platform Orders
+    url: https://github.com/orgs/EXAMPLE/teams/platform-orders
+servers:
+  - url: https://orders.internal.example.com
+paths:
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Fetch a single order by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: No such order
+components:
+  schemas:
+    Order:
+      type: object
+      required: [id, status, currency, total_cents, customer_id, created_at]
+      properties:
+        id: { type: string, example: ord_9f21 }
+        status: { type: string, enum: [pending, fulfilled, cancelled] }
+        currency: { type: string, example: EUR }
+        total_cents: { type: integer, example: 12900 }
+        customer_id: { type: string, example: cus_01HQ8M }
+        created_at: { type: string, format: date-time }

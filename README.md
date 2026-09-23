@@ -32,7 +32,7 @@ The same material can exist in several formats. When it does, the shorter one se
 | [Claude Code + Postman](content/lightning-talks/claude-code-postman-plugin/) | lightning-talk | 10m | Postman Claude Code Plugin | ready |
 | [Stop Prompting. Start Looping.](content/lightning-talks/open-meteo-loop-eng/) | lightning-talk | 10m | Postman CLI | ready |
 | [The API You Can't Name](content/lightning-talks/orbit-search-by-intent/) | lightning-talk | 10m | Orbit by Postman | draft |
-| [The Blast Radius You Can't Grep](content/lightning-talks/context-graph-blast-radius/) | lightning-talk | 10m | Postman CLI + API Context Graph | draft |
+| [The Check Your CI Is Missing](content/lightning-talks/postman-cli-blast-radius-gate/) | lightning-talk | 10m | Postman CLI | draft |
 | [Make MCPs Your Documentation Best Friend](content/short-talks/mcp-docs-best-friend/) | short-talk | 25m (+ a 10m booth cut) | Fern | draft |
 
 ## Adding new content

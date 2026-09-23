@@ -54,6 +54,7 @@ also carry runtime evidence, which is strictly better on stage — say so if it 
 ./scripts/setup.sh
 ```
 
-Setup runs the real ask and caches the answer. If the graph cannot answer about
-`orders-api`, setup says so loudly and tells you which act degrades — read
+Setup runs the real gate — the same one the demo runs — and requires it to come back
+**red (exit 1)**. If the graph cannot answer about `orders-api`, the gate exits 2 and
+setup tells you which of auth, team access, or ingestion to look at. Read
 [../README.md](../README.md) section 6.
