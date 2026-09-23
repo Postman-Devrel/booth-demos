@@ -1,0 +1,5 @@
+# Measured on the day you present, never committed — see scripts/setup.sh.
+.demo-state/
+
+# Written by setup.sh to register the Orbit MCP server for this folder only.
+.mcp.json

@@ -1,0 +1,79 @@
+format: lightning-talk
+length: 10m
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  Developers and AI engineers who integrate third-party APIs. Assumes they have
+  read API docs and shipped an integration. No prior Orbit or MCP knowledge needed.
+venues:
+  - booth
+  - meetup
+  - conference
+product: Orbit by Postman (via the Orbit MCP server)
+name: The API You Can't Name — Searching by Intent Instead
+use_case: >
+  Show how API discovery changed. Instead of guessing a product name and reading
+  four documentation sites, you describe the capability you need and get back
+  callable endpoints with a fit evaluation, then a task brief an agent can code
+  against — including the failure modes you would otherwise learn from a 400.
+primary_api:
+  - Orbit search endpoint — POST https://api.buildwithorbit.ai/v1/search (no auth)
+  - Orbit integrate endpoint — POST https://api.buildwithorbit.ai/v1/integrate (no auth)
+  - Orbit MCP server — https://mcp.buildwithorbit.ai/mcp (tools: search, integrate)
+  - Nylas v3 Calendar + Email API (whatever the live search returns on the day)
+  - developer.nylas.com — the documentation site used as the "before" baseline
+key_messages:
+  - The hardest API to integrate is the one you cannot name — discovery is the expensive part, not the code
+  - Search by intent, not by name — you describe the capability and get callable endpoints back
+  - evaluateGuide's "Not supported" line is the highest-value part of a search result — it eliminates candidates before you read a docs site
+  - The MCP server does not just wrap the API — the tool descriptions encode the two-step workflow, so the agent chains search into integrate without being told
+  - The task brief's GOTCHAS are the failure modes you would otherwise learn from a production 400 — epoch seconds, a nullable field, an idempotency header
+  - Measured, not claimed — the docs path pulls ~10x the tokens into context and still does not contain the gotchas
+cta:
+  - "One command: claude mcp add --transport http orbit https://mcp.buildwithorbit.ai/mcp"
+  - "Orbit docs: https://www.buildwithorbit.ai/welcome"
+  - "The article this talk is built from: https://blog.postman.com/how-ai-agents-discover-and-integrate-public-apis/"
+presentation_title: The API You Can't Name
+brand_style: manual
+deck_source: >
+  Claude Design is the deck of record when presentation/deck-url.txt holds its
+  share URL; setup.sh opens it and the HTML fallback behind it. With no URL
+  configured the talk presents from presentation/index.html, the self-contained
+  offline deck. The HTML deck is never removed — it is the guarantee that there
+  is always a deck when the venue wifi or a Claude Design login is unavailable.
+derived_from: >
+  Not a cut-down of another talk in this repo. Adapted from the blog post
+  "How AI Agents Discover and Integrate Public APIs" (WordPress 20467) by the
+  same author.
+notes: >
+  THE NUMBERS ARE MEASURED, NOT AUTHORED. Every figure in the Act 4 scoreboard is
+  recomputed by scripts/setup.sh on the day you present: it runs the real Orbit
+  search and integrate calls, fetches the Nylas documentation pages an agent would
+  otherwise read, and writes .demo-state/scoreboard.txt. Read that file, not this
+  README, for the numbers you say on stage. The README quotes a run from
+  2026-09-01 so you know the shape to expect. Do not invent or round figures.
+  The retrieval wall clock is measured too (.demo-state/timings.json).
+
+  TWO EXCEPTIONS, AND THEY ARE LABELLED: tokens into context and input cost are
+  NOT re-measured per run. They were measured once on 2026-09-01 (chars / 3.5
+  estimate, Opus 5 input at $5/1M) and live as constants in setup.sh and on
+  slide 4, so the deck and the podium sheet cannot drift apart. The scoreboard
+  prints them under a FIXED heading, separate from MEASURED TODAY. If challenged,
+  say they were measured once and give the date. To refresh, edit setup.sh's
+  FIXED_* / *_TOK / *_COST constants AND slide 4 together — see README 3b.
+
+  DO NOT CLAIM ORBIT IS FASTER TO FETCH. It is not. Measured 2026-09-01: four Nylas
+  docs pages download in 0.65s; Orbit search took 7.3s and integrate 12.8s — the
+  docs path is ~31x faster to retrieve. The honest comparison is what lands in
+  context and what is missing from it, not latency. The week-to-an-afternoon figure is the article author's own reported
+  experience, not a measurement — say so if you use it.
+
+  THE ORBIT CATALOG IS LIVE. Search results shift between runs (response size
+  varied 4,967-5,067 bytes across three consecutive identical queries on
+  2026-08-31) and integrate occasionally returns a 500. Never hardcode endpoint
+  IDs into the demo: the click track takes the IDs from the search you just ran.
+  setup.sh caches a known-good search and brief in .demo-state/ as the offline
+  fallback — Act 3 works from the cache if the live call fails.
+
+  The talk deliberately does not sell Orbit. It tells one engineer's story about a
+  feature they had to ship. Keep it that way.

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Make MCPs Your Documentation Best Friend</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+/* ---------------------------------------------------------------- tokens */
+:root {
+  --orange: #ff6c37;
+  --orange-dim: #ff8a5f;
+  --ink: #0d0e11;
+  --ink-2: #15171c;
+  --panel: #1c1f26;
+  --line: #2b2f39;
+  --fg: #f4f5f7;
+  --fg-2: #a8b0be;
+  --fg-3: #767f8f;
+  --blue: #4c8dff;
+  --green: #3ecf8e;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--fg);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- slides */
+
+.slide {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5vh 7vw;
+  opacity: 0;
+  transform: translateX(46px);
+  transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.22, 0.7, 0.3, 1);
+  pointer-events: none;
+}
+.slide.on { opacity: 1; transform: translateX(0); pointer-events: auto; }
+.slide.prev { transform: translateX(-46px); }
+
+.eyebrow {
+  font-size: clamp(11px, 1.05vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 2.2vh;
+}
+
+h1 {
+  font-size: clamp(38px, 5.6vw, 90px);
+  line-height: 1.04;
+  letter-spacing: -0.032em;
+  font-weight: 800;
+}
+h2 {
+  font-size: clamp(28px, 3.9vw, 62px);
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+  font-weight: 750;
+}
+.sub {
+  margin-top: 2.6vh;
+  font-size: clamp(15px, 1.55vw, 25px);
+  line-height: 1.5;
+  color: var(--fg-2);
+  max-width: 40ch;
+}
+
+.accent { color: var(--orange); }
+
+/* ------------------------------------------------------------- title card */
+
+.title-slide { justify-content: center; }
+.rule {
+  width: 96px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--orange);
+  margin: 4vh 0 3.6vh;
+}
+.byline { display: flex; align-items: center; gap: 18px; margin-top: 1vh; }
+.byline .who { font-size: clamp(16px, 1.65vw, 26px); font-weight: 650; }
+.byline .role { font-size: clamp(13px, 1.2vw, 19px); color: var(--fg-3); }
+.venue {
+  position: absolute;
+  left: 7vw;
+  bottom: 5vh;
+  font-size: clamp(12px, 1.1vw, 17px);
+  color: var(--fg-3);
+  letter-spacing: 0.02em;
+}
+.pm-badge {
+  position: absolute;
+  right: 7vw;
+  top: 5vh;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(12px, 1.05vw, 16px);
+  color: var(--fg-2);
+  font-weight: 600;
+}
+.pm-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--orange);
+  display: grid; place-items: center;
+  color: #fff; font-weight: 800; font-size: 13px;
+}
+
+/* ------------------------------------------------------------------ cards */
+
+.grid { display: grid; gap: 1.6vw; margin-top: 4vh; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+
+.card {
+  padding: 2.4vh 1.6vw;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(165deg, var(--panel), var(--ink-2));
+}
+.card .num {
+  font-family: var(--mono);
+  font-size: clamp(12px, 1.1vw, 17px);
+  font-weight: 600;
+  color: var(--orange);
+  margin-bottom: 1.4vh;
+}
+.card h3 {
+  font-size: clamp(16px, 1.55vw, 25px);
+  line-height: 1.22;
+  font-weight: 660;
+  letter-spacing: -0.014em;
+  margin-bottom: 1.2vh;
+}
+.card p {
+  font-size: clamp(13px, 1.16vw, 18px);
+  line-height: 1.5;
+  color: var(--fg-2);
+}
+
+.takeaway {
+  margin-top: 4vh;
+  padding: 2.2vh 1.8vw;
+  border-radius: 12px;
+  border-left: 4px solid var(--orange);
+  background: rgba(255, 108, 55, 0.09);
+  font-size: clamp(13px, 1.2vw, 19px);
+  line-height: 1.5;
+  color: var(--fg-2);
+}
+.takeaway b { color: var(--fg); font-weight: 650; }
+.takeaway .lbl {
+  display: block;
+  font-size: clamp(10px, 0.85vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 0.7vh;
+}
+
+/* ------------------------------------------------------------ before/now */
+
+.split { display: grid; grid-template-columns: 1fr auto 1fr; gap: 2vw; align-items: stretch; margin-top: 3vh; }
+.era {
+  padding: 3vh 2vw;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+}
+.era.now { border-color: rgba(255, 108, 55, 0.42); background: linear-gradient(170deg, rgba(255,108,55,0.09), var(--ink-2)); }
+.era .tag {
+  font-family: var(--mono);
+  font-size: clamp(11px, 1vw, 15px);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--fg-3);
+  margin-bottom: 1.6vh;
+}
+.era.now .tag { color: var(--orange); }
+.era h3 { font-size: clamp(20px, 2.2vw, 36px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 2vh; }
+.era p { font-size: clamp(13px, 1.18vw, 19px); line-height: 1.55; color: var(--fg-2); margin-bottom: 1.4vh; }
+.arrow {
+  align-self: center;
+  font-size: clamp(20px, 2.2vw, 34px);
+  color: var(--orange);
+  font-weight: 300;
+}
+
+/* ------------------------------------------------------------- flow steps */
+
+.flow { display: flex; align-items: stretch; gap: 0.9vw; margin-top: 4vh; }
+.step {
+  flex: 1;
+  padding: 2.4vh 1.3vw;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--ink-2);
+  position: relative;
+}
+.step .n {
+  font-family: var(--mono);
+  font-size: clamp(11px, 1vw, 15px);
+  color: var(--fg-3);
+  margin-bottom: 1.2vh;
+}
+.step h3 { font-size: clamp(15px, 1.45vw, 23px); font-weight: 650; margin-bottom: 1vh; letter-spacing: -0.012em; }
+.step p { font-size: clamp(12px, 1.08vw, 17px); line-height: 1.48; color: var(--fg-2); }
+.chev {
+  align-self: center;
+  color: var(--fg-3);
+  font-size: clamp(15px, 1.5vw, 24px);
+}
+
+/* --------------------------------------------------------- one-spec slide */
+
+.spec-layout { display: grid; grid-template-columns: 0.92fr 1.08fr; gap: 3vw; align-items: center; margin-top: 2vh; }
+.outputs { display: grid; gap: 1.3vh; }
+.out {
+  display: flex;
+  align-items: baseline;
+  gap: 1vw;
+  padding: 2vh 1.5vw;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--ink-2);
+}
+.out .mark { color: var(--green); font-size: clamp(14px, 1.3vw, 20px); font-weight: 700; }
+.out b { font-size: clamp(15px, 1.45vw, 23px); font-weight: 650; }
+.out span { font-size: clamp(12px, 1.08vw, 17px); color: var(--fg-2); }
+.out.hero-out { border-color: rgba(255,108,55,0.45); background: linear-gradient(150deg, rgba(255,108,55,0.11), var(--ink-2)); }
+.out.hero-out .mark { color: var(--orange); }
+
+.source {
+  padding: 3vh 1.9vw;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  background: var(--ink-2);
+  text-align: center;
+}
+.source .lbl { font-family: var(--mono); font-size: clamp(11px, 1vw, 15px); color: var(--fg-3); letter-spacing: 0.14em; }
+.source .big { font-size: clamp(20px, 2.1vw, 34px); font-weight: 700; margin: 1.4vh 0; letter-spacing: -0.02em; }
+.source .small { font-size: clamp(12px, 1.08vw, 17px); color: var(--fg-2); line-height: 1.5; }
+.down { font-size: clamp(18px, 1.9vw, 30px); color: var(--orange); margin: 1.6vh 0; }
+
+/* ------------------------------------------------------------- demo slide */
+
+.demo-slide { align-items: center; text-align: center; justify-content: center; }
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 108, 55, 0.5);
+  background: rgba(255, 108, 55, 0.12);
+  font-size: clamp(12px, 1.1vw, 17px);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--orange);
+  margin-bottom: 3vh;
+}
+.live .blip {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--orange);
+  animation: pulse 1.7s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.22; } }
+.demo-slide h1 { font-size: clamp(56px, 9vw, 150px); }
+.beats {
+  display: flex;
+  gap: 1.4vw;
+  margin-top: 5vh;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.beat {
+  padding: 1.6vh 1.5vw;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--ink-2);
+  font-size: clamp(12px, 1.1vw, 17px);
+  color: var(--fg-2);
+  text-align: left;
+}
+.beat b { display: block; color: var(--fg); font-weight: 620; margin-bottom: 0.4vh; }
+
+/* ------------------------------------------------------------ speaker/CTA */
+
+.speaker { display: grid; grid-template-columns: auto 1fr; gap: 3vw; align-items: center; }
+.avatar {
+  width: clamp(150px, 15vw, 250px);
+  aspect-ratio: 1;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, var(--panel), var(--ink-2));
+  display: grid;
+  place-items: center;
+  font-size: clamp(38px, 4.6vw, 76px);
+  font-weight: 800;
+  color: var(--orange);
+  letter-spacing: -0.03em;
+}
+.facts { margin-top: 3vh; display: grid; gap: 1.6vh; }
+.fact { display: flex; gap: 1vw; align-items: baseline; font-size: clamp(13px, 1.25vw, 20px); color: var(--fg-2); line-height: 1.45; }
+.fact .k { color: var(--orange); font-weight: 700; min-width: 6.5ch; font-size: clamp(11px, 1vw, 15px); letter-spacing: 0.09em; text-transform: uppercase; }
+.fact b { color: var(--fg); font-weight: 620; }
+
+.cta { display: grid; grid-template-columns: 1fr auto; gap: 4vw; align-items: center; }
+.qr {
+  width: clamp(150px, 15vw, 240px);
+  aspect-ratio: 1;
+  border-radius: 18px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  color: #0d0e11;
+  font-size: clamp(11px, 1vw, 15px);
+  font-weight: 650;
+  text-align: center;
+  padding: 14px;
+  line-height: 1.4;
+}
+.links { margin-top: 3.4vh; display: grid; gap: 1.4vh; }
+.link {
+  display: flex;
+  gap: 1vw;
+  align-items: baseline;
+  font-size: clamp(13px, 1.22vw, 20px);
+  color: var(--fg-2);
+}
+.link .k { color: var(--orange); font-weight: 700; }
+.link code { font-family: var(--mono); font-size: 0.94em; color: var(--fg); }
+
+/* -------------------------------------------------------------- chrome/nav */
+
+.dots {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #3a3f4b;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dot:hover { background: #58606f; }
+.dot.on { background: var(--orange); width: 22px; border-radius: 4px; }
+
+.counter {
+  position: fixed;
+  bottom: 20px;
+  right: 26px;
+  z-index: 20;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--fg-3);
+  letter-spacing: 0.06em;
+}
+
+.hint {
+  position: fixed;
+  bottom: 20px;
+  left: 26px;
+  z-index: 20;
+  font-size: 11.5px;
+  color: #4a515f;
+  letter-spacing: 0.04em;
+  transition: opacity 0.4s ease;
+}
+.hint.gone { opacity: 0; }
+
+.progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--orange);
+  z-index: 30;
+  transition: width 0.4s cubic-bezier(0.22, 0.7, 0.3, 1);
+}
+
+@media (max-width: 900px) {
+  .g3, .g4 { grid-template-columns: repeat(2, 1fr); }
+  .split, .speaker, .cta, .spec-layout { grid-template-columns: 1fr; }
+  .flow { flex-direction: column; }
+  .chev { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- 1 ---------------------------------------------------------- title --- -->
+<section class="slide title-slide">
+  <div class="pm-badge"><span class="pm-dot">P</span> Postman</div>
+  <div class="eyebrow">Agents &amp; APIs Copenhagen Meetup</div>
+  <h1>Make MCPs Your<br />Documentation <span class="accent">Best Friend</span></h1>
+  <div class="rule"></div>
+  <div class="byline">
+    <div>
+      <div class="who">Anthony Viard</div>
+      <div class="role">Senior Developer Advocate, Postman</div>
+    </div>
+  </div>
+  <div class="venue">August 27, 2026 · Copenhagen</div>
+</section>
+
+<!-- 2 -------------------------------------------------------- speaker --- -->
+<section class="slide">
+  <div class="eyebrow">About your speaker</div>
+  <div class="speaker">
+    <div class="avatar">AV</div>
+    <div>
+      <h2>Anthony Viard</h2>
+      <p class="sub" style="margin-top:1.4vh">Senior Developer Advocate, Postman</p>
+      <div class="facts">
+        <div class="fact"><span class="k">16 yrs</span><span>In the trenches: <b>Java and JavaScript</b> developer.</span></div>
+        <div class="fact"><span class="k">OSS</span><span>Open source, up close: core member of the <b>JHipster</b> project.</span></div>
+        <div class="fact"><span class="k">Now</span><span>Developer Advocacy — helping developers get the most out of <b>Postman</b>.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------ two readers -- -->
+<section class="slide">
+  <div class="eyebrow">Two readers, same content</div>
+  <h2>One page. Two very different readers.</h2>
+  <div class="split">
+    <div class="era">
+      <div class="tag">BEFORE</div>
+      <h3>One reader</h3>
+      <p>An HTML/JS website built for a human: skimming headings, scanning for one paragraph.</p>
+      <p>No second reader existed — developers read the docs and wrote the integration themselves.</p>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="era now">
+      <div class="tag">NOW</div>
+      <h3>Two readers</h3>
+      <p>A human still skims. But now an agent has to <b>discover</b>, <b>authenticate</b>, <b>parse</b>, and <b>recover from errors</b> on its own.</p>
+      <p>This is dual readership: the same page, read by two very different readers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -------------------------------------------------- what docs are for -->
+<section class="slide">
+  <div class="eyebrow">What docs are for</div>
+  <h2>What API documentation actually has to do.</h2>
+  <div class="grid g3">
+    <div class="card">
+      <div class="num">01</div>
+      <h3>Endpoints &amp; behavior</h3>
+      <p>What the API does, described so the reader can call it correctly.</p>
+    </div>
+    <div class="card">
+      <div class="num">02</div>
+      <h3>Parameters, schemas &amp; auth</h3>
+      <p>What it needs: request and response shapes, required fields, credentials.</p>
+    </div>
+    <div class="card">
+      <div class="num">03</div>
+      <h3>Examples &amp; error handling</h3>
+      <p>What it shows: worked examples, and what happens when a call fails.</p>
+    </div>
+  </div>
+  <div class="takeaway">
+    <span class="lbl">Key takeaway</span>
+    Documentation is <b>the interface between an API and whoever has to use it correctly</b> — not a
+    description of the API for its own sake.
+  </div>
+</section>
+
+<!-- 5 --------------------------------------------- agent-facing surface --- -->
+<section class="slide">
+  <div class="eyebrow">The agent-facing surface</div>
+  <h2>What we create for agents.</h2>
+  <div class="grid g3">
+    <div class="card">
+      <div class="num">01</div>
+      <h3><code style="font-family:var(--mono);font-size:0.92em">llms.txt</code></h3>
+      <p>A plain-text index at the root of the site, so an agent knows what exists before it starts guessing.</p>
+    </div>
+    <div class="card">
+      <div class="num">02</div>
+      <h3>Per-page Markdown</h3>
+      <p>The same content as the HTML page, stripped of navigation and JS chrome, so it is cheap to parse.</p>
+    </div>
+    <div class="card">
+      <div class="num">03</div>
+      <h3>An MCP server</h3>
+      <p>A tool the agent calls directly, like <code style="font-family:var(--mono)">searchDocs</code>, instead of scraping and re-parsing pages itself.</p>
+    </div>
+  </div>
+  <div class="takeaway">
+    <span class="lbl">Key takeaway</span>
+    Three formats, one purpose: <b>give the agent a shortcut past the parts of the page it cannot use.</b>
+  </div>
+</section>
+
+<!-- 6 ---------------------------------------------------- how MCP works --- -->
+<section class="slide">
+  <div class="eyebrow">How MCP works</div>
+  <h2>So, what is an MCP server?</h2>
+  <div class="grid g4">
+    <div class="card">
+      <div class="num">01</div>
+      <h3>Host</h3>
+      <p>The application the human uses: Claude, an IDE, or a custom agent.</p>
+    </div>
+    <div class="card">
+      <div class="num">02</div>
+      <h3>Client</h3>
+      <p>Lives inside the host and manages exactly one connection to one server.</p>
+    </div>
+    <div class="card">
+      <div class="num">03</div>
+      <h3>Server</h3>
+      <p>A program that exposes tools — for example, a search function the agent can call.</p>
+    </div>
+    <div class="card">
+      <div class="num">04</div>
+      <h3>Transport</h3>
+      <p>Messages travel as JSON-RPC, typically over HTTP.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------ why it matters -->
+<section class="slide">
+  <div class="eyebrow">Why it matters</div>
+  <h2>Why MCP is good news for docs.</h2>
+  <div class="grid g3">
+    <div class="card">
+      <div class="num">01</div>
+      <h3>Queryable, not scraped</h3>
+      <p>An agent calls a tool like <code style="font-family:var(--mono)">searchDocs</code>, instead of parsing raw HTML.</p>
+    </div>
+    <div class="card">
+      <div class="num">02</div>
+      <h3>Answers stay grounded</h3>
+      <p>Responses are scoped to what the docs actually say, not a guess.</p>
+    </div>
+    <div class="card">
+      <div class="num">03</div>
+      <h3>One door, not one scraper each</h3>
+      <p>A single server every agent can reuse, instead of custom scraping per integration.</p>
+    </div>
+  </div>
+  <div class="takeaway">
+    <span class="lbl">But</span>
+    How do you keep all of that — <b>the docs, llms.txt, the Markdown, and the MCP server</b> — up to date?
+  </div>
+</section>
+
+<!-- 8 ----------------------------------------------------- manual curating -->
+<section class="slide">
+  <div class="eyebrow">The manual curating</div>
+  <h2>Imagine curating this by hand.</h2>
+  <div class="flow">
+    <div class="step">
+      <div class="n">01</div>
+      <h3>Update the OpenAPI spec</h3>
+      <p>The source everyone is supposed to trust.</p>
+    </div>
+    <div class="chev">&rarr;</div>
+    <div class="step">
+      <div class="n">02</div>
+      <h3>Update the human docs</h3>
+      <p>Rewrite the affected pages, and hope nothing was missed.</p>
+    </div>
+    <div class="chev">&rarr;</div>
+    <div class="step">
+      <div class="n">03</div>
+      <h3>Update llms.txt &amp; Markdown</h3>
+      <p>If they exist, and if anyone remembers they are separate files.</p>
+    </div>
+    <div class="chev">&rarr;</div>
+    <div class="step">
+      <div class="n">04</div>
+      <h3>Patch the MCP server</h3>
+      <p>Re-implementing whatever changed, separately from the docs.</p>
+    </div>
+  </div>
+  <div class="takeaway">
+    <span class="lbl">The failure mode</span>
+    Four surfaces, four owners, four chances to forget. <b>Anything maintained by hand drifts.</b>
+  </div>
+</section>
+
+<!-- 9 --------------------------------------------------------- better way -->
+<section class="slide">
+  <div class="eyebrow">The better way</div>
+  <h2>One spec to rule them all.</h2>
+  <div class="spec-layout">
+    <div>
+      <div class="source">
+        <div class="lbl">SOURCE OF TRUTH</div>
+        <div class="big">OpenAPI spec<br />+ guides</div>
+        <div class="small">Examples, parameter definitions, auth — written once.</div>
+      </div>
+      <div class="down" style="text-align:center">&darr;</div>
+      <p class="sub" style="margin-top:0;max-width:32ch">
+        Generate the agent-facing surface from the <b style="color:var(--fg)">same source as the docs</b>,
+        at the same time.
+      </p>
+    </div>
+    <div class="outputs">
+      <div class="out"><span class="mark">&#10003;</span><div><b>The human docs site</b><br /><span>Same as always, but completely in sync.</span></div></div>
+      <div class="out"><span class="mark">&#10003;</span><div><b>Per-page Markdown</b><br /><span>Generated for every documentation page.</span></div></div>
+      <div class="out"><span class="mark">&#10003;</span><div><b>llms.txt index</b><br /><span>Structured interface for LLM discovery.</span></div></div>
+      <div class="out hero-out"><span class="mark">&#10003;</span><div><b>An MCP server</b><br /><span>The active query interface — what lets an agent actually <em>use</em> it.</span></div></div>
+    </div>
+  </div>
+  <div class="takeaway">
+    <span class="lbl">No manual curation</span>
+    Nothing is copied or synced by hand. <b>Everything is built together, so it cannot drift.</b>
+  </div>
+</section>
+
+<!-- 10 -------------------------------------------------------------- demo -->
+<section class="slide demo-slide">
+  <div class="live"><span class="blip"></span> LIVE</div>
+  <h1>Demo</h1>
+  <div class="beats">
+    <div class="beat"><b>1 · The human portal</b>Beautiful for people. Empty for an agent.</div>
+    <div class="beat"><b>2 · Ask an agent</b>Same question, both sites. Watch it fail, then succeed.</div>
+    <div class="beat"><b>3 · The generated surface</b>llms.txt, .md, and the MCP server — from one spec.</div>
+  </div>
+</section>
+
+<!-- 11 ---------------------------------------------------------- one more -->
+<section class="slide">
+  <div class="eyebrow">One more thing</div>
+  <div class="cta">
+    <div>
+      <h2>Join the Postman Community<br />on <span class="accent">Discord</span>.</h2>
+      <p class="sub">Scan to join — ask questions, share what you build, and find the people
+         solving the same problems you are.</p>
+    </div>
+    <div class="qr">QR code<br />goes here<br /><span style="font-weight:400;color:#5b6270">discord.gg/postman</span></div>
+  </div>
+</section>
+
+<!-- 12 ------------------------------------------------------------- thanks -->
+<section class="slide title-slide">
+  <div class="pm-badge"><span class="pm-dot">P</span> Postman</div>
+  <h1>Thank you!</h1>
+  <div class="rule"></div>
+  <div class="links">
+    <div class="link"><span class="k">Slides</span><span>and the docs MCP server — both linked from the event page.</span></div>
+    <div class="link"><span class="k">Docs</span><span><code>devreliance-health.docs.buildwithfern.com</code></span></div>
+    <div class="link"><span class="k">MCP</span><span><code>devreliance-health.docs.buildwithfern.com/_mcp/server</code></span></div>
+    <div class="link"><span class="k">Say hi</span><span>Find me after for questions, or on the Postman Discord.</span></div>
+  </div>
+  <div class="venue">Anthony Viard · Senior Developer Advocate, Postman</div>
+</section>
+
+<div class="dots" id="dots"></div>
+<div class="counter" id="counter"></div>
+<div class="hint" id="hint">&larr; &rarr; or click to navigate</div>
+
+<script>
+(function () {
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var dots = document.getElementById("dots");
+  var counter = document.getElementById("counter");
+  var progress = document.getElementById("progress");
+  var hint = document.getElementById("hint");
+  var i = 0;
+
+  slides.forEach(function (_, n) {
+    var b = document.createElement("button");
+    b.className = "dot";
+    b.setAttribute("aria-label", "Go to slide " + (n + 1));
+    b.addEventListener("click", function (ev) { ev.stopPropagation(); go(n); });
+    dots.appendChild(b);
+  });
+  var dotEls = Array.prototype.slice.call(dots.children);
+
+  function go(n) {
+    if (n < 0 || n > slides.length - 1 || n === i) return;
+    var back = n < i;
+    slides[i].classList.remove("on");
+    slides[i].classList.toggle("prev", !back);
+    i = n;
+    slides[i].classList.remove("prev");
+    slides[i].classList.add("on");
+    render();
+  }
+
+  function render() {
+    dotEls.forEach(function (d, n) { d.classList.toggle("on", n === i); });
+    counter.textContent = (i + 1) + " / " + slides.length;
+    progress.style.width = ((i + 1) / slides.length * 100) + "%";
+    if (i > 0) hint.classList.add("gone");
+  }
+
+  function next() { go(Math.min(i + 1, slides.length - 1)); }
+  function prev() { go(Math.max(i - 1, 0)); }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); next(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); prev(); }
+    else if (e.key === "Home") { go(0); }
+    else if (e.key === "End") { go(slides.length - 1); }
+    else if (e.key === "f") { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+  });
+
+  document.addEventListener("click", function (e) {
+    if (e.target.closest && e.target.closest(".dot")) return;
+    if (e.clientX < window.innerWidth * 0.34) prev(); else next();
+  });
+
+  slides[0].classList.add("on");
+  render();
+})();
+</script>
+</body>
+</html>

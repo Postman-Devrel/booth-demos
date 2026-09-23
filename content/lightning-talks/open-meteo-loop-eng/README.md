@@ -1,6 +1,6 @@
 # Meteo API Loop Engineering — Postman as the Oracle
 
-> Booth demo — target length **10 minutes**. This README is the single source of truth. Read it top to bottom before your first attendee; everything you need to run the demo without improvising is here.
+> [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **10 minutes**. Delivered at booths, meetups, and lightning tracks. This README is the single source of truth. Read it top to bottom before your first attendee; everything you need to run the demo without improvising is here.
 
 ---
 
@@ -17,7 +17,7 @@
 
 **Call to action (for attendees):**
 
-- Grab the demo: `git clone https://github.com/Postman-Devrel/booth-demos.git` → `cd booth-demos/demos/open-meteo-loop-eng`
+- Grab the demo: `git clone https://github.com/Postman-Devrel/booth-demos.git` → `cd booth-demos/content/lightning-talks/open-meteo-loop-eng`
 - Postman CLI docs: <https://learning.postman.com/docs/postman-cli/postman-cli-overview/>
 - Loop engineering, explained: <https://addyosmani.com/blog/loop-engineering/>
 
@@ -216,7 +216,7 @@ No API keys, no workspace, no cloud artifacts to delete. The oracle collection s
 
 | Resource | Link |
 |---|---|
-| This demo (booth-demos repo) | <https://github.com/Postman-Devrel/booth-demos/tree/main/demos/open-meteo-loop-eng> |
+| This demo (booth-demos repo) | <https://github.com/Postman-Devrel/booth-demos/tree/main/content/lightning-talks/open-meteo-loop-eng> |
 | Postman CLI — overview | <https://learning.postman.com/docs/postman-cli/postman-cli-overview/> |
 | Postman CLI — install | <https://learning.postman.com/docs/postman-cli/postman-cli-installation/> |
 | Postman CLI — running collections | <https://learning.postman.com/docs/postman-cli/postman-cli-collections/> |

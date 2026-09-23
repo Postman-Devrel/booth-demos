@@ -1,3 +1,14 @@
+format: lightning-talk
+length: 10m
+owner: Kapil Gowru <k.gowru@gmail.com>
+status: ready
+audience: >
+  Any audience — developers, docs teams, or buyers. Slide-driven overview, no prior
+  Fern knowledge assumed.
+venues:
+  - booth
+  - meetup
+  - internal
 product: Fern
 name: Fern — Docs, SDKs, and a CLI for your API
 use_case: Give any audience a 10-minute, slide-driven overview of Fern — how one API spec becomes a branded docs site, idiomatic SDKs in every language, and a CLI, all built for developers and agents in the AI era.
@@ -19,7 +30,6 @@ cta:
   - "See it live: https://buildwithfern.com"
   - "Customer results: https://buildwithfern.com/customers"
   - "Talk to the team: sales@buildwithfern.com"
-demo_length: 10m
 presentation_title: Fern — Docs, SDKs, and a CLI for your API
 brand_style: manual
 notes: >

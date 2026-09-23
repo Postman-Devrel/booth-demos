@@ -1,8 +1,9 @@
 # Fern — Docs, SDKs, and a CLI for your API
 
-> Booth demo — target length **10 minutes**. This README is the single source of truth.
-> Read it top to bottom before your first attendee; everything you need to present the deck
-> without improvising is here.
+> [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **10 minutes**.
+> Delivered at booths and meetups. This README is the single source of truth. Read it top to
+> bottom before your first attendee; everything you need to present the deck without
+> improvising is here.
 
 This is a **slide-forward** demo — a self-contained deck plus the talk track below. It's the
 deck you give at a booth, a meetup, or the top of a customer call before you demo anything
@@ -67,7 +68,7 @@ the customers-page walk (Act 6).
 ## 3. Setup
 
 ```bash
-cd demos/fern
+cd content/lightning-talks/fern
 ./scripts/setup.sh
 ```
 
@@ -89,12 +90,12 @@ the top**, and press **`t`** to set the theme to match the room.
 
 With `--authoring`, setup also (takes ~10s on good wifi, gitignored under `workspace/`):
 
-1. Clones **fern-api/docs-starter** and **fern-api/sdk-starter** into `demos/fern/workspace/`.
+1. Clones **fern-api/docs-starter** and **fern-api/sdk-starter** into `content/lightning-talks/fern/workspace/`.
 2. Installs the official Fern agent skills (**fern-api/skills**, `npx skills add … --all`) into
    `workspace/docs-starter/.claude/skills/` — so Claude Code picks up the `fern-docs` skill there.
 3. Runs `fern check` on the docs-starter so the live preview can't fail on stage.
 
-Then, to rehearse Path B: `cd demos/fern/workspace/docs-starter && fern docs dev` (preview at
+Then, to rehearse Path B: `cd content/lightning-talks/fern/workspace/docs-starter && fern docs dev` (preview at
 `localhost:3000`), and open `claude` in that folder.
 
 ### Authentication
@@ -233,7 +234,7 @@ you start.)*
 
 **Path B — the repo and an agent, for the coder.**
 
-**Show:** a terminal in `demos/fern/workspace/docs-starter` with the live preview already
+**Show:** a terminal in `content/lightning-talks/fern/workspace/docs-starter` with the live preview already
 running — `fern docs dev` at <http://localhost:3000> — beside a Claude Code session in the
 same folder.
 

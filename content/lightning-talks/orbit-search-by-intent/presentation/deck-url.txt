@@ -1,0 +1,12 @@
+# The deck of record.
+#
+# Put the Claude Design deck's share URL on a line of its own below and re-run
+# scripts/setup.sh. setup.sh will then open that deck AND index.html behind it.
+#
+# Leave it commented out and the talk presents from index.html — the
+# self-contained HTML fallback. That fallback is never removed: it is what you
+# present from when the venue wifi dies or you cannot log in to Claude Design.
+#
+# Lines starting with '#' are ignored; the first http(s) URL found wins.
+#
+# https://claude.ai/design/<project>/<deck>

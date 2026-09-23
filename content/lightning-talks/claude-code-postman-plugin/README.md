@@ -1,5 +1,8 @@
 # Claude Code + Postman Booth Demo
 
+> [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **10 minutes**.
+> Delivered at booths and meetups.
+
 A repeatable ~10 minute tradeshow booth demo showcasing the [Postman Plugin for Claude Code](https://github.com/Postman-Devrel/postman-claude-code-plugin). Uses the real [Postman Liftoff Content API](https://www.postman.com/liftoff/api/content) as demo content.
 
 **The story:** Your APIs aren't ready for AI agents. The Postman Claude Code plugin takes you from bare endpoints to an AI- and production-ready API — spec generation, Postman sync, mock servers, security audit, and agent readiness scoring — all through natural language, using tools developers already love.
