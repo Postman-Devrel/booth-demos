@@ -1,4 +1,0 @@
-# Ownership feeds the `owned_by` edges in the Postman Context Graph.
-*               @platform-orders
-/src/serializers/ @platform-orders
-/openapi.yaml   @platform-orders

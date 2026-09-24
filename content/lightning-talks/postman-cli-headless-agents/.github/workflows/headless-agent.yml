@@ -1,0 +1,23 @@
+name: Headless PR Reviewer
+
+on:
+  pull_request:
+    paths: ["**/openapi.yaml"]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the Postman CLI
+        run: npm install -g postman-cli@latest
+
+      - name: Log in with the team's Context Graph access
+        run: postman login --with-api-key "${{ secrets.POSTMAN_API_KEY }}"
+
+      - name: Run the agent — no human prompt, no approval step
+        run: |
+          claude -p "$(cat agents/headless-pr-agent.md)" \
+            --dangerously-skip-permissions \
+            --allowedTools "Bash,Write"

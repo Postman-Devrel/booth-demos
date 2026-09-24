@@ -1,0 +1,21 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/patients/:id"
+  method: GET
+  pathVariables:
+    - key: id
+      value: <integer>
+      disabled: false
+      description: "(Required) "
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: text/plain
+  body:
+    type: text
+    content: ""
+order: 2000

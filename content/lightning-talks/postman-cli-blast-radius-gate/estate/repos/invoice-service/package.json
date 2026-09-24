@@ -1,8 +1,0 @@
-{
-  "name": "invoice-service",
-  "version": "5.1.2",
-  "private": true,
-  "description": "Issues invoices for fulfilled orders.",
-  "type": "module",
-  "scripts": { "start": "node src/issue-invoice.js" }
-}

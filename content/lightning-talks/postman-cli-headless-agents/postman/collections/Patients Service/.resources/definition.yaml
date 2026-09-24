@@ -1,0 +1,9 @@
+$kind: collection
+description: |-
+  The one committed contract for this talk. It documents the response shape of GET /api/patients/{id} on healthcare-org-app/healthcare-patients — a real service in the Postman DevRel team's canonical Context Graph estate, which has no published contract of its own. Act 1 lints, generates a collection from, and mocks this file with nothing but the Postman CLI. Act 2 asks the Context Graph who else depends on this endpoint before changing blood_type — the graph tracks calls between endpoints and APIs, not individual JSON fields, so that is the level the question stays at.
+
+
+  Contact Support:
+   Name: Postman DevRel
+variables:
+  baseUrl: https://patients.internal.healthcare-org-app.example.com

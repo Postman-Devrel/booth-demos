@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: Patients Service
+  version: 1.0.0
+  description: >
+    The one committed contract for this talk. It documents the response shape of
+    GET /api/patients/{id} on healthcare-org-app/healthcare-patients — a real
+    service in the Postman DevRel team's canonical Context Graph estate, which has
+    no published contract of its own. Act 1 lints, generates a collection from,
+    and mocks this file with nothing but the Postman CLI. Act 2 asks the Context
+    Graph who else depends on this endpoint before changing blood_type — the
+    graph tracks calls between endpoints and APIs, not individual JSON fields,
+    so that is the level the question stays at.
+  contact:
+    name: Postman DevRel
+    url: https://github.com/healthcare-org-app
+servers:
+  - url: https://patients.internal.healthcare-org-app.example.com
+paths:
+  /api/patients/{id}:
+    get:
+      operationId: getPatient
+      summary: Fetch a single patient by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The patient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '404':
+          description: No such patient
+components:
+  schemas:
+    Patient:
+      type: object
+      required: [id, mrn, status, created_at, updated_at, first_name, last_name, dob]
+      properties:
+        id: { type: integer, example: 1001 }
+        mrn: { type: string, example: MRN-001 }
+        identity_sub: { type: string, nullable: true }
+        status: { type: string, enum: [active, inactive] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        first_name: { type: string, example: Ava }
+        last_name: { type: string, example: Reyes }
+        dob: { type: string, format: date, example: '1988-03-14' }
+        email: { type: string, example: ava.reyes@example.com }
+        phone: { type: string, example: '+1-555-0110' }
+        blood_type: { type: string, example: O+ }

@@ -1,8 +1,0 @@
-{
-  "name": "crm-sync-job",
-  "version": "1.8.0",
-  "private": true,
-  "description": "Nightly job that mirrors orders back into the legacy CRM.",
-  "type": "module",
-  "scripts": { "start": "node src/sync.js" }
-}

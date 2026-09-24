@@ -1,0 +1,10 @@
+version: 1
+id: 8b5a5ecf-2db8-4daf-b16f-7ee3e24e37d7
+name: Patients Service
+slug: patients-service
+protocol: http
+port: 4010
+scenarios:
+  - name: default
+    path: ./default.js
+    default: true
