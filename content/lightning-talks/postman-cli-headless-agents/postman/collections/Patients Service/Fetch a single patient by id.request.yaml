@@ -1,0 +1,14 @@
+$kind: http-request
+description: ''
+url: '{{baseUrl}}/api/patients/1001'
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: <integer>
+    disabled: false
+    description: '(Required) '
+settings: {}
+examples: ./.resources/Fetch a single patient by id.resources/examples
+order: 1000

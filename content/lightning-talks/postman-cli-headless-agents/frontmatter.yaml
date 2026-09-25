@@ -1,0 +1,96 @@
+format: lightning-talk
+length: 10m
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  Developers building or supervising coding agents, and anyone who has wondered
+  why Postman needs a CLI when it already has an app. No Postman account needed
+  for Act 1; Act 2 needs a Postman account whose team has Context Graph enabled
+  (the Postman DevRel team's already does, with github.com/healthcare-org-app
+  ingested — swap in your own API if you present under a different account).
+venues:
+  - booth
+  - meetup
+  - conference
+product: Postman CLI
+name: "Postman Headless: The Agentic Era"
+use_case: >
+  Show that the Postman CLI is not a niche CI trick — it is the interface
+  Postman gives to agents, the same role the UI plays for humans. An agent
+  reaches for a handful of CLI commands to build and test an API entirely
+  headless (lint a contract, generate a collection and a mock from it, run the
+  collection against the mock), then reaches for one more — context-graph — for
+  something no UI could give it either: awareness that spans repositories.
+primary_api:
+  - postman spec lint / postman spec generate collection / postman mock generate / postman collection run — the headless dev loop
+  - postman context-graph ask — the advanced, visual case
+  - The one committed contract — openapi.yaml (healthcare-org-app/healthcare-patients's GET /api/patients/{id})
+  - API Context Graph — https://www.postman.com/context-graph/
+  - Postman CLI — https://www.postman.com/product/postman-cli/
+key_messages:
+  - The CLI is to agents what the UI is to humans. Headless is not a workaround — it is the natural interface for something that does not have eyes.
+  - >-
+    An agent does not need Postman's app to build and test an API: lint a
+    contract, generate a collection and a mock from it, run the collection
+    against the mock — one binary, four commands, zero UI.
+  - Context Graph is the same shape of idea taken further — the CLI is still the one interface, but the awareness it now hands the agent spans repositories no local file could.
+  - This is not a talk about Context Graph. It is one flagship, visually-demonstrable example of what a headless interface lets an agent reach for.
+  - The agent runs every command itself, live, from one plain-English ask each act — nobody types a CLI flag on stage.
+cta:
+  - "npm install -g postman-cli@latest, then: postman spec lint <your-spec>"
+  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+  - "API Context Graph: https://www.postman.com/context-graph/"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/lightning-talks/postman-cli-headless-agents)"
+presentation_title: Postman Headless
+brand_style: design-sync
+notes: >
+  THIS CUT REPLACED THE LOCAL-PROMPT VERSION OF ACT 1/ACT 2. An earlier cut
+  had the presenter paste both act's prompts into Claude Code, live, against
+  a copy of openapi.yaml in /tmp. That's gone — Act 1 and Act 2 are now
+  illustrated on slides only (slides 2–4), and the live part is a real PR
+  against a real GitHub repo (github.com/Postman-Devrel/postman-cli-headless-agents-demo)
+  that a headless agent reviews on its own, triggered by CI, not a prompt.
+  setup.sh no longer touches the Postman CLI, lints anything, or caches an
+  ask to .demo-state — that file and that directory don't exist in this cut.
+  See README section 4 for the current five-step click track.
+
+  THIS IS STILL NOT A CONTEXT GRAPH TALK, AND STILL NOT A MERGE-BLOCKING GATE.
+  The headless agent in the demo repo (agents/headless-pr-agent.md) reports —
+  it never blocks a merge, writes no IMPACT.md, exits nothing that stops CI.
+  If a rehearsal drifts toward "and now let me show you the gate," the framing
+  has been lost — it's still "the agent reaches for the CLI on its own", not a
+  policy demo.
+
+  THE HEADLESS AGENT'S OWN JUDGMENT IS THE POINT, NOT A FIXED COMMAND LIST.
+  agents/headless-pr-agent.md is deliberately written as five judgment calls
+  ("read the diff, judge it"; "if nothing risky changed, stop") rather than a
+  numbered script — a plain CI script can already run lint/generate/run every
+  time, so that's not where an agent earns its keep. Don't narrate it as "and
+  then it runs these four commands" — narrate the decision it made.
+
+  THE DEMO REPO IS REAL, EXTERNAL INFRASTRUCTURE, NOT PART OF THIS MONOREPO.
+  It has its own two Actions secrets (POSTMAN_API_KEY, ANTHROPIC_API_KEY),
+  already set — see README section 2. setup.sh checks they exist (not their
+  values) and clones the repo fresh into /tmp/postman-cli-headless-agents-demo
+  every run. teardown.sh closes the PR opened on stage and deletes its branch
+  on the real repo — that's a real GitHub write, not a local cleanup.
+
+  blood_type IS THE FIELD TO REMOVE, ON PURPOSE. It's clinical data a
+  downstream consumer plausibly reads, and patients-service never reads it
+  back itself — so the checked-in collection stays green either way. That's
+  the honest trap the whole talk is about: nothing local looks wrong.
+
+  THE CONTEXT GRAPH CALL NOW HAPPENS INSIDE THE AGENT'S CI JOB, LIVE, NOT
+  CACHED. There is no offline fallback in this cut — see README section 6.
+  It also only happens if the agent decides the change is risky; if it
+  doesn't ask the graph, that's the agent's judgment working, not a bug.
+
+  CONTEXT GRAPH IS TEAM-GATED. Not a free-tier feature. Whichever account's
+  key backs POSTMAN_API_KEY on the demo repo decides which team's graph
+  answers — the Postman DevRel team's already has the estate ingested.
+
+  SAME PRODUCT AS open-meteo-loop-eng, DIFFERENT SIGNAL AND DIFFERENT SCOPE. That
+  talk is the CLI as a test oracle for one API. This one is the CLI as an
+  agent's whole interface to Postman, with a headless, unprompted agent as
+  the example that goes beyond one repo. If a booth crowd has seen both, lead
+  with that distinction. No derived_from — neither is a cut of the other.

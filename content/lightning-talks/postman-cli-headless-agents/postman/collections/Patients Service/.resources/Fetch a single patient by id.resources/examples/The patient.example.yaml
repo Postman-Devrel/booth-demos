@@ -1,0 +1,37 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/patients/:id"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    - key: id
+      value: <integer>
+      disabled: false
+      description: "(Required) "
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 1001,
+        "mrn": "MRN-001",
+        "status": "inactive",
+        "created_at": "2019-05-08T18:24:28.354Z",
+        "updated_at": "2019-10-11T23:18:52.822Z",
+        "first_name": "Ava",
+        "last_name": "Reyes",
+        "dob": "1988-03-14",
+        "identity_sub": "string",
+        "email": "ava.reyes@example.com",
+        "phone": "+1-555-0110",
+        "blood_type": "O+"
+      }
+order: 1000
