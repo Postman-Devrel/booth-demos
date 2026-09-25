@@ -27,7 +27,7 @@
 - `npm install -g postman-cli@latest`, then `postman spec lint <your-spec>`
 - Postman CLI: <https://www.postman.com/product/postman-cli/>
 - API Context Graph: <https://www.postman.com/context-graph/>
-- The live demo repo: <https://github.com/avdev4j/postman-cli-headless-agents>
+- The live demo repo: <https://github.com/Postman-Devrel/postman-cli-headless-agents-demo>
 - This talk's slides and setup tooling: `git clone https://github.com/Postman-Devrel/booth-demos.git` → `cd booth-demos/content/lightning-talks/postman-cli-headless-agents`
 
 ---
@@ -36,7 +36,7 @@
 
 | Requirement | How to get it |
 |---|---|
-| **`git` and `gh`, authenticated** | `gh auth status`. You need push access to [avdev4j/postman-cli-headless-agents](https://github.com/avdev4j/postman-cli-headless-agents) to open the PR live — presenting under your own fork or a different demo repo means updating `DEMO_REPO` at the top of `scripts/setup.sh` and `scripts/teardown.sh`. |
+| **`git` and `gh`, authenticated** | `gh auth status`. You need push access to [Postman-Devrel/postman-cli-headless-agents-demo](https://github.com/Postman-Devrel/postman-cli-headless-agents-demo) to open the PR live — presenting under your own fork or a different demo repo means updating `DEMO_REPO` at the top of `scripts/setup.sh` and `scripts/teardown.sh`. |
 | **The demo repo's own secrets, already set** | `POSTMAN_API_KEY` and `ANTHROPIC_API_KEY` as GitHub Actions secrets on the demo repo — `setup.sh` checks both exist (not their values) and fails loudly if either is missing. One-time; not something you redo per session. |
 | **A Postman account, for step 5 only** | Logged into the Postman **app** (not the CLI) as a member of the team whose Context Graph has the estate ingested. This is just for narrating the UI while the agent runs — no `postman login` needed on your laptop, the headless agent's own CI logs in with the repo's secret. |
 
@@ -66,7 +66,7 @@ Nothing to log into locally. `gh auth status` is the only thing this script chec
 
 - [ ] `./scripts/setup.sh` finished with no `[FAIL]` lines
 - [ ] Deck open, fullscreen, on slide 1
-- [ ] `github.com/avdev4j/postman-cli-headless-agents` open in a browser tab
+- [ ] `github.com/Postman-Devrel/postman-cli-headless-agents-demo` open in a browser tab
 - [ ] A Postman workspace with this team's Context Graph open in **another** tab — don't switch to it until step 5
 - [ ] Terminal in `/tmp/postman-cli-headless-agents-demo`, large font (`Cmd+=`)
 - [ ] No open PR yet on the demo repo
@@ -90,7 +90,7 @@ Five steps, 10 minutes. Talk track is **verbatim** (blockquotes) — read it if 
 
 > "This isn't a slide anymore. `patients-service` is a real API, in a real GitHub repo, with a real collection and mock already checked in."
 
-- **Show:** switch to the browser tab on `github.com/avdev4j/postman-cli-headless-agents`. Point out [`openapi.yaml`](openapi.yaml), the checked-in collection under `postman/collections/`, and [`agents/headless-pr-agent.md`](agents/headless-pr-agent.md) — "this file is what the agent reasons through. Not a script — read it, it's five judgment calls, not five commands."
+- **Show:** switch to the browser tab on `github.com/Postman-Devrel/postman-cli-headless-agents-demo`. Point out [`openapi.yaml`](openapi.yaml), the checked-in collection under `postman/collections/`, and [`agents/headless-pr-agent.md`](agents/headless-pr-agent.md) — "this file is what the agent reasons through. Not a script — read it, it's five judgment calls, not five commands."
 
 ### Step 3: break it, for real (~2 min)
 
@@ -162,11 +162,11 @@ Full reset between sessions:
 
 | Issue | Fix |
 |---|---|
-| `setup.sh` fails: leftover open PR | A previous session's `teardown.sh` didn't run. Run it now, or close the PR by hand on `github.com/avdev4j/postman-cli-headless-agents/pulls`. |
+| `setup.sh` fails: leftover open PR | A previous session's `teardown.sh` didn't run. Run it now, or close the PR by hand on `github.com/Postman-Devrel/postman-cli-headless-agents-demo/pulls`. |
 | `setup.sh` fails: a secret is missing | Run the `gh secret set` command it prints. This is a one-time, per-repo setup — it shouldn't recur once both secrets exist. |
 | `setup.sh` fails: `main` is already missing `blood_type` | A previous rehearsal's change reached `main` without a teardown. Open the file on `main` and put `blood_type` back by hand before presenting. |
 | The Action job fails on `postman login` | Almost always a PR opened from a fork — GitHub does not pass secrets to fork PRs. Push the branch to the repo itself, not a fork, and open the PR from there. |
-| The Action job fails on `claude -p` with an auth error | `ANTHROPIC_API_KEY` is missing or wrong on the demo repo. Re-issue it: `gh secret set ANTHROPIC_API_KEY --repo avdev4j/postman-cli-headless-agents`. |
+| The Action job fails on `claude -p` with an auth error | `ANTHROPIC_API_KEY` is missing or wrong on the demo repo. Re-issue it: `gh secret set ANTHROPIC_API_KEY --repo Postman-Devrel/postman-cli-headless-agents-demo`. |
 | The PR comment says the graph doesn't know this API, or never mentions the graph at all | The `POSTMAN_API_KEY` behind the demo repo's secret isn't on a team with the estate ingested — re-issue the secret from an account that is. Separately: the agent only calls the graph if it judges the change risky; if it didn't ask, that's a real finding to narrate, not a bug. |
 | No comment shows up on the PR at all | Check the **Actions** tab for the run's logs — the job may still be running (give it the full 20–40s), or it failed outright; the logs say which. |
 | The deck does not open | Open `presentation/index.html` by hand. It is self-contained; only the fonts need the network. |
@@ -177,9 +177,9 @@ Full reset between sessions:
 
 | Resource | Link |
 |---|---|
-| **The live demo repo** | <https://github.com/avdev4j/postman-cli-headless-agents> — clone it, break it, watch the agent |
-| Its headless agent's instructions | [`agents/headless-pr-agent.md`](https://github.com/avdev4j/postman-cli-headless-agents/blob/main/agents/headless-pr-agent.md) |
-| Its trigger | [`.github/workflows/headless-agent.yml`](https://github.com/avdev4j/postman-cli-headless-agents/blob/main/.github/workflows/headless-agent.yml) |
+| **The live demo repo** | <https://github.com/Postman-Devrel/postman-cli-headless-agents-demo> — clone it, break it, watch the agent |
+| Its headless agent's instructions | [`agents/headless-pr-agent.md`](https://github.com/Postman-Devrel/postman-cli-headless-agents-demo/blob/main/agents/headless-pr-agent.md) |
+| Its trigger | [`.github/workflows/headless-agent.yml`](https://github.com/Postman-Devrel/postman-cli-headless-agents-demo/blob/main/.github/workflows/headless-agent.yml) |
 | Postman CLI | <https://www.postman.com/product/postman-cli/> |
 | Postman CLI command reference | <https://learning.postman.com/docs/postman-cli/postman-cli-options> |
 | Postman CLI installation | <https://learning.postman.com/docs/postman-cli/postman-cli-installation/> |

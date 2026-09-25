@@ -10,7 +10,7 @@ set -uo pipefail
 # Actions secrets, and the Postman team's Context Graph connection to the
 # estate. That is shared infrastructure this session doesn't own.
 
-DEMO_REPO="avdev4j/postman-cli-headless-agents"
+DEMO_REPO="Postman-Devrel/postman-cli-headless-agents-demo"
 BRANCH="remove-blood-type"
 WORKDIR="/tmp/postman-cli-headless-agents-demo"
 

@@ -436,8 +436,8 @@
 
   <!-- Slide 2: Install + login -->
   <div class="slide slide-what" data-index="1">
-    <h2>One Binary. Two Interfaces.</h2>
-    <p class="slide-subhead">Most of what you'd click in the app has a command an agent can run instead &mdash; because an agent can't click anything.</p>
+    <h2>Postman CLI - The Agent Headless Interface.</h2>
+    <p class="slide-subhead">Most of what you'd click in the app has a command an agent can run instead.</p>
     <div class="capabilities">
       <div class="cap-card">
         <div class="cap-icon">&#x2705;</div>
@@ -477,7 +477,7 @@
 
   <!-- Slide 3: Build & test loop -->
   <div class="slide slide-how" data-index="2">
-    <h2>Build &amp; Test, Headless</h2>
+    <h2>Build &amp; Test your repo</h2>
     <p class="slide-subhead">One contract. Four commands. No hand-written test code, no UI.</p>
     <div class="flow">
       <div class="flow-step">
@@ -540,27 +540,11 @@
   </div>
 
   <!-- Slide 5: CTA -->
-  <div class="slide slide-cta" data-index="4">
-    <h2>One Binary. Everything an Agent Needs.</h2>
-    <div class="install-cmd">
-      <span class="prefix">$</span> npm install -g postman-cli@latest
-    </div>
-    <p class="cta-tagline">Test it yourself. Tell your agent. Become headless.</p>
-    <div class="cta-features">
-      <span class="cta-feat"><span class="check">&#x2713;</span> Build &amp; test your own API</span>
-      <span class="cta-feat"><span class="check">&#x2713;</span> Ask who depends on it</span>
-      <span class="cta-feat"><span class="check">&#x2713;</span> No UI, either time</span>
-    </div>
-    <div class="cta-links">
-      <a href="https://www.postman.com/product/postman-cli/">postman.com/product/postman-cli</a>
-    </div>
-  </div>
-
-  <!-- Slide 6: Go further — headless, no human prompt -->
-  <div class="slide slide-beyond" data-index="5">
-    <span class="bonus-tag">Coming up &mdash; for real, right now</span>
+  <!-- Slide 5: Go further — headless, no human prompt -->
+  <div class="slide slide-beyond" data-index="4">
+    <span class="bonus-tag">Demo</span>
     <h2>A Script Can Run the CLI. It Can't Judge the Diff.</h2>
-    <p class="slide-subhead">Lint, generate, run &mdash; any CI step can call those, every time, the same way. The one thing that needs an agent is deciding whether this specific change is even worth the CLI's time. Watch it happen next, in a real PR, on a real repo.</p>
+    <p class="slide-subhead">The one thing that needs an agent is deciding whether this specific change is even worth the CLI's time. Watch it happen next, in a real PR, on a real repo.</p>
     <div class="flow cycle-flow">
       <div class="flow-step step-trigger">
         <h3>A Pull Request Opens</h3>
@@ -611,6 +595,22 @@ jobs:
           <span class="fp-kw">claude -p</span> "$(cat agents/headless-pr-agent.md)" \
             <span class="fp-kw">--dangerously-skip-permissions</span></pre>
       </div>
+    </div>
+  </div>
+
+  <div class="slide slide-cta" data-index="5">
+    <h2>One Binary. Everything an Agent Needs.</h2>
+    <div class="install-cmd">
+      <span class="prefix">$</span> npm install -g postman-cli@latest
+    </div>
+    <p class="cta-tagline">Test it yourself. Tell your agent. Become headless.</p>
+    <div class="cta-features">
+      <span class="cta-feat"><span class="check">&#x2713;</span> Build &amp; test your own API</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> Ask who depends on it</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> No UI, either time</span>
+    </div>
+    <div class="cta-links">
+      <a href="https://www.postman.com/product/postman-cli/">postman.com/product/postman-cli</a>
     </div>
   </div>
 

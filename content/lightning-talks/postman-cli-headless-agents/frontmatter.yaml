@@ -48,7 +48,7 @@ notes: >
   had the presenter paste both act's prompts into Claude Code, live, against
   a copy of openapi.yaml in /tmp. That's gone — Act 1 and Act 2 are now
   illustrated on slides only (slides 2–4), and the live part is a real PR
-  against a real GitHub repo (github.com/avdev4j/postman-cli-headless-agents)
+  against a real GitHub repo (github.com/Postman-Devrel/postman-cli-headless-agents-demo)
   that a headless agent reviews on its own, triggered by CI, not a prompt.
   setup.sh no longer touches the Postman CLI, lints anything, or caches an
   ask to .demo-state — that file and that directory don't exist in this cut.

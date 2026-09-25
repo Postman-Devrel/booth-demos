@@ -4,15 +4,15 @@ set -uo pipefail
 # Postman Headless: The Agentic Era — setup.
 #
 # The live demo has three parts: slides, a real GitHub repo
-# (avdev4j/postman-cli-headless-agents), and the Postman app's Context Graph
-# UI. Nothing here runs the Postman CLI or calls the Context Graph — that
-# happens live, on stage, inside the demo repo's own CI, run by its headless
-# agent. This script's only job is to get a clean local clone ready and open
-# what needs to be open.
+# (Postman-Devrel/postman-cli-headless-agents-demo), and the Postman app's
+# Context Graph UI. Nothing here runs the Postman CLI or calls the Context
+# Graph — that happens live, on stage, inside the demo repo's own CI, run by
+# its headless agent. This script's only job is to get a clean local clone
+# ready and open what needs to be open.
 
 CONTENT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DECK="$CONTENT_DIR/presentation/index.html"
-DEMO_REPO="avdev4j/postman-cli-headless-agents"
+DEMO_REPO="Postman-Devrel/postman-cli-headless-agents-demo"
 BRANCH="remove-blood-type"
 WORKDIR="/tmp/postman-cli-headless-agents-demo"   # a fresh clone, reset every run
 
@@ -54,7 +54,15 @@ echo "[OK]   gh is authenticated"
 # A previous rehearsal's PR left open means teardown didn't run — fix that
 # first instead of opening a second PR on top of it.
 
-OPEN_PRS="$(gh pr list --repo "$DEMO_REPO" --head "$BRANCH" --state open --json number --jq 'length' 2>&1)"
+PR_ERR="$(mktemp)"
+OPEN_PRS="$(gh pr list --repo "$DEMO_REPO" --head "$BRANCH" --state open --json number --jq 'length' 2>"$PR_ERR")"
+if [ $? -ne 0 ]; then
+  echo "[FAIL] Could not list PRs on $DEMO_REPO:"
+  cat "$PR_ERR"
+  rm -f "$PR_ERR"
+  exit 1
+fi
+rm -f "$PR_ERR"
 if [ "$OPEN_PRS" != "0" ]; then
   echo "[FAIL] $DEMO_REPO already has an open PR from branch $BRANCH."
   echo "       Run ./scripts/teardown.sh first, or close it by hand."
@@ -62,7 +70,15 @@ if [ "$OPEN_PRS" != "0" ]; then
 fi
 echo "[OK]   No leftover PR on $DEMO_REPO"
 
-SECRETS="$(gh secret list --repo "$DEMO_REPO" --json name --jq '.[].name' 2>&1)"
+SECRETS_ERR="$(mktemp)"
+SECRETS="$(gh secret list --repo "$DEMO_REPO" --json name --jq '.[].name' 2>"$SECRETS_ERR")"
+if [ $? -ne 0 ]; then
+  echo "[FAIL] Could not list secrets on $DEMO_REPO:"
+  cat "$SECRETS_ERR"
+  rm -f "$SECRETS_ERR"
+  exit 1
+fi
+rm -f "$SECRETS_ERR"
 for s in POSTMAN_API_KEY ANTHROPIC_API_KEY; do
   if echo "$SECRETS" | grep -qx "$s"; then
     echo "[OK]   Secret $s is set on $DEMO_REPO"
