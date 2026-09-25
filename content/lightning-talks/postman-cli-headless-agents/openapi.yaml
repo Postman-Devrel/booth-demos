@@ -48,7 +48,6 @@ components:
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
         first_name: { type: string, example: Ava }
-        last_name: { type: string, example: Reyes }
         dob: { type: string, format: date, example: '1988-03-14' }
         email: { type: string, example: ava.reyes@example.com }
         phone: { type: string, example: '+1-555-0110' }
