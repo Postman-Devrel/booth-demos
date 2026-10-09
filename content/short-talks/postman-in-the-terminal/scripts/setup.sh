@@ -11,7 +11,7 @@ set -uo pipefail
 # and open what needs to be open.
 
 CONTENT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-DECK="$CONTENT_DIR/presentation/index.html"
+PRESENTATION_URL="https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee145?file=From+Click+to+Terminal.dc.html&via=share"
 DEMO_REPO="Postman-Devrel/postman-plugin-pr-review-demo"
 BRANCH="remove-blood-type"
 WORKDIR="/tmp/postman-plugin-pr-review-demo"   # a fresh clone, reset every run
@@ -26,19 +26,6 @@ need() {
   echo "[FAIL] $1 not found. $2"
   exit 1
 }
-
-# --- The deck ---------------------------------------------------------------
-
-if [ ! -f "$DECK" ]; then
-  echo "[FAIL] Presentation not found at $DECK. Restore it from git."
-  exit 1
-fi
-if head -c 64 "$DECK" | grep -qi '<!doctype html' && grep -q '</html>' "$DECK"; then
-  echo "[OK]   Deck found and well-formed"
-else
-  echo "[FAIL] Deck is present but is not a complete HTML file. Restore it from git."
-  exit 1
-fi
 
 # --- Tooling ------------------------------------------------------------------
 # git and gh only, nobody runs the Postman CLI by hand in this version of
@@ -115,7 +102,7 @@ fi
 
 echo ""
 echo "Opening the presentation and the repo..."
-open_url "$DECK" || echo "[WARN] Open presentation/index.html manually."
+open_url "$PRESENTATION_URL" || echo "[WARN] Open $PRESENTATION_URL manually."
 open_url "https://github.com/$DEMO_REPO" || echo "[WARN] Open https://github.com/$DEMO_REPO manually."
 
 cat <<EOF
@@ -123,10 +110,10 @@ cat <<EOF
 === Setup complete. ===
 
 Pre-flight checklist:
-  [ ] Deck open, FULLSCREEN, on slide 1
+  [ ] Signed into claude.ai, deck open, FULLSCREEN, on slide 1
   [ ] github.com/$DEMO_REPO open in a browser tab
   [ ] A Postman workspace with this team's Context Graph open in another tab
-      don't switch to it until step 5
+      don't switch to it until act 5
   [ ] Terminal in $WORKDIR, LARGE FONT (Cmd+=)
   [ ] No open PR yet on $DEMO_REPO
 
