@@ -1,0 +1,118 @@
+format: lightning-talk
+length: 10m
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  Developers building or supervising coding agents, and anyone who has wondered
+  what a Postman plugin actually gives an agent that the app's UI does not. No
+  Postman account needed for the slides; the live demo needs a Postman account
+  whose team has Context Graph enabled (the Postman DevRel team's already does,
+  with github.com/healthcare-org-app ingested, swap in your own API if you
+  present under a different account).
+venues:
+  - booth
+  - meetup
+  - conference
+product: Postman CLI
+name: "Postman plugin: an agent reviews your API change"
+use_case: >
+  Show where an agent's Postman know-how actually comes from: committed Postman
+  skills, not a chat window remembering commands. Those skills reach an agent
+  two ways. The Postman Claude Code plugin puts them straight into a
+  developer's own agent. `postman init` commits the same skills into a repo, so
+  an agent running unattended in CI gets them too. The slides cover both paths;
+  the live demo shows the second one, end to end: a CI job doing the judgment
+  work no fixed script can, deciding whether a change to an API contract is
+  the kind a consumer could break on, and if so, asking the Context Graph who
+  depends on it before reporting back.
+primary_api:
+  - "The Postman Claude Code plugin and `postman init`: the two paths a Postman skill takes to reach an agent"
+  - postman:api-engineer / postman:api-discovery skills, and postman context-graph ask underneath them
+  - "postman spec lint / postman mock generate / postman collection run: how the agent checks the contract still holds"
+  - "The committed contract: openapi.yaml (healthcare-org-app/healthcare-patients's GET /api/patients/{id})"
+  - "API Context Graph: https://www.postman.com/context-graph/"
+  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+key_messages:
+  - A coding agent's Postman know-how comes from committed skills, not from something it was told once in a chat.
+  - Those skills arrive two ways, and both matter: the plugin installs them in a developer's own agent, and `postman init` commits them into the repo, so an agent running in CI gets the same skills with nobody there to prompt it.
+  - >-
+    The Claude Code plugin delivers the same skills separately (verbatim from
+    `postman skills --help`), which is why a local developer session and an
+    unattended CI job can both reason the same way.
+  - An agent decides for itself whether a change is worth the Context Graph's time. It only asks when it judges the change risky, and it says so in one line when it doesn't.
+  - The CI agent reports. It never blocks a merge, and the demo is honest about that limit.
+cta:
+  - "npx @postman/postman-plugin, then ask your agent to review your next API change"
+  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+  - "API Context Graph: https://www.postman.com/context-graph/"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/lightning-talks/postman-plugin-pr-review)"
+  - "Claude Code Plugin module on Liftoff: https://www.postman.com/liftoff/modules/claude-code-plugin/"
+  - "Join the Postman community on Discord: https://postman-community.com/kmg"
+presentation_title: An agent reviews your API change
+brand_style: design-sync
+notes: >
+  THIS CUT DROPS THE UNPROMPTED-AGENT-ONLY FRAMING ON SLIDES, NOT ON STAGE.
+  The earlier cut's whole case was the CI agent running with nobody prompting
+  it. That part stays, and the word this cut used for it everywhere, including
+  the deck title, is gone, replaced with "nobody prompts it." The talk now
+  names both ways committed Postman skills reach an agent (the plugin into a
+  developer's own Claude Code, `postman init` into a repo for CI) on slides
+  only. The live part still shows exactly one agent, the CI one, triggered by
+  a PR opened by hand. A version of this talk also ran the plugin-backed step
+  live, asking a developer's own Claude Code to make the same change before
+  switching to the CI agent; it showed the same thing twice and ran long, so
+  it was cut back to the single live agent. See README section 4 for the
+  current click track.
+
+  THE DEMO REPO NOW SHIPS ITS OWN SKILLS, WRITTEN BY `postman init`. It commits
+  `AGENTS.md`, `.postman/`, and `postman/skills/` at its root, and the CI
+  agent's own prompt (`agents/api-change-reviewer.md`) no longer names a single
+  Postman CLI command, it points at `AGENTS.md`, which points at the skills.
+  The same skills exist in the Postman Claude Code plugin a developer installs
+  locally; `postman skills --help` states this directly: "The Claude Code
+  plugin delivers the same skills separately."
+
+  THE CI AGENT'S OWN JUDGMENT IS STILL THE POINT, NOT A FIXED COMMAND LIST.
+  agents/api-change-reviewer.md is still five judgment calls ("read the diff,
+  judge it"; "if nothing risky changed, stop") rather than a numbered script.
+  Don't narrate it as running four commands in order, narrate the decision it
+  made.
+
+  THE CI WORKFLOW'S LOGGING WAS A REAL BUG, FIXED DURING REHEARSAL. The first
+  CI rehearsal filtered the agent's output down to lines mentioning AGENTS.md
+  or postman/skills and swallowed the exit code with a trailing `|| true`.
+  That run reported success with no PR comment and no visible output. The
+  current workflow prints every Bash command the agent runs plus its final
+  result through `jq`, and exits on the real `claude -p` exit code via
+  `PIPESTATUS`. If a rehearsal ever looks silent again, suspect the logging
+  before the agent.
+
+  THE CONTEXT GRAPH'S ANSWER IS ENDPOINT-LEVEL, NOT FIELD-LEVEL, AND SAY THAT
+  OUT LOUD. Across every CI rehearsal, the graph reported the same shape of
+  answer: dozens of services call the changed endpoint, but it cannot say
+  which of them reads the one field that changed, and team ownership often
+  comes back unresolved. The agent's better comments read the callers' source
+  to close that gap; a weaker run just reports the endpoint fan-in and asks a
+  human to confirm. Both are honest; narrate whichever one happens live.
+
+  blood_type IS STILL THE FIELD TO REMOVE, ON PURPOSE. It's clinical data a
+  downstream consumer plausibly reads, and patients-service never reads it
+  back itself, so the checked-in collection stays green either way. That's the
+  honest trap the whole talk is about: nothing local looks wrong.
+
+  CONTEXT GRAPH IS TEAM-GATED, NOT A FREE-TIER FEATURE. Whichever account's key
+  backs POSTMAN_API_KEY on the demo repo decides which team's graph answers,
+  the Postman DevRel team's already has the estate ingested.
+
+  THE DEMO REPO IS REAL, EXTERNAL INFRASTRUCTURE, NOT PART OF THIS MONOREPO,
+  AND IT WAS RENAMED. It is now Postman-Devrel/postman-plugin-pr-review-demo
+  (its previous name on GitHub redirects here). It still has its own two
+  Actions secrets (POSTMAN_API_KEY, ANTHROPIC_API_KEY), already set, see
+  README section 2.
+
+  SAME PRODUCT AS open-meteo-loop-eng, DIFFERENT SIGNAL AND DIFFERENT SCOPE.
+  That talk is the CLI as a test oracle for one API. This one is Postman
+  skills as an agent's know-how, committed into a repo for an agent nobody is
+  prompting, with the plugin explained on slides as the other place those
+  same skills land. If a booth crowd has seen both, lead with that
+  distinction. No derived_from, neither is a cut of the other.
