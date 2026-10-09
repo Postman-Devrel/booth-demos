@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Postman CLI: Let's Go Headless for the Agentic Era</title>
+<title>Postman plugin: an agent reviews your API change</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap');
@@ -430,13 +430,13 @@
       <span class="logo-plus">+</span>
       <div class="logo-icon logo-graph"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M24 13v9M24 26.5 13 34M24 26.5 35 34"/><circle cx="24" cy="9" r="4.2" fill="#fff" stroke="none"/><circle cx="24" cy="24" r="3.4" fill="#fff" stroke="none"/><circle cx="11" cy="36" r="3.4" fill="#fff" stroke="none"/><circle cx="37" cy="36" r="3.4" fill="#fff" stroke="none"/></svg></div>
     </div>
-    <h1>Postman CLI: Let's your agent go<br>Headless</h1>
-    <p class="subtitle">The CLI is to agents what the UI is to humans.</p>
+    <h1>One set of skills.<br>Two agents.</h1>
+    <p class="subtitle">The plugin hands them to your own agent. postman init commits them for CI.</p>
   </div>
 
   <!-- Slide 2: Install + login -->
   <div class="slide slide-what" data-index="1">
-    <h2>Postman CLI - The Agent Headless Interface.</h2>
+    <h2>Postman skills, wherever your agent runs</h2>
     <p class="slide-subhead">Most of what you'd click in the app has a command an agent can run instead.</p>
     <div class="capabilities">
       <div class="cap-card">
@@ -470,7 +470,11 @@
         <span class="cap-tag tag-cloud">Cloud</span>
       </div>
     </div>
-    <div class="install-cmd" style="margin-top:40px;">
+    <div class="cta-features" style="margin-top:32px;">
+      <span class="cta-feat"><span class="check">&#x2713;</span> Plugin: into your own agent</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> postman init: into the repo, for CI</span>
+    </div>
+    <div class="install-cmd" style="margin-top:24px;">
       <span class="prefix">$</span> npm install -g postman-cli@latest &nbsp;&amp;&amp;&nbsp; postman login
     </div>
   </div>
@@ -504,7 +508,7 @@
         <p><code>collection run<br>--use-mock</code></p>
       </div>
     </div>
-    <p class="loop-note">The agent runs this from one plain-English ask, live. Payoff: <b>200 OK</b> &mdash; and it never opened Postman.</p>
+    <p class="loop-note">The agent runs this from one plain-English ask, live. Payoff: <b>200 OK</b>, and it never opened Postman.</p>
   </div>
 
   <!-- Slide 4: Beyond one repo -->
@@ -514,7 +518,7 @@
       <span class="cta-feat"><span class="check">&#x2713;</span> Contract validated</span>
       <span class="cta-feat"><span class="check">&#x2713;</span> Collection generated</span>
       <span class="cta-feat"><span class="check">&#x2713;</span> Mock generated</span>
-      <span class="cta-feat"><span class="check">&#x2713;</span> 200 OK &mdash; headless</span>
+      <span class="cta-feat"><span class="check">&#x2713;</span> 200 OK, no UI opened</span>
     </div>
     <div class="flow cycle-flow">
       <div class="flow-step step-agent">
@@ -529,81 +533,84 @@
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step step-graph">
         <h3>The Context Graph</h3>
-        <p>Knows the endpoints, the APIs, and the dependencies &mdash; service calls, GitHub repos, owning teams.</p>
+        <p>Knows the endpoints, the APIs, and the dependencies: service calls, GitHub repos, owning teams.</p>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step step-return">
         <h3>The Agent, Again</h3>
-        <p>Gets back an answer it can act on &mdash; and avoids breaking the client apps that depend on it.</p>
+        <p>Gets back an answer it can act on, and avoids breaking the client apps that depend on it.</p>
       </div>
     </div>
   </div>
 
   <!-- Slide 5: CTA -->
-  <!-- Slide 5: Go further — headless, no human prompt -->
+  <!-- Slide 5: go further, no human prompt -->
   <div class="slide slide-beyond" data-index="4">
     <span class="bonus-tag">Demo</span>
-    <h2>A Script Can Run the CLI. It Can't Judge the Diff.</h2>
+    <h2>A script can run the CLI. It can't judge the diff.</h2>
     <p class="slide-subhead">The one thing that needs an agent is deciding whether this specific change is even worth the CLI's time. Watch it happen next, in a real PR, on a real repo.</p>
     <div class="flow cycle-flow">
       <div class="flow-step step-trigger">
-        <h3>A Pull Request Opens</h3>
-        <p>CI starts the run &mdash; no one prompts it.</p>
+        <h3>A pull request opens</h3>
+        <p>CI starts the run. No one prompts it.</p>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step step-agent">
-        <h3>The Agent Reads the Diff</h3>
+        <h3>The agent reads the diff</h3>
         <p>Not a script: judges whether the change is the kind a consumer could break on.</p>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step step-cli">
-        <h3>The CLI, Only If Warranted</h3>
+        <h3>The CLI, only if warranted</h3>
         <p>Nothing risky &rarr; stops here. Risky &rarr; <code>context-graph ask</code>.</p>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step step-report">
-        <h3>A Comment Graded to the Evidence</h3>
-        <p>"Nobody reads that field" reads nothing like "three teams do" &mdash; it writes the one that's true.</p>
+        <h3>A comment graded to the evidence</h3>
+        <p>"Nobody reads that field" reads nothing like "three teams do": it writes the one that's true.</p>
       </div>
     </div>
     <div class="file-panels">
       <div class="file-panel">
-        <div class="file-tab">agents/headless-pr-agent.md</div>
+        <div class="file-tab">agents/api-change-reviewer.md</div>
         <pre><span class="fp-cmt"># A script already runs lint/generate/run every time.</span>
-<span class="fp-cmt"># Your job starts where a fixed script can't go:</span>
+<span class="fp-cmt"># Start with AGENTS.md: it points at postman/skills/,</span>
+<span class="fp-cmt"># committed by postman init. This prompt covers judgment only.</span>
 
-1. Read the diff. Judge it &mdash; don't just diff it.
+1. Read the diff. Judge it, don't just diff it.
 2. Nothing risky changed? <span class="fp-cmt">Say so. Stop. Spend nothing.</span>
-3. Something risky did? <span class="fp-str">context-graph ask --wait</span>
-   <span class="fp-cmt">"who calls this endpoint, who owns them?"</span>
-   <span class="fp-cmt">Read the evidence &mdash; decide if it applies.</span>
-4. Run the EXISTING collection against a fresh mock
-   <span class="fp-cmt">self-consistency, before blaming anyone else</span>
+3. Something risky did? <span class="fp-str">Ask who depends on it.</span>
+   <span class="fp-cmt">The skill knows the command: context-graph ask.</span>
+   <span class="fp-cmt">Read the evidence, decide if it applies.</span>
+4. Confirm the contract still holds
+   <span class="fp-cmt">regenerate the mock, run the checked-in collection</span>
 5. One PR comment, graded to what you found.</pre>
       </div>
       <div class="file-panel">
-        <div class="file-tab">.github/workflows/headless-agent.yml</div>
+        <div class="file-tab">.github/workflows/api-change-review.yml</div>
         <pre><span class="fp-kw">on</span>:
   pull_request:
-    paths: [<span class="fp-str">"**/openapi.yaml"</span>]
+    paths: [<span class="fp-str">"openapi.yaml"</span>]
 
 jobs:
   review:
     steps:
       - run: postman login --with-api-key ...
+      - run: postman skills status
       - run: |
-          <span class="fp-kw">claude -p</span> "$(cat agents/headless-pr-agent.md)" \
+          PROMPT=<span class="fp-str">"$(cat agents/api-change-reviewer.md)..."</span>
+          <span class="fp-kw">claude -p</span> "$PROMPT" \
             <span class="fp-kw">--dangerously-skip-permissions</span></pre>
       </div>
     </div>
   </div>
 
   <div class="slide slide-cta" data-index="5">
-    <h2>One Binary. Everything an Agent Needs.</h2>
+    <h2>One set of skills. Every agent you run.</h2>
     <div class="install-cmd">
-      <span class="prefix">$</span> npm install -g postman-cli@latest
+      <span class="prefix">$</span> npx @postman/postman-plugin
     </div>
-    <p class="cta-tagline">Test it yourself. Tell your agent. Become headless.</p>
+    <p class="cta-tagline">Test it yourself. Give your own agent the skills.</p>
     <div class="cta-features">
       <span class="cta-feat"><span class="check">&#x2713;</span> Build &amp; test your own API</span>
       <span class="cta-feat"><span class="check">&#x2713;</span> Ask who depends on it</span>
@@ -611,6 +618,10 @@ jobs:
     </div>
     <div class="cta-links">
       <a href="https://www.postman.com/product/postman-cli/">postman.com/product/postman-cli</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://www.postman.com/liftoff/modules/claude-code-plugin/">postman.com/liftoff/modules/claude-code-plugin</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://postman-community.com/kmg">postman-community.com/kmg</a>
     </div>
   </div>
 

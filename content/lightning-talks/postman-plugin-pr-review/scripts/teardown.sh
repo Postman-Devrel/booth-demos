@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# Postman Headless: The Agentic Era — teardown.
+# Postman plugin: an agent reviews your API change. Teardown.
 #
 # Closes the PR opened on stage, deletes its branch, and removes the local
 # clone. Safe to run when setup never ran.
 #
 # What it deliberately does NOT touch: the demo repo's main branch, its
-# Actions secrets, and the Postman team's Context Graph connection to the
-# estate. That is shared infrastructure this session doesn't own.
+# Actions secrets, your local Claude Code, Postman plugin, or Postman CLI
+# installs, and the Postman team's Context Graph connection to the estate.
+# That is shared infrastructure this session doesn't own.
 
-DEMO_REPO="Postman-Devrel/postman-cli-headless-agents-demo"
+DEMO_REPO="Postman-Devrel/postman-plugin-pr-review-demo"
 BRANCH="remove-blood-type"
-WORKDIR="/tmp/postman-cli-headless-agents-demo"
+WORKDIR="/tmp/postman-plugin-pr-review-demo"
 
-echo "=== Postman Headless: The Agentic Era — Teardown ==="
+echo "=== Postman plugin: an agent reviews your API change. Teardown ==="
 echo ""
 
 # --- Close the PR opened on stage, if any ------------------------------------
@@ -24,7 +25,7 @@ if [ -n "${PR_NUMBER:-}" ] && [ "$PR_NUMBER" != "null" ]; then
   if gh pr close "$PR_NUMBER" --repo "$DEMO_REPO" --delete-branch >/dev/null 2>&1; then
     echo "[OK]   Closed PR #$PR_NUMBER and deleted branch $BRANCH on $DEMO_REPO"
   else
-    echo "[WARN] Could not close PR #$PR_NUMBER automatically — check github.com/$DEMO_REPO/pulls"
+    echo "[WARN] Could not close PR #$PR_NUMBER automatically, check github.com/$DEMO_REPO/pulls"
   fi
 else
   echo "[OK]   No open PR from $BRANCH on $DEMO_REPO"
@@ -52,6 +53,7 @@ cat <<EOF
 
 Left standing on purpose:
   - github.com/$DEMO_REPO's main branch and its Actions secrets
+  - your local Claude Code, Postman plugin, and Postman CLI installs
   - the Postman team's Context Graph connection to the estate
 
 Next session:  ./scripts/setup.sh
