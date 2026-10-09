@@ -9,3 +9,4 @@ Rules, act plan, and deck size: [templates/formats/lightning-talk.md](../../temp
 | [fern](fern/) — Docs, SDKs, and a CLI for your API | Fern | ready |
 | [claude-code-postman-plugin](claude-code-postman-plugin/) — From API to AI-ready | Postman Claude Code Plugin | ready |
 | [open-meteo-loop-eng](open-meteo-loop-eng/) — Stop prompting, start looping | Postman CLI | ready |
+| [postman-in-the-terminal](postman-in-the-terminal/) — An agent reviews your API change (booth cut) | Postman CLI | draft |

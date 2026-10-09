@@ -32,7 +32,8 @@ The same material can exist in several formats. When it does, the shorter one se
 | [Claude Code + Postman](content/lightning-talks/claude-code-postman-plugin/) | lightning-talk | 10m | Postman Claude Code Plugin | ready |
 | [Stop Prompting. Start Looping.](content/lightning-talks/open-meteo-loop-eng/) | lightning-talk | 10m | Postman CLI | ready |
 | [The API You Can't Name](content/lightning-talks/orbit-search-by-intent/) | lightning-talk | 10m | Orbit by Postman | draft |
-| [Postman plugin: an agent reviews your API change](content/lightning-talks/postman-plugin-pr-review/) | lightning-talk | 10m | Postman CLI | draft |
+| [Postman in the terminal](content/short-talks/postman-in-the-terminal/) | short-talk | 25m (Q&A included) | Postman CLI | draft |
+| [Postman in the terminal (booth cut)](content/lightning-talks/postman-in-the-terminal/) | lightning-talk | 10m | Postman CLI | draft |
 | [Make MCPs Your Documentation Best Friend](content/short-talks/mcp-docs-best-friend/) | short-talk | 25m (+ a 10m booth cut) | Fern | draft |
 
 ## Adding new content
