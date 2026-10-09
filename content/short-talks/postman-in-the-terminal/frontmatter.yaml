@@ -1,5 +1,5 @@
-format: lightning-talk
-length: 10m
+format: short-talk
+length: 25m (Q&A included)
 owner: Anthony Viard <anthony.viard@postman.com>
 status: draft
 audience: >
@@ -10,11 +10,10 @@ audience: >
   with github.com/healthcare-org-app ingested, swap in your own API if you
   present under a different account).
 venues:
-  - booth
   - meetup
   - conference
 product: Postman CLI
-name: "Postman plugin: an agent reviews your API change"
+name: "Postman in the terminal"
 use_case: >
   Show where an agent's Postman know-how actually comes from: committed Postman
   skills, not a chat window remembering commands. Those skills reach an agent
@@ -45,12 +44,21 @@ cta:
   - "npx @postman/postman-plugin, then ask your agent to review your next API change"
   - "Postman CLI: https://www.postman.com/product/postman-cli/"
   - "API Context Graph: https://www.postman.com/context-graph/"
-  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/lightning-talks/postman-plugin-pr-review)"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/short-talks/postman-in-the-terminal)"
   - "Claude Code Plugin module on Liftoff: https://www.postman.com/liftoff/modules/claude-code-plugin/"
   - "Join the Postman community on Discord: https://postman-community.com/kmg"
-presentation_title: An agent reviews your API change
+presentation_title: From Click to Terminal
+presentation_url: https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee145?file=From+Click+to+Terminal.dc.html&via=share
 brand_style: design-sync
 notes: >
+  ONE DECK OF RECORD, NO HTML FALLBACK, ON PURPOSE. The deck lives in Claude
+  Design at the `presentation_url` above; there is deliberately no
+  `presentation/index.html` and no `presentation_fallback`. That is an
+  exception to the short-talk template, which asks for
+  `presentation/index.html` — the exception is on record here so nobody
+  "fixes" it by recreating one. The 10-minute booth cut of this same demo
+  lives in `content/lightning-talks/postman-in-the-terminal/`.
+
   THIS CUT DROPS THE UNPROMPTED-AGENT-ONLY FRAMING ON SLIDES, NOT ON STAGE.
   The earlier cut's whole case was the CI agent running with nobody prompting
   it. That part stays, and the word this cut used for it everywhere, including
@@ -115,4 +123,4 @@ notes: >
   skills as an agent's know-how, committed into a repo for an agent nobody is
   prompting, with the plugin explained on slides as the other place those
   same skills land. If a booth crowd has seen both, lead with that
-  distinction. No derived_from, neither is a cut of the other.
+  distinction.
