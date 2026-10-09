@@ -3,12 +3,12 @@ set -uo pipefail
 
 # Postman plugin: an agent reviews your API change. Setup.
 #
-# The live demo has four parts: slides, your own Claude Code session with the
-# Postman plugin installed, a real GitHub repo
+# The live demo has three parts: slides, a real GitHub repo
 # (Postman-Devrel/postman-plugin-pr-review-demo), and the Postman app's
-# Context Graph UI. This script gets a clean local clone ready, confirms your
-# agent and the Postman CLI are ready to be asked to make the change, and
-# opens what needs to be open.
+# Context Graph UI. Nothing here runs the Postman CLI or calls the Context
+# Graph, that happens live, on stage, inside the demo repo's own CI, run by
+# its CI agent. This script's only job is to get a clean local clone ready
+# and open what needs to be open.
 
 CONTENT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DECK="$CONTENT_DIR/presentation/index.html"
@@ -41,35 +41,14 @@ else
 fi
 
 # --- Tooling ------------------------------------------------------------------
+# git and gh only, nobody runs the Postman CLI by hand in this version of
+# the demo, so it isn't checked here. The demo repo's own CI checks it.
 
 need git "install git"
 need gh "install the GitHub CLI: https://cli.github.com/"
-need claude "install Claude Code: https://claude.com/claude-code"
-need postman "install the Postman CLI: https://learning.postman.com/docs/postman-cli/postman-cli-installation/"
 
 gh auth status >/dev/null 2>&1 || { echo "[FAIL] gh is not authenticated. Run: gh auth login"; exit 1; }
 echo "[OK]   gh is authenticated"
-
-# --- Your own agent must be ready before you ask it anything -----------------
-# Step 3 asks your own Claude Code session, with the Postman plugin, to make
-# the change. Both rehearsals showed it calling the Postman CLI directly, so
-# both need to be in place, not just the plugin.
-
-if claude plugin list 2>/dev/null | grep -q 'postman@'; then
-  echo "[OK]   Claude Code has the Postman plugin installed"
-else
-  echo "[FAIL] The Postman plugin isn't installed in Claude Code."
-  echo "       Run: npx @postman/postman-plugin"
-  exit 1
-fi
-
-if postman whoami >/dev/null 2>&1; then
-  echo "[OK]   Postman CLI is logged in locally"
-else
-  echo "[FAIL] Postman CLI is not logged in locally."
-  echo "       Run: postman login"
-  exit 1
-fi
 
 # --- The demo repo must be clean before you go on stage ----------------------
 # A previous rehearsal's PR left open means teardown didn't run. Fix that
@@ -146,23 +125,21 @@ cat <<EOF
 Pre-flight checklist:
   [ ] Deck open, FULLSCREEN, on slide 1
   [ ] github.com/$DEMO_REPO open in a browser tab
-  [ ] A Postman workspace with this team's Context Graph open in another tab,
-      don't switch to it until step 4
-  [ ] Terminal in $WORKDIR, LARGE FONT (Cmd+=), Claude Code set to accept
-      edits or bypass permission prompts
+  [ ] A Postman workspace with this team's Context Graph open in another tab
+      don't switch to it until step 5
+  [ ] Terminal in $WORKDIR, LARGE FONT (Cmd+=)
   [ ] No open PR yet on $DEMO_REPO
 
 The live demo, on stage:
   1. Slides, the concept (committed skills, two paths: plugin and postman init)
   2. Switch to the browser: github.com/$DEMO_REPO, show AGENTS.md and
      postman/skills/
-  3. In $WORKDIR, ask your own Claude Code (with the plugin) to remove
-     \`blood_type\` from openapi.yaml, commit it on $BRANCH, push it, and open
-     a pull request. Keep talking over slides while it works. If it stalls,
-     fall back to the manual commands in the README.
-  4. Watch the PR, the CI agent comments on its own, unprompted, from here
-  5. While it runs, switch to the Postman app and show the Context Graph UI,
-     live
+  3. In $WORKDIR: remove \`blood_type\` from openapi.yaml, commit, push $BRANCH,
+     \`gh pr create --fill\`
+  4. Watch the PR, the CI agent comments on its own, unprompted
+  5. While it runs (a few seconds to a few minutes of real Context Graph
+     reasoning inside it), switch to the Postman app and show the Context
+     Graph UI, live
 
 When you are done:  ./scripts/teardown.sh
 EOF

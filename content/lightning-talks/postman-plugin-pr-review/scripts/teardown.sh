@@ -7,9 +7,8 @@ set -uo pipefail
 # clone. Safe to run when setup never ran.
 #
 # What it deliberately does NOT touch: the demo repo's main branch, its
-# Actions secrets, your local Claude Code, Postman plugin, or Postman CLI
-# installs, and the Postman team's Context Graph connection to the estate.
-# That is shared infrastructure this session doesn't own.
+# Actions secrets, and the Postman team's Context Graph connection to the
+# estate. That is shared infrastructure this session doesn't own.
 
 DEMO_REPO="Postman-Devrel/postman-plugin-pr-review-demo"
 BRANCH="remove-blood-type"
@@ -53,7 +52,6 @@ cat <<EOF
 
 Left standing on purpose:
   - github.com/$DEMO_REPO's main branch and its Actions secrets
-  - your local Claude Code, Postman plugin, and Postman CLI installs
   - the Postman team's Context Graph connection to the estate
 
 Next session:  ./scripts/setup.sh
