@@ -34,17 +34,29 @@ presentation_url: https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee14
 brand_style: design-sync
 derived_from: short-talks/postman-in-the-terminal
 notes: >
-  THIS CUT USES ONLY THE booth-MARKED SLIDES from the short talk's deck. Every
-  slide reference below is `[slide ?]` because the deck's slide-by-slide
-  outline was not available when this README was written — re-map against
-  the real deck before presenting, and never invent a slide title in the
-  meantime.
+  THIS CUT IS 8 OF THE DECK'S 18 SLIDES, CONFIRMED 2026-10-09: 1 (From Click
+  to Terminal, 0:20), 2 (The pyramid of agentic API engineering, 0:30), 5
+  (What an agent needs from a tool, 1:00), 8 (One command, two readers,
+  1:00), 13 (Postman plugin: how the agent picks the right skill, 1:00), 15
+  (Live demo, 0:15 intro then ~5 min live), 17 (What to take away, 0:45), 18
+  (Try it, 0:20). Cut: 3, 4, 6, 7, 9, 10, 11, 12, 14, 16 — exist in the full
+  deck for the 25-minute talk, titles not yet shared, do not invent them.
+  Slides time to ~5:10, the live demo to ~5 min, total ~10:10; the presenter
+  flagged these as ~30% tighter than the per-slide pace of the 25-minute cut,
+  so builds need to move faster. Durations are estimates pending rehearsal.
 
-  WHAT'S SPOKEN INSTEAD OF SHOWN: the short talk's act 2 ("why it happens")
-  and act 3 ("the idea") are folded into one spoken bridge line here instead
-  of their own slides; acts 6 ("what it costs") and 7 ("objections") are cut
-  entirely — if a booth attendee asks either question, answer it one-to-one
-  after the run, the lightning format has no Q&A slot inside the 10 minutes.
+  THE PYRAMID IS THE SPINE OF THIS CUT. Slide 2 introduces "the pyramid of
+  agentic API engineering"; each kept layer gets exactly one slide — 5 for
+  the base (what an agent needs from a tool), 8 for the CLI layer, 13 for
+  the plugin layer. Slide 17 re-opens the same pyramid for the close, so the
+  deck never needs a slide 16 recap in this cut.
+
+  WHAT'S CUT, FULL STOP: acts 6 ("what it costs") and 7 ("objections") have
+  no slide and no spoken line in this cut — if a booth attendee asks either
+  question, answer it one-to-one after the run, the lightning format has no
+  Q&A slot inside the 10 minutes. Acts 2 ("why it happens") and 3 ("the
+  idea") are not cut, just compressed onto the three pyramid-layer slides
+  above (5, 8, 13) instead of their own separate slides.
 
   THE LIVE DEMO ITSELF IS NOT RE-DESCRIBED HERE. It is exactly the short
   talk's acts 4 and 5 (the real repo, removing `blood_type` by hand, opening
