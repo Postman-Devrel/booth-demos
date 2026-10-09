@@ -1,0 +1,55 @@
+format: lightning-talk
+length: 10m
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  Developers building or supervising coding agents, and anyone who has wondered
+  what a Postman plugin actually gives an agent that the app's UI does not. No
+  Postman account needed for the slides; the live demo needs a Postman account
+  whose team has Context Graph enabled (the Postman DevRel team's already does,
+  with github.com/healthcare-org-app ingested, swap in your own API if you
+  present under a different account).
+venues:
+  - booth
+  - meetup
+product: Postman CLI
+name: "Postman in the terminal"
+use_case: >
+  The 10-minute booth cut of the short talk by the same name: a coding agent's
+  Postman know-how comes from committed skills, not a chat window. The live
+  part shows one agent, nobody is prompting it, reviewing a real pull request
+  and asking the Context Graph who depends on the endpoint it changed.
+key_messages:
+  - A coding agent's Postman know-how comes from committed skills, not from something it was told once in a chat.
+  - Those skills arrive two ways: the plugin installs them in a developer's own agent, and `postman init` commits them into the repo, so an agent running in CI gets the same skills with nobody there to prompt it.
+  - The CI agent reports. It never blocks a merge, and the demo is honest about that limit.
+cta:
+  - "npx @postman/postman-plugin, then ask your agent to review your next API change"
+  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+  - "API Context Graph: https://www.postman.com/context-graph/"
+  - "Grab the full 25-minute version: git clone https://github.com/Postman-Devrel/booth-demos.git (content/short-talks/postman-in-the-terminal)"
+  - "Join the Postman community on Discord: https://postman-community.com/kmg"
+presentation_title: From Click to Terminal
+presentation_url: https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee145?file=From+Click+to+Terminal.dc.html&via=share
+brand_style: design-sync
+derived_from: short-talks/postman-in-the-terminal
+notes: >
+  THIS CUT USES ONLY THE booth-MARKED SLIDES from the short talk's deck. Every
+  slide reference below is `[slide ?]` because the deck's slide-by-slide
+  outline was not available when this README was written — re-map against
+  the real deck before presenting, and never invent a slide title in the
+  meantime.
+
+  WHAT'S SPOKEN INSTEAD OF SHOWN: the short talk's act 2 ("why it happens")
+  and act 3 ("the idea") are folded into one spoken bridge line here instead
+  of their own slides; acts 6 ("what it costs") and 7 ("objections") are cut
+  entirely — if a booth attendee asks either question, answer it one-to-one
+  after the run, the lightning format has no Q&A slot inside the 10 minutes.
+
+  THE LIVE DEMO ITSELF IS NOT RE-DESCRIBED HERE. It is exactly the short
+  talk's acts 4 and 5 (the real repo, removing `blood_type` by hand, opening
+  the PR, the CI agent, the Context Graph UI while it thinks, then reading
+  the comment), run with the same scripts. This README copies only the
+  commands typed on stage; for the full click track, prerequisites, and
+  troubleshooting, see
+  [../../short-talks/postman-in-the-terminal/README.md](../../short-talks/postman-in-the-terminal/README.md).
