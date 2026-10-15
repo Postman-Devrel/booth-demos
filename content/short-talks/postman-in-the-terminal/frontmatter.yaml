@@ -1,5 +1,5 @@
 format: short-talk
-length: 25m (Q&A included)
+length: 28m (Q&A included)
 owner: Anthony Viard <anthony.viard@postman.com>
 status: draft
 audience: >
@@ -38,6 +38,7 @@ key_messages:
     The Claude Code plugin delivers the same skills separately (verbatim from
     `postman skills --help`), which is why a local developer session and an
     unattended CI job can both reason the same way.
+  - One plain-English instruction to a local Claude Code session with the plugin installed is enough to chain multiple Postman skills on its own (bootstrap, then a collection, then a mock) — nobody names a Postman CLI command.
   - An agent decides for itself whether a change is worth the Context Graph's time. It only asks when it judges the change risky, and it says so in one line when it doesn't.
   - The CI agent reports. It never blocks a merge, and the demo is honest about that limit.
 cta:
@@ -64,13 +65,29 @@ notes: >
   it. That part stays, and the word this cut used for it everywhere, including
   the deck title, is gone, replaced with "nobody prompts it." The talk now
   names both ways committed Postman skills reach an agent (the plugin into a
-  developer's own Claude Code, `postman init` into a repo for CI) on slides
-  only. The live part still shows exactly one agent, the CI one, triggered by
-  a PR opened by hand. A version of this talk also ran the plugin-backed step
-  live, asking a developer's own Claude Code to make the same change before
-  switching to the CI agent; it showed the same thing twice and ran long, so
-  it was cut back to the single live agent. See README section 4 for the
-  current click track.
+  developer's own Claude Code, `postman init` into a repo for CI) on slides.
+
+  THE LIVE PART NOW SHOWS TWO AGENTS, NOT ONE, AND THEY ARE NOT THE SAME
+  DEMONSTRATION TWICE. An earlier cut ran the plugin-backed step live by
+  asking a developer's own Claude Code to make the exact same contract change
+  the CI agent would judge; that showed the same thing twice and ran long, so
+  it was cut back to the single live agent. This cut brings a local live step
+  back, but a different one: act 4 hands a bare `openapi.yaml`, nothing else,
+  to a local Claude Code session with the Postman plugin installed, and asks
+  it to build a workspace, a collection, and a mock from scratch. The point
+  isn't contract judgment, that's still the CI agent's alone in act 6. It's
+  watching the plugin chain several Postman skills (`postman:bootstrap` ->
+  collection generation -> `postman:api-mocking`) off one plain-English
+  instruction, live, before the talk ever touches the real repo. See README
+  section 4 for the current click track and act numbering.
+
+  THE LOCAL-PLUGIN STEP CREATES REAL POSTMAN RESOURCES, NOT CLEANED UP
+  AUTOMATICALLY. `setup.sh` copies `openapi.yaml` into a disposable folder
+  (`/tmp/postman-plugin-local-demo`) so act 4 starts from a bare spec, but
+  the workspace, collection, and mock the plugin creates there on stage are
+  real, on the presenter's own Postman account. `teardown.sh` removes the
+  local folder but has no way to find and delete those Postman resources,
+  that's a manual cleanup in the Postman app between rehearsals.
 
   THE DEMO REPO NOW SHIPS ITS OWN SKILLS, WRITTEN BY `postman init`. It commits
   `AGENTS.md`, `.postman/`, and `postman/skills/` at its root, and the CI

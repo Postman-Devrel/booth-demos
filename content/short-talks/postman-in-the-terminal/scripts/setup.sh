@@ -3,18 +3,21 @@ set -uo pipefail
 
 # Postman plugin: an agent reviews your API change. Setup.
 #
-# The live demo has three parts: slides, a real GitHub repo
-# (Postman-Devrel/postman-plugin-pr-review-demo), and the Postman app's
-# Context Graph UI. Nothing here runs the Postman CLI or calls the Context
-# Graph, that happens live, on stage, inside the demo repo's own CI, run by
-# its CI agent. This script's only job is to get a clean local clone ready
-# and open what needs to be open.
+# The live demo has four parts: slides, a local Claude Code session with the
+# Postman plugin (act 4, against a bare spec, nothing else), a real GitHub
+# repo (Postman-Devrel/postman-plugin-pr-review-demo), and the Postman app's
+# Context Graph UI. Only act 4 runs the Postman CLI/plugin locally; from the
+# repo-breaking act onward, nothing here runs the Postman CLI or calls the
+# Context Graph, that happens live, on stage, inside the demo repo's own CI,
+# run by its CI agent. This script's job is to get the bare-spec folder and a
+# clean local clone ready, and open what needs to be open.
 
 CONTENT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PRESENTATION_URL="https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee145?file=From+Click+to+Terminal.dc.html&via=share"
 DEMO_REPO="Postman-Devrel/postman-plugin-pr-review-demo"
 BRANCH="remove-blood-type"
-WORKDIR="/tmp/postman-plugin-pr-review-demo"   # a fresh clone, reset every run
+LOCAL_PLUGIN_DIR="/tmp/postman-plugin-local-demo"   # bare spec only, reset every run (act 4)
+WORKDIR="/tmp/postman-plugin-pr-review-demo"        # a fresh clone, reset every run (act 5+)
 
 echo "=== Postman plugin: an agent reviews your API change. Setup ==="
 echo ""
@@ -28,14 +31,26 @@ need() {
 }
 
 # --- Tooling ------------------------------------------------------------------
-# git and gh only, nobody runs the Postman CLI by hand in this version of
-# the demo, so it isn't checked here. The demo repo's own CI checks it.
+# git and gh for the repo-breaking act onward. claude and postman are only
+# for act 4, which runs the plugin on this laptop; the demo repo's own CI
+# checks its own copy of the Postman CLI, so that part isn't checked here.
 
 need git "install git"
 need gh "install the GitHub CLI: https://cli.github.com/"
+need claude "install Claude Code: https://code.claude.com/docs"
+need postman "install the Postman CLI: curl -o- \"https://dl-cli.pstmn.io/install/unix.sh\" | sh"
 
 gh auth status >/dev/null 2>&1 || { echo "[FAIL] gh is not authenticated. Run: gh auth login"; exit 1; }
 echo "[OK]   gh is authenticated"
+
+# --- Act 4's bare-spec folder, reset every run --------------------------------
+# Nothing but openapi.yaml, so the plugin builds the workspace, collection,
+# and mock live, from one instruction, with no other context to lean on.
+
+rm -rf "$LOCAL_PLUGIN_DIR"
+mkdir -p "$LOCAL_PLUGIN_DIR"
+cp "$CONTENT_DIR/openapi.yaml" "$LOCAL_PLUGIN_DIR/openapi.yaml"
+echo "[OK]   Bare spec copied to $LOCAL_PLUGIN_DIR for act 4's local-plugin step"
 
 # --- The demo repo must be clean before you go on stage ----------------------
 # A previous rehearsal's PR left open means teardown didn't run. Fix that
@@ -111,22 +126,32 @@ cat <<EOF
 
 Pre-flight checklist:
   [ ] Signed into claude.ai, deck open, FULLSCREEN, on slide 1
+  [ ] Logged into the Postman CLI already (\`postman login\`), so act 4's
+      \`postman:bootstrap\` doesn't eat demo time on an auth flow
   [ ] github.com/$DEMO_REPO open in a browser tab
   [ ] A Postman workspace with this team's Context Graph open in another tab
-      don't switch to it until act 5
-  [ ] Terminal in $WORKDIR, LARGE FONT (Cmd+=)
+      don't switch to it until act 6
+  [ ] A terminal tab in $LOCAL_PLUGIN_DIR running \`claude\` (act 4), LARGE FONT
+  [ ] A second terminal tab in $WORKDIR (act 5+), LARGE FONT (Cmd+=)
   [ ] No open PR yet on $DEMO_REPO
 
 The live demo, on stage:
   1. Slides, the concept (committed skills, two paths: plugin and postman init)
-  2. Switch to the browser: github.com/$DEMO_REPO, show AGENTS.md and
+  2. In $LOCAL_PLUGIN_DIR: tell Claude Code "From openapi.yaml, create a
+     Postman workspace, a collection, and a mock." Narrate the skills it
+     chains on its own (bootstrap -> collection -> mock)
+  3. Switch to the browser: github.com/$DEMO_REPO, show AGENTS.md and
      postman/skills/
-  3. In $WORKDIR: remove \`blood_type\` from openapi.yaml, commit, push $BRANCH,
+  4. In $WORKDIR: remove \`blood_type\` from openapi.yaml, commit, push $BRANCH,
      \`gh pr create --fill\`
-  4. Watch the PR, the CI agent comments on its own, unprompted
-  5. While it runs (a few seconds to a few minutes of real Context Graph
+  5. Watch the PR, the CI agent comments on its own, unprompted
+  6. While it runs (a few seconds to a few minutes of real Context Graph
      reasoning inside it), switch to the Postman app and show the Context
      Graph UI, live
+
+Cleanup reminder: the workspace/collection/mock act 4 creates live are real,
+on your Postman account. ./scripts/teardown.sh does not delete them, see
+README section 5.
 
 When you are done:  ./scripts/teardown.sh
 EOF
