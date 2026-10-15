@@ -3,15 +3,20 @@ set -uo pipefail
 
 # Postman plugin: an agent reviews your API change. Teardown.
 #
-# Closes the PR opened on stage, deletes its branch, and removes the local
-# clone. Safe to run when setup never ran.
+# Closes the PR opened on stage, deletes its branch, and removes both local
+# folders (the bare-spec folder from act 4, and the demo repo clone from
+# act 5+). Safe to run when setup never ran.
 #
 # What it deliberately does NOT touch: the demo repo's main branch, its
-# Actions secrets, and the Postman team's Context Graph connection to the
-# estate. That is shared infrastructure this session doesn't own.
+# Actions secrets, the Postman team's Context Graph connection to the
+# estate, and the workspace/collection/mock act 4 creates live on your
+# Postman account. All of that is either shared infrastructure this session
+# doesn't own, or a real resource on your account this script has no way to
+# identify after the fact — delete those by hand in the Postman app.
 
 DEMO_REPO="Postman-Devrel/postman-plugin-pr-review-demo"
 BRANCH="remove-blood-type"
+LOCAL_PLUGIN_DIR="/tmp/postman-plugin-local-demo"
 WORKDIR="/tmp/postman-plugin-pr-review-demo"
 
 echo "=== Postman plugin: an agent reviews your API change. Teardown ==="
@@ -37,7 +42,14 @@ else
   fi
 fi
 
-# --- The local clone ----------------------------------------------------------
+# --- The local folders ---------------------------------------------------
+
+if [ -d "$LOCAL_PLUGIN_DIR" ]; then
+  rm -rf "$LOCAL_PLUGIN_DIR"
+  echo "[OK]   Removed act 4's bare-spec folder at $LOCAL_PLUGIN_DIR"
+else
+  echo "[OK]   No bare-spec folder to remove"
+fi
 
 if [ -d "$WORKDIR" ]; then
   rm -rf "$WORKDIR"
@@ -53,6 +65,11 @@ cat <<EOF
 Left standing on purpose:
   - github.com/$DEMO_REPO's main branch and its Actions secrets
   - the Postman team's Context Graph connection to the estate
+
+Left standing because this script can't identify them:
+  - the workspace, collection, and mock act 4 created live on your Postman
+    account. Delete them by hand in the Postman app before the next
+    rehearsal, or they pile up.
 
 Next session:  ./scripts/setup.sh
 EOF
