@@ -34,6 +34,7 @@ The same material can exist in several formats. When it does, the shorter one se
 | [The API You Can't Name](content/lightning-talks/orbit-search-by-intent/) | lightning-talk | 10m | Orbit by Postman | draft |
 | [Postman in the terminal](content/short-talks/postman-in-the-terminal/) | short-talk | 25m (Q&A included) | Postman CLI | draft |
 | [Postman in the terminal (booth cut)](content/lightning-talks/postman-in-the-terminal/) | lightning-talk | 10m | Postman CLI | draft |
+| [Context Graph](content/lightning-talks/context-graph/) | lightning-talk | 10m | Postman Context Graph | draft |
 | [Make MCPs Your Documentation Best Friend](content/short-talks/mcp-docs-best-friend/) | short-talk | 25m (+ a 10m booth cut) | Fern | draft |
 
 ## Adding new content

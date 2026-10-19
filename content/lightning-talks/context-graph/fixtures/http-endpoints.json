@@ -1,0 +1,12 @@
+{
+ "source": "ai-harness saved result (not re-queried)",
+ "run": "2026-09-18T17-12-26-989Z__model-benchmark",
+ "case": "xrepo-04-http-endpoint-inventory-gf",
+ "model": "anthropic/claude-opus-4-7+cgq",
+ "epoch": 2,
+ "query": "List every service that exposes an HTTP API or endpoint, together with the endpoint paths it serves. Include services that have no source code in this checkout.",
+ "documentCount": 498,
+ "latencyMs": 173515,
+ "attempts": 1,
+ "note": "Full document-name list omitted; the deck only uses the count."
+}

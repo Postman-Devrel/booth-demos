@@ -1,0 +1,1323 @@
+{
+ "source": "ai-harness/docs/context_graph_api_benchmarking_report.md (scorecard blocks, copied as published)",
+ "benchmarkDate": "2026-09-18",
+ "models": [
+  "Opus 4.7",
+  "Sonnet 4.5",
+  "GPT-6 Astra"
+ ],
+ "questions": [
+  {
+   "scenario": "Let's say you are responding to an incident where several services start slowing down at the same time. At first, they look like separate problems, but they all depend on the same service at runtime. That connection is not obvious in the code because runtime calls do not always appear as build dependencies. Before you can diagnose the actual problem, you have to trace requests across multiple services just to understand how they are connected. That missing context turns what could have been a quick diagnosis into a much longer incident.",
+   "short": "Runtime calls",
+   "question": "What are the runtime dependencies between services?",
+   "graphQuery": "Which services are upstream or downstream dependencies of other services at run time? Include external services, and services that have no source code in this checkout.",
+   "note": "Opus found 36.5% of the known services with the graph, 11.1% alone. The target is a URL assembled from config at startup, so there is no string to grep.",
+   "report": "RUNTIME CALL RELATIONSHIPS",
+   "graphDocuments": null,
+   "models": {
+    "Opus 4.7": [
+     {
+      "label": "correct found",
+      "base": "5",
+      "graph": "15",
+      "rawBase": 4.666666666666667,
+      "rawGraph": 15.333333333333334,
+      "change": "+229%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.136",
+      "graph": "0.243",
+      "rawBase": 0.13593333333333335,
+      "rawGraph": 0.24276666666666666,
+      "change": "+79%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$10",
+      "graph": "$5",
+      "rawBase": 9.71687,
+      "rawGraph": 5.299205000000001,
+      "change": "−45%"
+     },
+     {
+      "label": "tool calls",
+      "base": "39",
+      "graph": "26",
+      "rawBase": 38.666666666666664,
+      "rawGraph": 26.0,
+      "change": "−33%"
+     },
+     {
+      "label": "input tokens",
+      "base": "0.61M",
+      "graph": "0.31M",
+      "rawBase": 606649.6666666666,
+      "rawGraph": 308085.3333333333,
+      "change": "−49%"
+     },
+     {
+      "label": "output tokens",
+      "base": "8.2k",
+      "graph": "9.0k",
+      "rawBase": 8228.333333333334,
+      "rawGraph": 9039.0,
+      "change": "+10%"
+     }
+    ],
+    "Sonnet 4.5": [
+     {
+      "label": "correct found",
+      "base": "2",
+      "graph": "3",
+      "rawBase": 2.0,
+      "rawGraph": 3.3333333333333335,
+      "change": "+67%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.081",
+      "graph": "0.108",
+      "rawBase": 0.0811,
+      "rawGraph": 0.10759999999999999,
+      "change": "+33%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$3",
+      "graph": "$4",
+      "rawBase": 3.0327250000000006,
+      "rawGraph": 4.007178,
+      "change": "+32%"
+     },
+     {
+      "label": "tool calls",
+      "base": "21",
+      "graph": "35",
+      "rawBase": 21.0,
+      "rawGraph": 35.0,
+      "change": "+67%"
+     },
+     {
+      "label": "input tokens",
+      "base": "0.99M",
+      "graph": "1.31M",
+      "rawBase": 991520.0,
+      "rawGraph": 1307409.3333333333,
+      "change": "+32%"
+     },
+     {
+      "label": "output tokens",
+      "base": "3.9k",
+      "graph": "5.7k",
+      "rawBase": 3877.6666666666665,
+      "rawGraph": 5663.333333333333,
+      "change": "+46%"
+     }
+    ],
+    "GPT-6 Astra": [
+     {
+      "label": "correct found",
+      "base": "10",
+      "graph": "20",
+      "rawBase": 9.666666666666666,
+      "rawGraph": 20.0,
+      "change": "+107%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.168",
+      "graph": "0.194",
+      "rawBase": 0.1683,
+      "rawGraph": 0.19363333333333332,
+      "change": "+15%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$15",
+      "graph": "$10",
+      "rawBase": 15.387443333333332,
+      "rawGraph": 9.749286666666666,
+      "change": "−37%"
+     },
+     {
+      "label": "tool calls",
+      "base": "152",
+      "graph": "97",
+      "rawBase": 152.0,
+      "rawGraph": 97.33333333333333,
+      "change": "−36%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.44M",
+      "graph": "0.90M",
+      "rawBase": 1440024.3333333333,
+      "rawGraph": 898452.0,
+      "change": "−38%"
+     },
+     {
+      "label": "output tokens",
+      "base": "19.7k",
+      "graph": "15.3k",
+      "rawBase": 19744.0,
+      "rawGraph": 15295.333333333334,
+      "change": "−23%"
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "Let's say an incident starts and several services could be responsible. Before you can debug it, you need to know which services collect the logs, metrics, and traces that can show you what happened. If a service has no instrumentation, you have no clear way to see what it was doing when the failure occurred. That leaves you debugging blind, working backward from symptoms instead of following the request to the source.",
+   "short": "Telemetry",
+   "question": "List each service and the logs, metrics, and traces it produces.",
+   "graphQuery": "Which services emit logs, metrics, traces or profiles, and where does each one send them? Include external and third-party destinations, and anything with no source code in this checkout.",
+   "note": "Rewording the query as a relationship took the graph from 11 rows to 200+. Opus named 24 instrumented services with no repo in the checkout.",
+   "report": "TELEMETRY",
+   "graphDocuments": null,
+   "models": {
+    "Opus 4.7": [
+     {
+      "label": "correct found",
+      "base": "40",
+      "graph": "54",
+      "rawBase": 40.333333333333336,
+      "rawGraph": 54.333333333333336,
+      "change": "+35%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.430",
+      "graph": "0.500",
+      "rawBase": 0.4296333333333333,
+      "rawGraph": 0.49973333333333336,
+      "change": "+16%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$19",
+      "graph": "$15",
+      "rawBase": 19.004825,
+      "rawGraph": 14.908775,
+      "change": "−22%"
+     },
+     {
+      "label": "tool calls",
+      "base": "93",
+      "graph": "70",
+      "rawBase": 92.66666666666667,
+      "rawGraph": 69.66666666666667,
+      "change": "−25%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.17M",
+      "graph": "0.90M",
+      "rawBase": 1173161.6666666667,
+      "rawGraph": 900575.0,
+      "change": "−23%"
+     },
+     {
+      "label": "output tokens",
+      "base": "18.8k",
+      "graph": "18.7k",
+      "rawBase": 18765.333333333332,
+      "rawGraph": 18668.666666666668,
+      "change": "−1%"
+     }
+    ],
+    "Sonnet 4.5": [
+     {
+      "label": "correct found",
+      "base": "12",
+      "graph": "20",
+      "rawBase": 12.333333333333334,
+      "rawGraph": 20.333333333333332,
+      "change": "+65%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.175",
+      "graph": "0.266",
+      "rawBase": 0.17486666666666664,
+      "rawGraph": 0.26586666666666664,
+      "change": "+52%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$2",
+      "graph": "$3",
+      "rawBase": 2.3859099999999995,
+      "rawGraph": 3.216791,
+      "change": "+35%"
+     },
+     {
+      "label": "tool calls",
+      "base": "43",
+      "graph": "32",
+      "rawBase": 43.0,
+      "rawGraph": 31.666666666666668,
+      "change": "−26%"
+     },
+     {
+      "label": "input tokens",
+      "base": "0.77M",
+      "graph": "1.05M",
+      "rawBase": 773750.0,
+      "rawGraph": 1046077.0,
+      "change": "+35%"
+     },
+     {
+      "label": "output tokens",
+      "base": "4.3k",
+      "graph": "5.2k",
+      "rawBase": 4310.666666666667,
+      "rawGraph": 5237.333333333333,
+      "change": "+21%"
+     }
+    ],
+    "GPT-6 Astra": [
+     {
+      "label": "correct found",
+      "base": "65",
+      "graph": "82",
+      "rawBase": 65.0,
+      "rawGraph": 82.33333333333333,
+      "change": "+27%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.533",
+      "graph": "0.588",
+      "rawBase": 0.5329666666666667,
+      "rawGraph": 0.5881,
+      "change": "+10%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$17",
+      "graph": "$15",
+      "rawBase": 17.336336666666668,
+      "rawGraph": 14.74102,
+      "change": "−15%"
+     },
+     {
+      "label": "tool calls",
+      "base": "162",
+      "graph": "119",
+      "rawBase": 162.33333333333334,
+      "rawGraph": 119.33333333333333,
+      "change": "−26%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.63M",
+      "graph": "1.38M",
+      "rawBase": 1626347.0,
+      "rawGraph": 1378212.0,
+      "change": "−15%"
+     },
+     {
+      "label": "output tokens",
+      "base": "21.5k",
+      "graph": "19.2k",
+      "rawBase": 21457.333333333332,
+      "rawGraph": 19178.0,
+      "change": "−11%"
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "Let's say you're doing a cost audit of all the services running in production. You start with a list of repositories, but most of them are libraries, shared packages, and internal tools that do not run on their own. Before you can connect infrastructure spending to individual services, you need to figure out which repositories actually represent deployed services.",
+   "short": "Deployed services",
+   "question": "Which services do we actually deploy, and how is each one deployed?",
+   "graphQuery": "Which services are deployable, how is each one deployed, and what are their upstream and downstream dependencies? Include services that have no source code in this checkout.",
+   "note": "Opus named 10 deployed services with no repo in the checkout; 5 came straight from the graph results.",
+   "report": "DEPLOYED SERVICES",
+   "graphDocuments": null,
+   "models": {
+    "Opus 4.7": [
+     {
+      "label": "correct found",
+      "base": "26",
+      "graph": "28",
+      "rawBase": 25.666666666666668,
+      "rawGraph": 28.333333333333332,
+      "change": "+10%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.334",
+      "graph": "0.352",
+      "rawBase": 0.3341,
+      "rawGraph": 0.3519666666666667,
+      "change": "+5%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$5",
+      "graph": "$4",
+      "rawBase": 4.530065,
+      "rawGraph": 3.79598,
+      "change": "−16%"
+     },
+     {
+      "label": "tool calls",
+      "base": "66",
+      "graph": "54",
+      "rawBase": 66.33333333333333,
+      "rawGraph": 54.0,
+      "change": "−19%"
+     },
+     {
+      "label": "input tokens",
+      "base": "0.23M",
+      "graph": "0.19M",
+      "rawBase": 225129.33333333334,
+      "rawGraph": 189038.66666666666,
+      "change": "−16%"
+     },
+     {
+      "label": "output tokens",
+      "base": "15.4k",
+      "graph": "12.8k",
+      "rawBase": 15375.0,
+      "rawGraph": 12805.333333333334,
+      "change": "−17%"
+     }
+    ],
+    "Sonnet 4.5": [
+     {
+      "label": "correct found",
+      "base": "8",
+      "graph": "24",
+      "rawBase": 8.333333333333334,
+      "rawGraph": 24.0,
+      "change": "+188%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.150",
+      "graph": "0.348",
+      "rawBase": 0.14970000000000003,
+      "rawGraph": 0.3479666666666667,
+      "change": "+132%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$4",
+      "graph": "$6",
+      "rawBase": 3.7731100000000004,
+      "rawGraph": 6.3969759999999996,
+      "change": "+70%"
+     },
+     {
+      "label": "tool calls",
+      "base": "92",
+      "graph": "76",
+      "rawBase": 91.66666666666667,
+      "rawGraph": 76.33333333333333,
+      "change": "−17%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.21M",
+      "graph": "2.08M",
+      "rawBase": 1206838.3333333333,
+      "rawGraph": 2080238.6666666667,
+      "change": "+72%"
+     },
+     {
+      "label": "output tokens",
+      "base": "10.2k",
+      "graph": "10.4k",
+      "rawBase": 10173.0,
+      "rawGraph": 10417.333333333334,
+      "change": "+2%"
+     }
+    ],
+    "GPT-6 Astra": [
+     {
+      "label": "correct found",
+      "base": "18",
+      "graph": "30",
+      "rawBase": 17.666666666666668,
+      "rawGraph": 29.666666666666668,
+      "change": "+68%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.271",
+      "graph": "0.375",
+      "rawBase": 0.27116666666666667,
+      "rawGraph": 0.37503333333333333,
+      "change": "+38%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$25",
+      "graph": "$25",
+      "rawBase": 25.148853333333335,
+      "rawGraph": 24.99967666666667,
+      "change": "−1%"
+     },
+     {
+      "label": "tool calls",
+      "base": "187",
+      "graph": "188",
+      "rawBase": 187.33333333333334,
+      "rawGraph": 187.66666666666666,
+      "change": "0%"
+     },
+     {
+      "label": "input tokens",
+      "base": "2.40M",
+      "graph": "2.39M",
+      "rawBase": 2402882.0,
+      "rawGraph": 2388527.6666666665,
+      "change": "−1%"
+     },
+     {
+      "label": "output tokens",
+      "base": "22.4k",
+      "graph": "22.3k",
+      "rawBase": 22400.666666666668,
+      "rawGraph": 22288.0,
+      "change": "−1%"
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "Let's say you get a task to require authentication for every API endpoint. Before you can safely roll that out, you need to know exactly which endpoints exist and who is calling them. If you miss a caller, you can break legitimate traffic the moment authentication is enabled. If you miss an endpoint, it may remain publicly accessible without anyone realizing it.",
+   "short": "HTTP endpoints",
+   "question": "Which services serve HTTP endpoints, and what paths does each one serve?",
+   "graphQuery": "List every service that exposes an HTTP API or endpoint, together with the endpoint paths it serves. Include services that have no source code in this checkout.",
+   "note": "Opus named 48 services with no repo in the checkout, 47 straight from its graph query. Astra already scored well alone and slipped.",
+   "report": "HTTP ENDPOINTS",
+   "graphDocuments": 498,
+   "models": {
+    "Opus 4.7": [
+     {
+      "label": "correct found",
+      "base": "18",
+      "graph": "25",
+      "rawBase": 18.0,
+      "rawGraph": 25.0,
+      "change": "+39%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.249",
+      "graph": "0.331",
+      "rawBase": 0.24873333333333333,
+      "rawGraph": 0.3309666666666667,
+      "change": "+33%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$37",
+      "graph": "$10",
+      "rawBase": 37.077025,
+      "rawGraph": 10.458825000000001,
+      "change": "−72%"
+     },
+     {
+      "label": "tool calls",
+      "base": "121",
+      "graph": "58",
+      "rawBase": 121.33333333333333,
+      "rawGraph": 58.333333333333336,
+      "change": "−52%"
+     },
+     {
+      "label": "input tokens",
+      "base": "2.35M",
+      "graph": "0.60M",
+      "rawBase": 2345368.3333333335,
+      "rawGraph": 602511.6666666666,
+      "change": "−74%"
+     },
+     {
+      "label": "output tokens",
+      "base": "25.3k",
+      "graph": "18.9k",
+      "rawBase": 25286.666666666668,
+      "rawGraph": 18948.666666666668,
+      "change": "−25%"
+     }
+    ],
+    "Sonnet 4.5": [
+     {
+      "label": "correct found",
+      "base": "7",
+      "graph": "27",
+      "rawBase": 7.333333333333333,
+      "rawGraph": 27.333333333333332,
+      "change": "+273%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.221",
+      "graph": "0.499",
+      "rawBase": 0.22103333333333333,
+      "rawGraph": 0.49913333333333326,
+      "change": "+126%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$2",
+      "graph": "$5",
+      "rawBase": 2.069217,
+      "rawGraph": 4.895701,
+      "change": "+137%"
+     },
+     {
+      "label": "tool calls",
+      "base": "35",
+      "graph": "31",
+      "rawBase": 35.0,
+      "rawGraph": 30.666666666666668,
+      "change": "−12%"
+     },
+     {
+      "label": "input tokens",
+      "base": "0.66M",
+      "graph": "1.58M",
+      "rawBase": 659377.3333333334,
+      "rawGraph": 1581145.3333333333,
+      "change": "+140%"
+     },
+     {
+      "label": "output tokens",
+      "base": "6.1k",
+      "graph": "10.2k",
+      "rawBase": 6072.333333333333,
+      "rawGraph": 10151.0,
+      "change": "+67%"
+     }
+    ],
+    "GPT-6 Astra": [
+     {
+      "label": "correct found",
+      "base": "48",
+      "graph": "46",
+      "rawBase": 48.0,
+      "rawGraph": 45.666666666666664,
+      "change": "−5%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.609",
+      "graph": "0.556",
+      "rawBase": 0.6090333333333333,
+      "rawGraph": 0.5562666666666666,
+      "change": "−9%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$14",
+      "graph": "$12",
+      "rawBase": 14.138150000000001,
+      "rawGraph": 11.628593333333333,
+      "change": "−18%"
+     },
+     {
+      "label": "tool calls",
+      "base": "89",
+      "graph": "72",
+      "rawBase": 88.66666666666667,
+      "rawGraph": 71.66666666666667,
+      "change": "−19%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.30M",
+      "graph": "1.06M",
+      "rawBase": 1295333.3333333333,
+      "rawGraph": 1055232.6666666667,
+      "change": "−19%"
+     },
+     {
+      "label": "output tokens",
+      "base": "23.7k",
+      "graph": "21.5k",
+      "rawBase": 23696.333333333332,
+      "rawGraph": 21525.333333333332,
+      "change": "−9%"
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "You are preparing to migrate the message bus. You already know which services publish events, but there is no reliable list of everything consuming them. Each consumer may register its subscription only in its own startup code, so there is no central file you can check. To migrate safely, you have to search every service and piece together the full list of consumers yourself.",
+   "short": "Message-bus consumers",
+   "question": "Which services consume from a message bus, and which topics do they read?",
+   "graphQuery": "Give me everything you hold about message buses and event streams: every service linked to a messaging system, every topic, every publisher and every subscriber. Include Kafka, NATS, RabbitMQ, Pub/Sub, MQTT and Redis streams, and services with no source code in this checkout.",
+   "note": "The graph links services to 13 messaging systems but has no topic nodes and no subscribe/publish edges. It can say \"talks to Kafka\", not \"consumes from topic X\".",
+   "report": "MESSAGE-BUS CONSUMERS",
+   "graphDocuments": null,
+   "models": {
+    "Opus 4.7": [
+     {
+      "label": "correct found",
+      "base": "7",
+      "graph": "9",
+      "rawBase": 7.0,
+      "rawGraph": 9.0,
+      "change": "+29%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.562",
+      "graph": "0.659",
+      "rawBase": 0.5621333333333334,
+      "rawGraph": 0.6593666666666667,
+      "change": "+17%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$23",
+      "graph": "$21",
+      "rawBase": 23.07726,
+      "rawGraph": 20.590295,
+      "change": "−11%"
+     },
+     {
+      "label": "tool calls",
+      "base": "37",
+      "graph": "35",
+      "rawBase": 37.0,
+      "rawGraph": 35.0,
+      "change": "−5%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.48M",
+      "graph": "1.32M",
+      "rawBase": 1479684.0,
+      "rawGraph": 1319578.0,
+      "change": "−11%"
+     },
+     {
+      "label": "output tokens",
+      "base": "11.8k",
+      "graph": "10.6k",
+      "rawBase": 11760.0,
+      "rawGraph": 10621.666666666666,
+      "change": "−10%"
+     }
+    ],
+    "Sonnet 4.5": [
+     {
+      "label": "correct found",
+      "base": "5",
+      "graph": "5",
+      "rawBase": 4.666666666666667,
+      "rawGraph": 5.0,
+      "change": "+7%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.437",
+      "graph": "0.423",
+      "rawBase": 0.43723333333333336,
+      "rawGraph": 0.4232,
+      "change": "−3%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$4",
+      "graph": "$4",
+      "rawBase": 4.295956,
+      "rawGraph": 3.8432149999999994,
+      "change": "−11%"
+     },
+     {
+      "label": "tool calls",
+      "base": "26",
+      "graph": "27",
+      "rawBase": 26.0,
+      "rawGraph": 26.666666666666668,
+      "change": "+3%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.41M",
+      "graph": "1.26M",
+      "rawBase": 1411422.0,
+      "rawGraph": 1256100.0,
+      "change": "−11%"
+     },
+     {
+      "label": "output tokens",
+      "base": "4.1k",
+      "graph": "5.0k",
+      "rawBase": 4112.666666666667,
+      "rawGraph": 4994.333333333333,
+      "change": "+21%"
+     }
+    ],
+    "GPT-6 Astra": [
+     {
+      "label": "correct found",
+      "base": "11",
+      "graph": "10",
+      "rawBase": 10.666666666666666,
+      "rawGraph": 10.0,
+      "change": "−6%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.719",
+      "graph": "0.576",
+      "rawBase": 0.7191000000000001,
+      "rawGraph": 0.5764,
+      "change": "−20%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$14",
+      "graph": "$16",
+      "rawBase": 14.468853333333334,
+      "rawGraph": 15.659336666666666,
+      "change": "+8%"
+     },
+     {
+      "label": "tool calls",
+      "base": "132",
+      "graph": "116",
+      "rawBase": 132.0,
+      "rawGraph": 115.66666666666667,
+      "change": "−12%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.38M",
+      "graph": "1.50M",
+      "rawBase": 1381828.6666666667,
+      "rawGraph": 1497782.0,
+      "change": "+8%"
+     },
+     {
+      "label": "output tokens",
+      "base": "13.0k",
+      "graph": "13.6k",
+      "rawBase": 13011.333333333334,
+      "rawGraph": 13630.333333333334,
+      "change": "+5%"
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "You are about to change an API and you need to know what else has to change with it.",
+   "short": "API callers",
+   "question": "Which services call the platform’s HTTP API?",
+   "graphQuery": "Which services call the platform's HTTP API, and what are their upstream and downstream dependencies?",
+   "note": "Opus found 12 of the 13 real callers (9 alone) and returned 30 services instead of 54. The graph below is what the query returned.",
+   "report": "API CALLERS",
+   "graphDocuments": 12,
+   "models": {
+    "Opus 4.7": [
+     {
+      "label": "correct found",
+      "base": "9",
+      "graph": "12",
+      "rawBase": 8.666666666666666,
+      "rawGraph": 11.666666666666666,
+      "change": "+35%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.777",
+      "graph": "0.943",
+      "rawBase": 0.7767,
+      "rawGraph": 0.9432,
+      "change": "+21%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$26",
+      "graph": "$30",
+      "rawBase": 26.287595,
+      "rawGraph": 29.935429999999997,
+      "change": "+14%"
+     },
+     {
+      "label": "tool calls",
+      "base": "64",
+      "graph": "80",
+      "rawBase": 64.33333333333333,
+      "rawGraph": 80.0,
+      "change": "+24%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.65M",
+      "graph": "1.90M",
+      "rawBase": 1647556.3333333333,
+      "rawGraph": 1900350.3333333333,
+      "change": "+15%"
+     },
+     {
+      "label": "output tokens",
+      "base": "21.0k",
+      "graph": "19.1k",
+      "rawBase": 20990.0,
+      "rawGraph": 19069.0,
+      "change": "−9%"
+     }
+    ],
+    "Sonnet 4.5": [
+     {
+      "label": "correct found",
+      "base": "4",
+      "graph": "8",
+      "rawBase": 3.6666666666666665,
+      "rawGraph": 8.333333333333334,
+      "change": "+127%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.439",
+      "graph": "0.773",
+      "rawBase": 0.43873333333333336,
+      "rawGraph": 0.7731333333333335,
+      "change": "+76%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$4",
+      "graph": "$3",
+      "rawBase": 3.814422,
+      "rawGraph": 2.901655,
+      "change": "−24%"
+     },
+     {
+      "label": "tool calls",
+      "base": "19",
+      "graph": "21",
+      "rawBase": 19.333333333333332,
+      "rawGraph": 21.0,
+      "change": "+9%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.25M",
+      "graph": "0.94M",
+      "rawBase": 1252065.6666666667,
+      "rawGraph": 942776.6666666666,
+      "change": "−25%"
+     },
+     {
+      "label": "output tokens",
+      "base": "3.9k",
+      "graph": "4.9k",
+      "rawBase": 3881.6666666666665,
+      "rawGraph": 4888.333333333333,
+      "change": "+26%"
+     }
+    ],
+    "GPT-6 Astra": [
+     {
+      "label": "correct found",
+      "base": "11",
+      "graph": "12",
+      "rawBase": 10.666666666666666,
+      "rawGraph": 11.666666666666666,
+      "change": "+9%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.864",
+      "graph": "0.909",
+      "rawBase": 0.8644333333333334,
+      "rawGraph": 0.9087333333333335,
+      "change": "+5%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$30",
+      "graph": "$26",
+      "rawBase": 30.327433333333335,
+      "rawGraph": 26.051666666666666,
+      "change": "−14%"
+     },
+     {
+      "label": "tool calls",
+      "base": "147",
+      "graph": "118",
+      "rawBase": 147.33333333333334,
+      "rawGraph": 117.66666666666667,
+      "change": "−20%"
+     },
+     {
+      "label": "input tokens",
+      "base": "2.93M",
+      "graph": "2.51M",
+      "rawBase": 2932595.0,
+      "rawGraph": 2513768.3333333335,
+      "change": "−14%"
+     },
+     {
+      "label": "output tokens",
+      "base": "20.0k",
+      "graph": "18.3k",
+      "rawBase": 20029.666666666668,
+      "rawGraph": 18279.666666666668,
+      "change": "−9%"
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "You are introducing contract testing, but first you need to understand what is already in place. Some services define formal API contracts, while others expose endpoints without documenting their expected requests and responses. Before you can decide what to test or where to start, you need a reliable list of the services that already have contracts you can test against.",
+   "short": "Schemas",
+   "question": "Which services declare a machine-readable data or API contract, and what does each contract describe?",
+   "graphQuery": "Which services define schemas, data models or API contracts, and which services consume them? Include services that have no source code in this checkout.",
+   "note": "Opus got more precise (0.530 to 0.642). Astra found 11 services with no repo in the checkout, most straight from the graph.",
+   "report": "SCHEMAS",
+   "graphDocuments": null,
+   "models": {
+    "Opus 4.7": [
+     {
+      "label": "correct found",
+      "base": "28",
+      "graph": "30",
+      "rawBase": 28.0,
+      "rawGraph": 30.0,
+      "change": "+7%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.559",
+      "graph": "0.637",
+      "rawBase": 0.5585333333333333,
+      "rawGraph": 0.6365666666666667,
+      "change": "+14%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$20",
+      "graph": "$15",
+      "rawBase": 20.21346,
+      "rawGraph": 14.79031,
+      "change": "−27%"
+     },
+     {
+      "label": "tool calls",
+      "base": "82",
+      "graph": "87",
+      "rawBase": 81.66666666666667,
+      "rawGraph": 87.0,
+      "change": "+7%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.26M",
+      "graph": "0.89M",
+      "rawBase": 1260755.6666666667,
+      "rawGraph": 894889.0,
+      "change": "−29%"
+     },
+     {
+      "label": "output tokens",
+      "base": "17.4k",
+      "graph": "18.2k",
+      "rawBase": 17361.666666666668,
+      "rawGraph": 18226.333333333332,
+      "change": "+5%"
+     }
+    ],
+    "Sonnet 4.5": [
+     {
+      "label": "correct found",
+      "base": "23",
+      "graph": "22",
+      "rawBase": 23.333333333333332,
+      "rawGraph": 21.666666666666668,
+      "change": "−7%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.546",
+      "graph": "0.548",
+      "rawBase": 0.5462333333333333,
+      "rawGraph": 0.5484,
+      "change": "0%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$4",
+      "graph": "$4",
+      "rawBase": 4.366116,
+      "rawGraph": 4.051953,
+      "change": "−7%"
+     },
+     {
+      "label": "tool calls",
+      "base": "76",
+      "graph": "76",
+      "rawBase": 75.66666666666667,
+      "rawGraph": 76.33333333333333,
+      "change": "+1%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.42M",
+      "graph": "1.31M",
+      "rawBase": 1415410.3333333333,
+      "rawGraph": 1307329.3333333333,
+      "change": "−8%"
+     },
+     {
+      "label": "output tokens",
+      "base": "8.0k",
+      "graph": "8.7k",
+      "rawBase": 7992.333333333333,
+      "rawGraph": 8664.333333333334,
+      "change": "+8%"
+     }
+    ],
+    "GPT-6 Astra": [
+     {
+      "label": "correct found",
+      "base": "32",
+      "graph": "28",
+      "rawBase": 31.666666666666668,
+      "rawGraph": 27.666666666666668,
+      "change": "−13%"
+     },
+     {
+      "label": "accuracy",
+      "base": "0.371",
+      "graph": "0.429",
+      "rawBase": 0.3711333333333333,
+      "rawGraph": 0.4289,
+      "change": "+16%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$27",
+      "graph": "$15",
+      "rawBase": 27.442999999999998,
+      "rawGraph": 14.890296666666666,
+      "change": "−46%"
+     },
+     {
+      "label": "tool calls",
+      "base": "219",
+      "graph": "126",
+      "rawBase": 219.0,
+      "rawGraph": 126.33333333333333,
+      "change": "−42%"
+     },
+     {
+      "label": "input tokens",
+      "base": "2.64M",
+      "graph": "1.42M",
+      "rawBase": 2638940.0,
+      "rawGraph": 1417759.6666666667,
+      "change": "−46%"
+     },
+     {
+      "label": "output tokens",
+      "base": "21.1k",
+      "graph": "14.3k",
+      "rawBase": 21072.0,
+      "rawGraph": 14254.0,
+      "change": "−32%"
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "You are preparing to change a shared service, database, queue, or external API. Before you touch it, you need to know which systems sit upstream of each service and keep it running. These runtime dependencies often do not appear as build dependencies, so searching imports and package files will not give you the full picture. To understand what each service relies on, you need to ask:",
+   "short": "Upstream dependencies",
+   "question": "What does each service depend on at run time?",
+   "graphQuery": "For each service, list its upstream dependencies — the services and external systems it calls or sends data to at run time. Include third-party and external systems, and include anything that has no source code in this checkout.",
+   "note": "Scored on coverage, not an answer key. Astra: 0 names traceable to a query alone, 21 with the graph. Costs fell 35% to 55%.",
+   "report": "UPSTREAM DEPENDENCIES",
+   "graphDocuments": 193,
+   "models": {
+    "Opus 4.7": [
+     {
+      "label": "off-disk named",
+      "base": "0",
+      "graph": "6",
+      "rawBase": 0.0,
+      "rawGraph": 6.0,
+      "change": "+6"
+     },
+     {
+      "label": "traceable to query",
+      "base": "0",
+      "graph": "5",
+      "rawBase": 0.0,
+      "rawGraph": 5.0,
+      "change": "+5"
+     },
+     {
+      "label": "declared targets",
+      "base": "0.606",
+      "graph": "0.576",
+      "rawBase": 0.6060606060606061,
+      "rawGraph": 0.5757575757575757,
+      "change": "−5%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$10",
+      "graph": "$6",
+      "rawBase": 9.61146,
+      "rawGraph": 6.0064649999999995,
+      "change": "−38%"
+     },
+     {
+      "label": "tool calls",
+      "base": "53",
+      "graph": "48",
+      "rawBase": 53.333333333333336,
+      "rawGraph": 48.333333333333336,
+      "change": "−9%"
+     },
+     {
+      "label": "input tokens",
+      "base": "0.58M",
+      "graph": "0.33M",
+      "rawBase": 584812.3333333334,
+      "rawGraph": 333342.6666666667,
+      "change": "−43%"
+     },
+     {
+      "label": "output tokens",
+      "base": "11.2k",
+      "graph": "13.4k",
+      "rawBase": 11190.333333333334,
+      "rawGraph": 13417.666666666666,
+      "change": "+20%"
+     }
+    ],
+    "Sonnet 4.5": [
+     {
+      "label": "off-disk named",
+      "base": "1",
+      "graph": "6",
+      "rawBase": 0.6666666666666666,
+      "rawGraph": 6.333333333333333,
+      "change": "+5"
+     },
+     {
+      "label": "traceable to query",
+      "base": "0",
+      "graph": "3",
+      "rawBase": 0.0,
+      "rawGraph": 3.3333333333333335,
+      "change": "+3"
+     },
+     {
+      "label": "declared targets",
+      "base": "0.727",
+      "graph": "0.697",
+      "rawBase": 0.7272727272727272,
+      "rawGraph": 0.6969696969696969,
+      "change": "−4%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$4",
+      "graph": "$3",
+      "rawBase": 4.069615,
+      "rawGraph": 2.632743,
+      "change": "−35%"
+     },
+     {
+      "label": "tool calls",
+      "base": "34",
+      "graph": "19",
+      "rawBase": 34.333333333333336,
+      "rawGraph": 19.333333333333332,
+      "change": "−44%"
+     },
+     {
+      "label": "input tokens",
+      "base": "1.33M",
+      "graph": "0.84M",
+      "rawBase": 1331545.0,
+      "rawGraph": 842409.3333333334,
+      "change": "−37%"
+     },
+     {
+      "label": "output tokens",
+      "base": "5.0k",
+      "graph": "7.0k",
+      "rawBase": 4998.666666666667,
+      "rawGraph": 7034.333333333333,
+      "change": "+41%"
+     }
+    ],
+    "GPT-6 Astra": [
+     {
+      "label": "off-disk named",
+      "base": "69",
+      "graph": "67",
+      "rawBase": 69.33333333333333,
+      "rawGraph": 66.66666666666667,
+      "change": "−4%"
+     },
+     {
+      "label": "traceable to query",
+      "base": "0",
+      "graph": "21",
+      "rawBase": 0.0,
+      "rawGraph": 21.333333333333332,
+      "change": "+21"
+     },
+     {
+      "label": "declared targets",
+      "base": "0.667",
+      "graph": "1.000",
+      "rawBase": 0.6666666666666666,
+      "rawGraph": 1.0,
+      "change": "+50%"
+     },
+     {
+      "label": "cost per run",
+      "base": "$25",
+      "graph": "$11",
+      "rawBase": 24.648456666666664,
+      "rawGraph": 11.137143333333333,
+      "change": "−55%"
+     },
+     {
+      "label": "tool calls",
+      "base": "188",
+      "graph": "97",
+      "rawBase": 188.33333333333334,
+      "rawGraph": 97.0,
+      "change": "−48%"
+     },
+     {
+      "label": "input tokens",
+      "base": "2.35M",
+      "graph": "1.02M",
+      "rawBase": 2352845.6666666665,
+      "rawGraph": 1021741.0,
+      "change": "−57%"
+     },
+     {
+      "label": "output tokens",
+      "base": "22.4k",
+      "graph": "18.4k",
+      "rawBase": 22400.0,
+      "rawGraph": 18394.666666666668,
+      "change": "−18%"
+     }
+    ]
+   }
+  }
+ ]
+}

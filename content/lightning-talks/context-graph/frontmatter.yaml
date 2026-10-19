@@ -1,0 +1,60 @@
+format: lightning-talk
+length: 10m
+owner: Talia Kohan <talia.kohan@postman.com>
+status: draft
+audience: >
+  Engineers and platform leads who use AI coding agents on a large estate and have been
+  burned by an answer that was right about the repos in front of the agent and silent about
+  everything else. No Postman account needed to follow the story; the live queries need the
+  Postman Claude Code plugin signed in to a team that has Context Graph enabled.
+venues:
+  - booth
+product: Postman Context Graph (via the Postman Claude Code plugin)
+name: Context Graph
+use_case: Show that a model searching a checkout cannot see services, callers or dependencies that were never in the checkout, and that one Context Graph query closes that gap for Opus, Sonnet and GPT-6 Astra alike.
+primary_api:
+  - Postman Context Graph ask API, reached from Claude Code through the Postman plugin (submitContextGraphAsk / getContextGraphAsk MCP tools)
+  - Context Graph of the benchmark estate (468 declared repos)
+  - ai-harness benchmark report docs/context_graph_api_benchmarking_report.md (Opus 4.7, Sonnet 4.5, GPT-6 Astra, with and without the graph)
+key_messages:
+  - You cannot grep what was never in the checkout. The graph returned 498 services for "which services expose HTTP endpoints"; 129 of them have code in the checkout.
+  - The graph improved accuracy in 18 of 21 prompt-model pairs across three models and seven scored prompts.
+  - Opus cost 27% less and Astra 20% less across the benchmark, because the model skips searching the shelves one by one. Sonnet got more accurate but cost more.
+  - The graph helps most when the answer is a relationship between repos, services and systems, not text in a file. If the answer is already in a file, just read the file.
+  - Pick any of eight questions and see all three models with and without the graph: correct answers found, accuracy, cost per run and tool calls, straight from the benchmark.
+  - The graph is built from 6,712 nodes (4,828 endpoints, 1,424 APIs and services, 309 external systems, 139 database schemas, 11 telemetry configurations) and refreshes nightly.
+cta:
+  - "Install the plugin: claude plugin install github:Postman-Devrel/postman-claude-code-plugin"
+  - "Ask your own estate a question: run submitContextGraphAsk from the plugin against your team"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (see content/lightning-talks/context-graph)"
+presentation_title: Context Graph
+brand_style: manual
+notes: >
+  DECK STYLE. presentation/index.html follows the Postman Deck Template (Google Slides, "UPDATED
+  (09/18/2026) Postman Deck Template"), dark theme: Inter titles with orange accent words, IBM
+  Plex Mono orange kickers, hairline rows, dark cards with coloured top bars, the Postman mark top
+  right and the rainbow strip along the bottom. The cover arc is a CSS approximation of the
+  template's raster art. The deck is generated and self-contained; edit the HTML directly.
+  RESULTS ARE A COMPOSITE. "The latest benchmark run" in ai-harness is not one run: the report is
+  built from 13 completed runs under ai-harness/runs/ (2026-09-18 to 2026-09-19), each the latest
+  3-epoch run for its case and model. The newest single run is
+  2026-09-19T01-47-03-061Z__model-benchmark (event-consumers re-run, Astra +cgq only). Every
+  number on the results slide is copied from the report's scorecard blocks; none is recomputed
+  or rounded differently.
+  THE DEMO IS PRELOADED. Slides 3 and 4 are built from fixtures/benchmark.json, which is the
+  report's scorecard blocks parsed as published (nothing recomputed). The graph queries shown on
+  slide 4 are verbatim from ai-harness/README.md and src/evals/model-benchmark.ts. Do not reword
+  them: rewording changes what the graph returns (the telemetry query returned 11 rows until it
+  was rewritten, then 200+). The three graph document counts (498 / 12 / 193) and the 12 caller
+  names come from saved harness cells (fixtures/*.json), not from a fresh call.
+  WHY NOT LIVE. The ask tools take no workspace or team parameter. Run through the plugin as
+  signed in on the build machine, the same queries returned a different team's estate (~790
+  services, none of the benchmark estate). Preloaded results make the demo independent of that and of
+  booth wifi. The optional live ask in the README only makes sense if the plugin is on the
+  team that owns the benchmark estate.
+  THE 498 FIGURE. The report's diagram says 498 services; its HTTP-endpoints prose says 456
+  results. The deck uses 498 (the diagram and the 129/221/140/8 breakdown) and the README
+  flags the discrepancy. ai-harness commit 9f49449 also notes ~22% of off-checkout names
+  belonged to another corpus, so do not defend 498 as a precise count of the estate's services.
+  NO KEYS IN THE REPO. The benchmark's Context Graph API key lives in ai-harness/.env.local
+  only. Nothing here reads or writes it.

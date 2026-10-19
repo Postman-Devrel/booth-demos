@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Context Graph</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* Postman deck template tokens (dark theme) */
+  :root {
+    --orange: #FF6C37; --orange-light: #FFB48F; --peach: #F7D9C4;
+    --bg: #07000a; --plum: #2a001f;
+    --card: #1c1b22; --card-line: #34333c;
+    --text: #FFFFFF; --muted: #A3A2AD; --faint: #6f6e79;
+    --green: #22A06B; --blue: #198CF7; --amber: #FFA90A; --pink: #F37FFE; --purple: #7A24F0; --red: #E5484D;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+    --rainbow: linear-gradient(90deg, #FF6C37 0%, #F37FFE 30%, #8f7cf2 52%, #198CF7 74%, #22A06B 100%);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    overflow: hidden; height: 100vh; width: 100vw;
+  }
+
+  .slideshow { width: 100%; height: 100%; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+    padding: 34px 56px 56px;
+    background:
+      radial-gradient(1000px 520px at 104% -6%, rgba(160,62,22,0.62), transparent 70%),
+      radial-gradient(900px 700px at 52% 38%, var(--plum) 0%, transparent 72%),
+      linear-gradient(135deg, #0b0006 0%, #12000c 55%, #050006 100%);
+    opacity: 0; transform: translateX(40px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+  }
+  .slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+  .slide.exit { opacity: 0; transform: translateX(-40px); }
+
+  /* chrome: small Postman mark top-right, rainbow strip along the bottom */
+  .mark { position: absolute; top: 20px; right: 26px; width: 38px; height: 38px; }
+  .mark svg, .wordmark svg { width: 100%; height: 100%; display: block; }
+  .strip { position: fixed; left: 0; right: 0; bottom: 0; height: 5px; background: var(--rainbow); z-index: 200; }
+
+  /* header block: title, orange mono kicker, hairline */
+  .hd { width: 100%; margin-bottom: 14px; padding-right: 60px; }
+  h2 { font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.025em; }
+  h2 em, .accent { font-style: normal; color: var(--orange); }
+  .kick { font-family: var(--mono); font-size: 16px; color: var(--orange); margin-top: 12px; line-height: 1.4; }
+  .rule { height: 1px; background: rgba(255,255,255,0.22); margin-top: 14px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+  .src { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-top: auto; padding-top: 10px; }
+
+  .card { background: var(--card); border: 1px solid var(--card-line); border-top: 3px solid var(--orange); border-radius: 8px; padding: 14px 18px; }
+  .card.c-green { border-top-color: var(--green); } .card.c-blue { border-top-color: var(--blue); }
+  .card.c-amber { border-top-color: var(--amber); } .card.c-pink { border-top-color: var(--pink); }
+
+  /* ---------- 1 + 7: cover (arc glow) ---------- */
+  .cover { justify-content: flex-end; padding: 0 100px 190px; }
+  .arc { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .arc::before {
+    content: ''; position: absolute; width: 2000px; height: 1250px; left: 22%; top: -1075px; border-radius: 50%;
+    box-shadow:
+      inset 0 -6px 22px -2px #fff1dc,
+      inset 0 -38px 70px -6px #ffc58a,
+      inset 0 -120px 150px -30px #ff7a35,
+      inset 0 -300px 300px -120px #a8332f;
+  }
+  .arc::after {
+    content: ''; position: absolute; width: 2000px; height: 1250px; left: 22%; top: -1075px; border-radius: 50%;
+    background: linear-gradient(90deg, transparent 52%, rgba(70,150,235,0.55) 74%, rgba(130,215,120,0.5) 94%);
+    -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 70%, #000 97%);
+    mask: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 70%, #000 97%);
+    mix-blend-mode: screen;
+  }
+  .arc i { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #fff; opacity: 0.8; box-shadow: 0 0 14px 4px rgba(255,255,255,0.4); }
+  .wordmark { position: absolute; top: 38px; left: 40px; display: flex; align-items: center; gap: 18px; font-size: 25px; letter-spacing: 0.34em; font-weight: 400; }
+  .wordmark span.logo { width: 68px; height: 68px; display: block; }
+  .cover h1 { font-size: 118px; line-height: 1; font-weight: 600; letter-spacing: -0.035em; margin-bottom: 30px; position: relative; }
+  .cover .sub { font-family: var(--mono); font-size: 25px; color: var(--peach); line-height: 1.45; max-width: 1050px; position: relative; }
+  .cover .sub2 { font-size: 18px; color: var(--muted); margin-top: 18px; max-width: 900px; line-height: 1.5; position: relative; }
+  .copy { position: absolute; right: 100px; bottom: 56px; font-size: 15px; color: var(--faint); }
+
+  /* ---------- 2: the problem ---------- */
+  .bars { width: 100%; margin-top: 8px; }
+  .bar-row { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
+  .bar-label { width: 190px; text-align: right; font-size: 19px; color: var(--muted); flex-shrink: 0; line-height: 1.3; }
+  .bar-track { flex: 1; display: flex; height: 76px; border-radius: 6px; overflow: hidden; }
+  .seg { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 22px; font-weight: 600; color: #fff; }
+  .seg.a { background: var(--blue); } .seg.b { background: var(--purple); } .seg.c { background: var(--orange); } .seg.d { background: var(--green); }
+  .bar-num { width: 100px; font-size: 48px; font-weight: 700; flex-shrink: 0; letter-spacing: -0.02em; }
+  .legend { display: flex; gap: 22px; flex-wrap: nowrap; margin: 8px 0 34px 208px; font-family: var(--mono); font-size: 12px; white-space: nowrap; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; }
+  .quote { font-size: 37px; font-weight: 700; letter-spacing: -0.025em; margin: 6px 0 34px; }
+  .stats { display: flex; gap: 12px; width: 100%; }
+  .stat { flex: 1; padding: 18px 20px; }
+  .stat b { display: block; font-size: 38px; margin-bottom: 4px; font-weight: 700; letter-spacing: -0.02em; }
+  .stat span { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+  /* ---------- 3: results ---------- */
+  .kpis { display: flex; gap: 14px; margin: 4px 0 16px; width: 100%; }
+  .kpi { flex: 1; display: flex; align-items: baseline; gap: 16px; padding: 18px 22px; }
+  .kpi big { font-size: 46px; font-weight: 700; letter-spacing: -0.03em; color: var(--orange); }
+  .kpi span { font-size: 15px; color: var(--muted); line-height: 1.3; }
+  table.res { border-collapse: collapse; width: 100%; font-size: 16px; }
+  .res th, .res td { padding: 12px 14px; text-align: left; }
+  .res thead th { font-family: var(--mono); font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.22); }
+  .res tbody tr { border-bottom: 1px solid rgba(255,255,255,0.13); }
+  .res tbody th { font-weight: 500; font-size: 19px; }
+  .res tbody th small { display: block; font-family: var(--mono); font-weight: 400; color: var(--faint); font-size: 11px; margin-top: 2px; }
+  .res td { font-family: var(--mono); font-size: 18px; }
+  .res td .ar { color: var(--faint); }
+  .res td.up b { color: var(--green); } .res td.down b { color: var(--red); }
+
+  /* ---------- 4: ask the graph ---------- */
+  .qa { display: flex; gap: 30px; width: 100%; align-items: flex-start; }
+  .qlist { list-style: none; flex: 0 0 31%; border-bottom: 1px solid rgba(255,255,255,0.22); }
+  .qlist li { display: flex; gap: 14px; align-items: flex-start; padding: 9px 8px; border-top: 1px solid rgba(255,255,255,0.22); font-size: 14.5px; line-height: 1.35; color: #d6d5dc; cursor: pointer; }
+  .qlist li:hover { background: rgba(255,255,255,0.05); }
+  .qlist li.sel { color: #fff; background: linear-gradient(90deg, rgba(255,108,55,0.22), rgba(255,108,55,0.02)); box-shadow: inset 3px 0 0 var(--orange); }
+  .qlist .n { flex: 0 0 24px; font-family: var(--mono); font-size: 15px; color: var(--orange); }
+  .qlist .n::before { content: '0'; }
+  .qpanel { flex: 1; min-width: 0; }
+  .qhead { margin-bottom: 8px; }
+  .qtitle { font-size: 24px; font-weight: 700; line-height: 1.2; letter-spacing: -0.015em; }
+  .qscen { margin-top: 6px; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+  .qgq { margin-top: 8px; font-family: var(--mono); font-size: 11.5px; color: #cfcfd6; line-height: 1.45; background: rgba(0,0,0,0.38); border-left: 3px solid var(--orange); padding: 7px 12px; border-radius: 0 6px 6px 0; }
+  .qgq b { color: var(--orange); font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; font-size: 10.5px; margin-right: 8px; }
+  .qempty { margin-top: 110px; font-size: 32px; font-weight: 700; line-height: 1.4; letter-spacing: -0.02em; }
+  .qempty span { display: block; margin-top: 8px; font-family: var(--mono); font-size: 16px; font-weight: 400; color: var(--orange); letter-spacing: 0; }
+  .mcards { display: flex; gap: 10px; margin-bottom: 8px; }
+  .mcard { flex: 1; background: var(--card); border: 1px solid var(--card-line); border-top: 3px solid var(--orange); border-radius: 8px; padding: 9px 13px; }
+  .mcard:nth-child(2) { border-top-color: var(--blue); } .mcard:nth-child(3) { border-top-color: var(--green); }
+  .mcard h4 { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
+  .mhead { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--faint); padding-bottom: 3px; }
+  .mrow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13.5px; color: var(--muted); padding: 3px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+  .mrow .v { font-family: var(--mono); font-size: 14.5px; color: #fff; white-space: nowrap; }
+  .mrow .v .good { color: var(--green); font-weight: 600; } .mrow .v .bad { color: var(--red); font-weight: 600; } .mrow .v .ar { color: var(--faint); }
+  .qnote { font-size: 15.5px; color: #cfcfd6; line-height: 1.45; }
+  .qnote b { color: var(--green); font-weight: 600; }
+  .qgraphbox { margin-top: 4px; }
+  .qgraphbox svg.graph { width: 100%; height: auto; }
+  .graph .edge { stroke: rgba(255,255,255,0.28); stroke-width: 1.5; }
+  .graph .hub { fill: var(--orange); }
+  .graph .hub-t { fill: #fff; font-size: 14px; font-weight: 700; font-family: Inter, sans-serif; }
+  .graph .node { fill: var(--plum); stroke: var(--orange); stroke-width: 2; }
+  .graph .lbl { fill: #fff; font-size: 16px; font-family: var(--mono); }
+  .hint { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-top: auto; padding-top: 8px; }
+
+  /* ---------- 5: earns its place ---------- */
+  .lead { font-size: 25px; line-height: 1.45; color: #e3e2e8; max-width: 1250px; margin: 6px 0 26px; }
+  .lead b { color: var(--orange); font-weight: 600; }
+  .earn-cols { display: flex; gap: 20px; width: 100%; margin-bottom: 22px; }
+  .earn-cols .card { flex: 1; padding: 22px 26px; }
+  .earn-cols h3 { margin-bottom: 10px; }
+  .earn-cols ul { list-style: none; }
+  .earn-cols li { font-size: 18.5px; line-height: 1.45; color: var(--muted); padding: 11px 0; border-top: 1px solid rgba(255,255,255,0.13); }
+  .earn-cols li:first-child { border-top: none; }
+  .earn-cols li b { color: #fff; font-weight: 600; }
+  .earn-cols p { font-size: 19px; line-height: 1.5; color: var(--muted); }
+  .earn-cols p b { color: #fff; }
+  .earn-big { display: flex; gap: 14px; margin-top: 10px; }
+  .earn-big div { flex: 1; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 12px 16px; display: flex; align-items: baseline; gap: 12px; }
+  .earn-big big { font-size: 40px; font-weight: 700; color: var(--orange); letter-spacing: -0.03em; }
+  .earn-big span { white-space: nowrap; font-size: 15px; color: var(--muted); }
+  .earn-rule { display: flex; gap: 20px; width: 100%; }
+  .earn-rule div { flex: 1; border-radius: 8px; padding: 20px 26px; font-size: 21px; line-height: 1.4; }
+  .earn-rule .r1 { background: var(--card); border: 1px solid var(--card-line); color: var(--muted); }
+  .earn-rule .r2 { background: rgba(255,108,55,0.14); border: 1px solid var(--orange); color: #fff; }
+  .earn-rule b { color: #fff; font-weight: 600; } .earn-rule .r2 b { color: var(--orange); }
+
+  /* ---------- 6: api-discovery ---------- */
+  .disc-cols { display: flex; gap: 22px; width: 100%; margin-bottom: 24px; }
+  .disc-left { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .src-table { border-bottom: 1px solid rgba(255,255,255,0.22); }
+  .disc-right { flex: 1.1; display: flex; flex-direction: column; }
+  .src-row { display: flex; align-items: center; gap: 16px; padding: 18px 10px; border-top: 1px solid rgba(255,255,255,0.22); }
+  .src-row .num { flex: 0 0 26px; font-family: var(--mono); font-size: 15px; color: var(--orange); }
+  .src-row .need { flex: 1; font-size: 18px; color: var(--muted); line-height: 1.35; }
+  .src-row .use { flex: 0 0 auto; font-family: var(--mono); font-size: 14px; color: #fff; background: rgba(0,0,0,0.45); border: 1px solid var(--card-line); border-radius: 6px; padding: 6px 10px; }
+  .src-row.hot { background: linear-gradient(90deg, rgba(255,108,55,0.22), rgba(255,108,55,0.03)); box-shadow: inset 3px 0 0 var(--orange); }
+  .src-row.hot .need { color: #fff; font-weight: 600; }
+  .src-row.hot .use { border-color: var(--orange); color: var(--orange); }
+  .term { font-family: var(--mono); font-size: 16px; line-height: 1.7; padding: 20px 22px; }
+  .term .p { color: var(--orange); } .term .c { color: var(--faint); }
+  .cc { padding: 0 0 14px; font-family: var(--mono); font-size: 14.5px; line-height: 1.5; flex: 1; }
+  .cc-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--card-line); margin-bottom: 12px; font-size: 12px; color: var(--muted); }
+  .cc-bar i { width: 10px; height: 10px; border-radius: 50%; background: #3b3a45; display: inline-block; }
+  .cc-bar span { margin-left: 10px; letter-spacing: 0.06em; }
+  .cc p { margin: 0 18px; }
+  .cc-user { color: #fff; font-family: Inter, sans-serif; font-size: 16.5px; font-weight: 500; background: rgba(255,255,255,0.06); border-radius: 6px; padding: 10px 14px; margin-bottom: 14px !important; }
+  .cc-user .gt { color: var(--orange); font-family: var(--mono); margin-right: 8px; }
+  .cc-call { color: #fff; margin-top: 10px !important; }
+  .cc-call .dot { color: var(--green); margin-right: 6px; }
+  .cc-call .sk { color: var(--orange); font-weight: 600; }
+  .cc-call .mcp { color: var(--faint); }
+  .cc-out { color: var(--muted); padding-left: 22px; font-size: 13.5px; }
+  .disc-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .disc-chips span { border: 1px solid var(--orange); border-radius: 999px; padding: 7px 15px; font-family: var(--mono); font-size: 14.5px; color: var(--orange-light); }
+  .verify { width: 100%; }
+  .verify h3 { margin-bottom: 8px; }
+  .verify ul { list-style: none; display: flex; gap: 22px; }
+  .verify li { flex: 1; font-size: 17px; line-height: 1.5; color: var(--muted); }
+  .verify li b { color: #fff; font-weight: 600; }
+  h3.eyebrow { font-weight: 500; }
+
+  /* ---------- 7: cta ---------- */
+  .cta h1 { font-size: 104px; }
+  .install-cmd { position: relative; font-family: var(--mono); font-size: 23px; background: rgba(0,0,0,0.55); border: 1px solid var(--orange); border-radius: 8px; padding: 18px 26px; margin: 4px 0 26px; }
+  .install-cmd .prefix { color: var(--orange); margin-right: 10px; }
+  .cta-feats { position: relative; display: flex; gap: 34px; font-family: var(--mono); font-size: 15px; color: var(--muted); }
+  .cta-feats .check { color: var(--green); margin-right: 8px; }
+
+  /* nav */
+  .nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 100; }
+  .nav-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.22); border: none; cursor: pointer; transition: background 0.3s, transform 0.3s; }
+  .nav-dot.active { background: var(--orange); transform: scale(1.3); }
+  .slide-counter { position: fixed; bottom: 14px; right: 30px; font-family: var(--mono); font-size: 12px; color: var(--faint); z-index: 100; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="pm-logo" viewBox="0 0 210 208">
+      <defs>
+        <mask id="pm-mask"><rect width="210" height="208" fill="#fff"/><path d="M118.2,6.9C65.7.2,17.6,37.3,10.9,89.9c-6.8,52.6,30.4,100.6,82.9,107.3,52.6,6.8,100.6-30.4,107.4-82.9,6.8-52.5-30.4-100.6-82.9-107.3h0l-.1-.1ZM138,66.8c-1.8,0-3.5.8-4.7,2l-35.6,35.6-7.6-7.6c35.1-35,41.4-35.3,47.9-30h0ZM99.1,105.7l35.5-35.5c.9-.9,2.2-1.4,3.5-1.4s2.6.5,3.5,1.4c.5.5.9,1.1,1.1,1.7s.4,1.3.3,2c0,.7-.2,1.3-.5,1.9s-.7,1.2-1.2,1.6l-37.6,33-4.7-4.7h.1ZM101.7,111.2l-8.8,1.9h-.3c-.1,0-.2-.1-.2-.2v-.3s0-.2.1-.3l5.2-5.2,4.1,4.1h-.1ZM79.3,107.5l9.4-9.4,7,7-15.8,3.4h-.4c-.1,0-.2-.2-.3-.3v-.4c0-.1,0-.2.2-.4h0l-.1.1ZM50.2,156c-.1,0-.2,0-.3-.1,0,0-.2-.2-.2-.3v-.3c0-.1,0-.2.2-.3l7.6-7.6,9.8,9.8-17-1.2h-.1ZM69.6,145.9h0c-.4.2-.6.5-.8.9s-.2.8-.1,1.2l1.6,6.9v.6c0,.2-.2.4-.4.5s-.4.1-.6.1-.4-.1-.6-.3l-9.8-9.8,30.1-30.1,14.6-3.1,7,7c-10,8.8-23.8,17.6-40.8,26.1h-.2ZM111.8,118.5l-6.7-6.7,37.6-33c.4-.3.7-.7.9-1-1.2,10.8-16.2,26-31.8,40.7h0ZM141,66.8c-2.6-2.7-4.2-6.2-4.2-10s1.3-7.4,3.8-10.1c2.5-2.8,6-4.5,9.8-4.7,3.7-.2,7.4,1,10.3,3.3l-12.9,12.9c-.2.2-.3.4-.3.7s.1.5.3.7l10,10c-2.7,1.4-5.8,1.8-8.8,1.3s-5.8-1.9-7.9-4.1h-.1ZM161.6,66.8c-.7.7-1.4,1.2-2.2,1.8l-9.6-9.7,12.3-12.3c2.5,2.8,3.9,6.4,3.8,10.2,0,3.8-1.6,7.3-4.3,10h0Z" fill="#000"/></mask>
+        <clipPath id="pm-clip"><circle cx="105.5" cy="103.1" r="96"/></clipPath>
+      </defs>
+      <circle cx="105.5" cy="103.6" r="104" fill="#FF6C37"/>
+      <rect width="210" height="208" fill="#fff" mask="url(#pm-mask)" clip-path="url(#pm-clip)"/>
+    </symbol>
+  </defs>
+</svg>
+<div class="strip"></div>
+
+<div class="slideshow" id="slideshow">
+
+  <!-- 1: Title -->
+  <div class="slide cover active" data-index="0">
+    <div class="arc"><i style="left:1420px;top:150px"></i><i style="left:1275px;top:208px;opacity:.6"></i><i style="left:1180px;top:92px;opacity:.5"></i></div>
+    <div class="wordmark"><span class="logo"><svg><use href="#pm-logo"/></svg></span>POSTMAN</div>
+    <h1>Context Graph</h1>
+    <p class="sub">You cannot grep what was never in the checkout.</p>
+    <p class="sub2">One graph query makes Opus, Sonnet and GPT-6 Astra better at questions about your whole estate.</p>
+    <p class="copy">&copy; All rights reserved by Postman Inc</p>
+  </div>
+
+  <!-- 2: The problem -->
+  <div class="slide" data-index="1">
+    <div class="mark"><svg><use href="#pm-logo"/></svg></div>
+    <div class="hd">
+      <h2>Which services expose <em>HTTP endpoints?</em></h2>
+      <p class="kick">The estate: 468 repos declared, 129 of them standing in the agent's checkout.</p>
+      <div class="rule"></div>
+    </div>
+    <div class="bars">
+      <div class="bar-row">
+        <span class="bar-label">File search<br>(the checkout)</span>
+        <div class="bar-track"><div class="seg a" style="width:25.9%">129</div></div>
+        <span class="bar-num">129</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Context Graph</span>
+        <div class="bar-track">
+          <div class="seg a" style="width:25.9%">129</div>
+          <div class="seg b" style="width:44.4%">221</div>
+          <div class="seg c" style="width:28.1%">140</div>
+          <div class="seg d" style="width:1.6%"></div>
+        </div>
+        <span class="bar-num accent">498</span>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--blue)"></i>129 standalone repos in the checkout</span>
+      <span><i style="background:var(--purple)"></i>221 repos elsewhere in the estate</span>
+      <span><i style="background:var(--orange)"></i>140 with no standalone repo</span>
+      <span><i style="background:var(--green)"></i>8 components inside repos already searched</span>
+    </div>
+    <p class="quote">369 services the agent could <span class="accent">never grep.</span> They were never on the shelf.</p>
+    <div class="stats">
+      <div class="card stat"><b>6,712</b><span>graph nodes</span></div>
+      <div class="card stat c-blue"><b>4,828</b><span>endpoints</span></div>
+      <div class="card stat c-green"><b>1,424</b><span>APIs &amp; services</span></div>
+      <div class="card stat c-amber"><b>309</b><span>external systems</span></div>
+      <div class="card stat c-pink"><b>139</b><span>database schemas</span></div>
+      <div class="card stat"><b>11</b><span>telemetry configs</span></div>
+    </div>
+    <p class="src">ai-harness benchmark, 2026-09-18 &middot; 468-repo estate &middot; the 498 includes some names from outside the estate (noted in the README)</p>
+  </div>
+
+  <!-- 3: Results -->
+  <div class="slide" data-index="2">
+    <div class="mark"><svg><use href="#pm-logo"/></svg></div>
+    <div class="hd">
+      <h2>Same models. <em>One graph query.</em></h2>
+      <p class="kick">Accuracy against an answer key built by grep: alone &rarr; with the graph.</p>
+      <div class="rule"></div>
+    </div>
+    <div class="kpis">
+      <div class="card kpi"><big>18 / 21</big><span>prompt-model pairs<br>more accurate</span></div>
+      <div class="card kpi c-green"><big>&minus;27%</big><span>Opus<br>cost per run</span></div>
+      <div class="card kpi c-blue"><big>&minus;20%</big><span>GPT-6 Astra<br>cost per run</span></div>
+    </div>
+    <table class="res">
+      <thead><tr><th></th><th>Claude Opus 4.7</th><th>Claude Sonnet 4.5</th><th>GPT-6 Astra</th></tr></thead>
+      <tbody>
+<tr><th>Runtime calls</th><td class="up">0.136 <span class="ar">&rarr;</span> <b>0.243</b></td><td class="up">0.081 <span class="ar">&rarr;</span> <b>0.108</b></td><td class="up">0.168 <span class="ar">&rarr;</span> <b>0.194</b></td></tr>
+<tr><th>Telemetry</th><td class="up">0.430 <span class="ar">&rarr;</span> <b>0.500</b></td><td class="up">0.175 <span class="ar">&rarr;</span> <b>0.266</b></td><td class="up">0.533 <span class="ar">&rarr;</span> <b>0.588</b></td></tr>
+<tr><th>Deployed services</th><td class="up">0.334 <span class="ar">&rarr;</span> <b>0.352</b></td><td class="up">0.150 <span class="ar">&rarr;</span> <b>0.348</b></td><td class="up">0.271 <span class="ar">&rarr;</span> <b>0.375</b></td></tr>
+<tr><th>HTTP endpoints</th><td class="up">0.249 <span class="ar">&rarr;</span> <b>0.331</b></td><td class="up">0.221 <span class="ar">&rarr;</span> <b>0.499</b></td><td class="down">0.609 <span class="ar">&rarr;</span> <b>0.556</b></td></tr>
+<tr><th>Message-bus consumers</th><td class="up">0.562 <span class="ar">&rarr;</span> <b>0.659</b></td><td class="down">0.437 <span class="ar">&rarr;</span> <b>0.423</b></td><td class="down">0.719 <span class="ar">&rarr;</span> <b>0.576</b></td></tr>
+<tr><th>API callers</th><td class="up">0.777 <span class="ar">&rarr;</span> <b>0.943</b></td><td class="up">0.439 <span class="ar">&rarr;</span> <b>0.773</b></td><td class="up">0.864 <span class="ar">&rarr;</span> <b>0.909</b></td></tr>
+<tr><th>Schemas</th><td class="up">0.559 <span class="ar">&rarr;</span> <b>0.637</b></td><td class="up">0.546 <span class="ar">&rarr;</span> <b>0.548</b></td><td class="up">0.371 <span class="ar">&rarr;</span> <b>0.429</b></td></tr>
+<tr class="alt"><th>Upstream deps<small> off-checkout names traceable to the query</small></th><td class="up">0 <span class="ar">&rarr;</span> <b>5</b></td><td class="up">0 <span class="ar">&rarr;</span> <b>3</b></td><td class="up">0 <span class="ar">&rarr;</span> <b>21</b></td></tr>
+      </tbody>
+    </table>
+    <p class="src">3 runs per cell, 144 cells. Sonnet got more accurate but cost more. Source: ai-harness benchmark, 2026-09-18.</p>
+  </div>
+
+  <!-- 4: Ask the graph -->
+  <div class="slide slide-demo" data-index="3">
+    <div class="mark"><svg><use href="#pm-logo"/></svg></div>
+    <div class="hd" style="margin-bottom:10px">
+      <h2>Ask the <em>graph</em></h2>
+      <p class="kick" style="font-size:15px;margin-top:8px">Eight questions engineers ask before a change. Click one or press 1&ndash;8.</p>
+    </div>
+    <div class="qa">
+      <ol class="qlist" id="qlist"></ol>
+      <div class="qpanel">
+        <div class="qempty" id="qempty">Pick a question on the left.<span>Each model answers it twice: alone, and with one Context Graph query.</span></div>
+        <div id="qbody" style="display:none">
+          <div class="qhead"><div class="qtitle" id="qtitle"></div><div class="qscen" id="qscen"></div><div class="qgq" id="qgq"></div></div>
+          <div class="mcards" id="mcards"></div>
+          <p class="qnote" id="qnote"></p>
+          <div class="qgraphbox" id="qgraph" style="display:none">
+<svg viewBox="0 0 940 300" class="graph" role="img" aria-label="Services the graph says call the platform HTTP API">
+<line x1="470.0" y1="45.0" x2="470.0" y2="150.0" class="edge"/>
+<line x1="545.0" y1="59.1" x2="470.0" y2="150.0" class="edge"/>
+<line x1="599.9" y1="97.5" x2="470.0" y2="150.0" class="edge"/>
+<line x1="620.0" y1="150.0" x2="470.0" y2="150.0" class="edge"/>
+<line x1="599.9" y1="202.5" x2="470.0" y2="150.0" class="edge"/>
+<line x1="545.0" y1="240.9" x2="470.0" y2="150.0" class="edge"/>
+<line x1="470.0" y1="255.0" x2="470.0" y2="150.0" class="edge"/>
+<line x1="395.0" y1="240.9" x2="470.0" y2="150.0" class="edge"/>
+<line x1="340.1" y1="202.5" x2="470.0" y2="150.0" class="edge"/>
+<line x1="320.0" y1="150.0" x2="470.0" y2="150.0" class="edge"/>
+<line x1="340.1" y1="97.5" x2="470.0" y2="150.0" class="edge"/>
+<line x1="395.0" y1="59.1" x2="470.0" y2="150.0" class="edge"/>
+<circle cx="470.0" cy="150.0" r="44" class="hub"/>
+<text x="470.0" y="148.0" class="hub-t" text-anchor="middle">Platform</text>
+<text x="470.0" y="165.0" class="hub-t" text-anchor="middle">HTTP API</text>
+<circle cx="470.0" cy="45.0" r="8" class="node"/>
+<text x="470.0" y="29.0" class="lbl" text-anchor="middle">act-kit</text>
+<circle cx="545.0" cy="59.1" r="8" class="node"/>
+<text x="559.0" y="64.1" class="lbl" text-anchor="start">amixr-api-go-client</text>
+<circle cx="599.9" cy="97.5" r="8" class="node"/>
+<text x="613.9" y="102.5" class="lbl" text-anchor="start">crossplane-function-…-data</text>
+<circle cx="620.0" cy="150.0" r="8" class="node"/>
+<text x="634.0" y="155.0" class="lbl" text-anchor="start">crossplane-provider-…</text>
+<circle cx="599.9" cy="202.5" r="8" class="node"/>
+<text x="613.9" y="207.5" class="lbl" text-anchor="start">developer-advocacy</text>
+<circle cx="545.0" cy="240.9" r="8" class="node"/>
+<text x="559.0" y="245.9" class="lbl" text-anchor="start">gcx</text>
+<circle cx="470.0" cy="255.0" r="8" class="node"/>
+<text x="470.0" y="279.0" class="lbl" text-anchor="middle">…-ansible-collection</text>
+<circle cx="395.0" cy="240.9" r="8" class="node"/>
+<text x="381.0" y="245.9" class="lbl" text-anchor="end">irm-tooling</text>
+<circle cx="340.1" cy="202.5" r="8" class="node"/>
+<text x="326.1" y="207.5" class="lbl" text-anchor="end">mcp-…</text>
+<circle cx="320.0" cy="150.0" r="8" class="node"/>
+<text x="306.0" y="155.0" class="lbl" text-anchor="end">memo</text>
+<circle cx="340.1" cy="97.5" r="8" class="node"/>
+<text x="326.1" y="102.5" class="lbl" text-anchor="end">strava-datasource</text>
+<circle cx="395.0" cy="59.1" r="8" class="node"/>
+<text x="381.0" y="64.1" class="lbl" text-anchor="end">terraform-provider-…</text>
+</svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Preloaded from the ai-harness benchmark run, 2026-09-18 &middot; 3 runs per cell &middot; green is better, red is worse</p>
+  </div>
+
+  <!-- 5: Where the Context Graph earns its place -->
+  <div class="slide" data-index="4">
+    <div class="mark"><svg><use href="#pm-logo"/></svg></div>
+    <div class="hd" style="margin-bottom:6px">
+      <h2>Where the Context Graph <em>earns its place</em></h2>
+    </div>
+    <p class="lead">The Context Graph is most useful when the answer is a <b>relationship</b>, not something you can find by opening a file. Across three models and seven scored prompts it improved accuracy in <b>18 of 21</b> prompt-model pairs.</p>
+    <div class="earn-cols">
+      <div class="card c-green">
+        <h3 class="eyebrow">Where it earned its place</h3>
+        <ul>
+          <li><b>Runtime calls.</b> The service builds the destination URL at startup, so no repository records the full relationship.</li>
+          <li><b>HTTP endpoints.</b> It found 48 services with no repository in the checkout, each straight from the graph's results, not from the model trying to remember a public project.</li>
+          <li><b>API callers.</b> Opus found 12 of the 13 real callers (9 alone) and returned 30 services instead of 54. It was guessing less.</li>
+        </ul>
+      </div>
+      <div class="card c-amber">
+        <h3 class="eyebrow">Cheaper too, and where it helped less</h3>
+        <p>For two of the three models these questions also got cheaper:</p>
+        <div class="earn-big">
+          <div><big>&minus;27%</big><span>Opus cost</span></div>
+          <div><big>&minus;20%</big><span>GPT-6 Astra cost</span></div>
+        </div>
+        <p style="margin-top:12px">When the answer was already sitting in a file, the model was often better off <b>reading that file</b> without the graph.</p>
+      </div>
+    </div>
+    <div class="earn-rule">
+      <div class="r1"><b>Answer already written in a repository?</b><br>Simply read the files.</div>
+      <div class="r2"><b>Answer lives between repositories, services and systems?</b><br>That is where the Context Graph earns its place.</div>
+    </div>
+    <p class="src">Source: ai-harness benchmark report, 2026-09-18.</p>
+  </div>
+
+  <!-- 6: api-discovery skill -->
+  <div class="slide" data-index="5">
+    <div class="mark"><svg><use href="#pm-logo"/></svg></div>
+    <div class="hd" style="margin-bottom:16px">
+      <h2>The <em>api-discovery</em> skill</h2>
+      <p class="kick">The Postman plugin picks the source by the question. For consumers, ownership and change impact, that source is the Context Graph.</p>
+      <div class="rule"></div>
+    </div>
+    <div class="disc-cols">
+      <div class="disc-left">
+        <div class="src-table">
+          <div class="src-row"><span class="num">01</span><span class="need">Public provider endpoints and integration details</span><span class="use">Orbit</span></div>
+          <div class="src-row"><span class="num">02</span><span class="need">A concrete Postman collection, request, spec, mock or workspace</span><span class="use">Search Postman</span></div>
+          <div class="src-row hot"><span class="num">03</span><span class="need">Consumers, ownership, dependencies or likely change impact</span><span class="use">Context Graph</span></div>
+        </div>
+        <div class="card c-blue" style="padding:16px 20px">
+          <h3 class="eyebrow">What the graph connects, beyond the checkout</h3>
+          <div class="disc-chips"><span>Postman definitions</span><span>Repository call sites</span><span>Runtime telemetry</span></div>
+        </div>
+      </div>
+      <div class="disc-right">
+        <div class="card cc">
+          <div class="cc-bar"><i></i><i></i><i></i><span>Claude Code &middot; Postman plugin</span></div>
+          <p class="cc-user"><span class="gt">&gt;</span> Who consumes the platform's HTTP API, and what breaks if I change it?</p>
+          <p class="cc-call"><span class="dot">&#9679;</span> <b>Skill</b>(<span class="sk">postman:api-discovery</span>)</p>
+          <p class="cc-out">&#9151; Picks the source by the question: consumers and change impact &rarr; Context Graph</p>
+          <p class="cc-call"><span class="dot">&#9679;</span> <b>postman</b> &middot; submitContextGraphAsk <span class="mcp">(MCP)</span></p>
+          <p class="cc-out">&#9151; query: "Which services call the platform's HTTP API, and what are their upstream and downstream dependencies?"</p>
+          <p class="cc-out">&#9151; returns an askId, status: pending</p>
+          <p class="cc-call"><span class="dot">&#9679;</span> <b>postman</b> &middot; getContextGraphAsk <span class="mcp">(MCP)</span></p>
+          <p class="cc-out">&#9151; polled until status is completed, then reports the answer with its citations</p>
+        </div>
+      </div>
+    </div>
+    <div class="card c-amber verify" style="padding:20px 26px">
+      <h3 class="eyebrow">Then verify. The skill reports the source, the evidence and the gaps</h3>
+      <ul>
+        <li><b>Coverage depends on what's connected and ingested.</b> Verify consequential leads against definitions, source or telemetry.</li>
+        <li><b>A newly added call may not be there yet.</b> The graph refreshes; your last commit may be newer.</li>
+        <li><b>The team comes from the API key,</b> not the repo's workspace binding. Changing the binding can't fix a query against the wrong organization.</li>
+      </ul>
+    </div>
+    <p class="src">Source: postman-plugin &middot; skills/api-discovery/SKILL.md</p>
+  </div>
+
+  <!-- 7: CTA -->
+  <div class="slide cover cta" data-index="6">
+    <div class="arc"><i style="left:1420px;top:150px"></i><i style="left:1275px;top:208px;opacity:.6"></i><i style="left:1180px;top:92px;opacity:.5"></i></div>
+    <div class="wordmark"><span class="logo"><svg><use href="#pm-logo"/></svg></span>POSTMAN</div>
+    <p class="kick" style="position:relative;font-size:19px;margin:0 0 14px">Try it on your own estate</p>
+    <h1>Ask your <span class="accent">own estate.</span></h1>
+    <div class="install-cmd"><span class="prefix">$</span>claude plugin install github:Postman-Devrel/postman-claude-code-plugin</div>
+    <div class="cta-feats">
+      <span><span class="check">&#x2713;</span>Postman Claude Code plugin</span>
+      <span><span class="check">&#x2713;</span>submitContextGraphAsk</span>
+      <span><span class="check">&#x2713;</span>Refreshed nightly</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="nav" id="nav"></div>
+<div class="slide-counter" id="counter"></div>
+
+<script>
+  const BM = {"source": "ai-harness/docs/context_graph_api_benchmarking_report.md (scorecard blocks, copied as published)", "benchmarkDate": "2026-09-18", "models": ["Opus 4.7", "Sonnet 4.5", "GPT-6 Astra"], "questions": [{"scenario": "Let's say you are responding to an incident where several services start slowing down at the same time. At first, they look like separate problems, but they all depend on the same service at runtime. That connection is not obvious in the code because runtime calls do not always appear as build dependencies. Before you can diagnose the actual problem, you have to trace requests across multiple services just to understand how they are connected. That missing context turns what could have been a quick diagnosis into a much longer incident.", "short": "Runtime calls", "question": "What are the runtime dependencies between services?", "graphQuery": "Which services are upstream or downstream dependencies of other services at run time? Include external services, and services that have no source code in this checkout.", "note": "Opus found 36.5% of the known services with the graph, 11.1% alone. The target is a URL assembled from config at startup, so there is no string to grep.", "report": "RUNTIME CALL RELATIONSHIPS", "graphDocuments": null, "models": {"Opus 4.7": [{"label": "correct found", "base": "5", "graph": "15", "rawBase": 4.666666666666667, "rawGraph": 15.333333333333334, "change": "+229%"}, {"label": "accuracy", "base": "0.136", "graph": "0.243", "rawBase": 0.13593333333333335, "rawGraph": 0.24276666666666666, "change": "+79%"}, {"label": "cost per run", "base": "$10", "graph": "$5", "rawBase": 9.71687, "rawGraph": 5.299205000000001, "change": "−45%"}, {"label": "tool calls", "base": "39", "graph": "26", "rawBase": 38.666666666666664, "rawGraph": 26.0, "change": "−33%"}, {"label": "input tokens", "base": "0.61M", "graph": "0.31M", "rawBase": 606649.6666666666, "rawGraph": 308085.3333333333, "change": "−49%"}, {"label": "output tokens", "base": "8.2k", "graph": "9.0k", "rawBase": 8228.333333333334, "rawGraph": 9039.0, "change": "+10%"}], "Sonnet 4.5": [{"label": "correct found", "base": "2", "graph": "3", "rawBase": 2.0, "rawGraph": 3.3333333333333335, "change": "+67%"}, {"label": "accuracy", "base": "0.081", "graph": "0.108", "rawBase": 0.0811, "rawGraph": 0.10759999999999999, "change": "+33%"}, {"label": "cost per run", "base": "$3", "graph": "$4", "rawBase": 3.0327250000000006, "rawGraph": 4.007178, "change": "+32%"}, {"label": "tool calls", "base": "21", "graph": "35", "rawBase": 21.0, "rawGraph": 35.0, "change": "+67%"}, {"label": "input tokens", "base": "0.99M", "graph": "1.31M", "rawBase": 991520.0, "rawGraph": 1307409.3333333333, "change": "+32%"}, {"label": "output tokens", "base": "3.9k", "graph": "5.7k", "rawBase": 3877.6666666666665, "rawGraph": 5663.333333333333, "change": "+46%"}], "GPT-6 Astra": [{"label": "correct found", "base": "10", "graph": "20", "rawBase": 9.666666666666666, "rawGraph": 20.0, "change": "+107%"}, {"label": "accuracy", "base": "0.168", "graph": "0.194", "rawBase": 0.1683, "rawGraph": 0.19363333333333332, "change": "+15%"}, {"label": "cost per run", "base": "$15", "graph": "$10", "rawBase": 15.387443333333332, "rawGraph": 9.749286666666666, "change": "−37%"}, {"label": "tool calls", "base": "152", "graph": "97", "rawBase": 152.0, "rawGraph": 97.33333333333333, "change": "−36%"}, {"label": "input tokens", "base": "1.44M", "graph": "0.90M", "rawBase": 1440024.3333333333, "rawGraph": 898452.0, "change": "−38%"}, {"label": "output tokens", "base": "19.7k", "graph": "15.3k", "rawBase": 19744.0, "rawGraph": 15295.333333333334, "change": "−23%"}]}}, {"scenario": "Let's say an incident starts and several services could be responsible. Before you can debug it, you need to know which services collect the logs, metrics, and traces that can show you what happened. If a service has no instrumentation, you have no clear way to see what it was doing when the failure occurred. That leaves you debugging blind, working backward from symptoms instead of following the request to the source.", "short": "Telemetry", "question": "List each service and the logs, metrics, and traces it produces.", "graphQuery": "Which services emit logs, metrics, traces or profiles, and where does each one send them? Include external and third-party destinations, and anything with no source code in this checkout.", "note": "Rewording the query as a relationship took the graph from 11 rows to 200+. Opus named 24 instrumented services with no repo in the checkout.", "report": "TELEMETRY", "graphDocuments": null, "models": {"Opus 4.7": [{"label": "correct found", "base": "40", "graph": "54", "rawBase": 40.333333333333336, "rawGraph": 54.333333333333336, "change": "+35%"}, {"label": "accuracy", "base": "0.430", "graph": "0.500", "rawBase": 0.4296333333333333, "rawGraph": 0.49973333333333336, "change": "+16%"}, {"label": "cost per run", "base": "$19", "graph": "$15", "rawBase": 19.004825, "rawGraph": 14.908775, "change": "−22%"}, {"label": "tool calls", "base": "93", "graph": "70", "rawBase": 92.66666666666667, "rawGraph": 69.66666666666667, "change": "−25%"}, {"label": "input tokens", "base": "1.17M", "graph": "0.90M", "rawBase": 1173161.6666666667, "rawGraph": 900575.0, "change": "−23%"}, {"label": "output tokens", "base": "18.8k", "graph": "18.7k", "rawBase": 18765.333333333332, "rawGraph": 18668.666666666668, "change": "−1%"}], "Sonnet 4.5": [{"label": "correct found", "base": "12", "graph": "20", "rawBase": 12.333333333333334, "rawGraph": 20.333333333333332, "change": "+65%"}, {"label": "accuracy", "base": "0.175", "graph": "0.266", "rawBase": 0.17486666666666664, "rawGraph": 0.26586666666666664, "change": "+52%"}, {"label": "cost per run", "base": "$2", "graph": "$3", "rawBase": 2.3859099999999995, "rawGraph": 3.216791, "change": "+35%"}, {"label": "tool calls", "base": "43", "graph": "32", "rawBase": 43.0, "rawGraph": 31.666666666666668, "change": "−26%"}, {"label": "input tokens", "base": "0.77M", "graph": "1.05M", "rawBase": 773750.0, "rawGraph": 1046077.0, "change": "+35%"}, {"label": "output tokens", "base": "4.3k", "graph": "5.2k", "rawBase": 4310.666666666667, "rawGraph": 5237.333333333333, "change": "+21%"}], "GPT-6 Astra": [{"label": "correct found", "base": "65", "graph": "82", "rawBase": 65.0, "rawGraph": 82.33333333333333, "change": "+27%"}, {"label": "accuracy", "base": "0.533", "graph": "0.588", "rawBase": 0.5329666666666667, "rawGraph": 0.5881, "change": "+10%"}, {"label": "cost per run", "base": "$17", "graph": "$15", "rawBase": 17.336336666666668, "rawGraph": 14.74102, "change": "−15%"}, {"label": "tool calls", "base": "162", "graph": "119", "rawBase": 162.33333333333334, "rawGraph": 119.33333333333333, "change": "−26%"}, {"label": "input tokens", "base": "1.63M", "graph": "1.38M", "rawBase": 1626347.0, "rawGraph": 1378212.0, "change": "−15%"}, {"label": "output tokens", "base": "21.5k", "graph": "19.2k", "rawBase": 21457.333333333332, "rawGraph": 19178.0, "change": "−11%"}]}}, {"scenario": "Let's say you're doing a cost audit of all the services running in production. You start with a list of repositories, but most of them are libraries, shared packages, and internal tools that do not run on their own. Before you can connect infrastructure spending to individual services, you need to figure out which repositories actually represent deployed services.", "short": "Deployed services", "question": "Which services do we actually deploy, and how is each one deployed?", "graphQuery": "Which services are deployable, how is each one deployed, and what are their upstream and downstream dependencies? Include services that have no source code in this checkout.", "note": "Opus named 10 deployed services with no repo in the checkout; 5 came straight from the graph results.", "report": "DEPLOYED SERVICES", "graphDocuments": null, "models": {"Opus 4.7": [{"label": "correct found", "base": "26", "graph": "28", "rawBase": 25.666666666666668, "rawGraph": 28.333333333333332, "change": "+10%"}, {"label": "accuracy", "base": "0.334", "graph": "0.352", "rawBase": 0.3341, "rawGraph": 0.3519666666666667, "change": "+5%"}, {"label": "cost per run", "base": "$5", "graph": "$4", "rawBase": 4.530065, "rawGraph": 3.79598, "change": "−16%"}, {"label": "tool calls", "base": "66", "graph": "54", "rawBase": 66.33333333333333, "rawGraph": 54.0, "change": "−19%"}, {"label": "input tokens", "base": "0.23M", "graph": "0.19M", "rawBase": 225129.33333333334, "rawGraph": 189038.66666666666, "change": "−16%"}, {"label": "output tokens", "base": "15.4k", "graph": "12.8k", "rawBase": 15375.0, "rawGraph": 12805.333333333334, "change": "−17%"}], "Sonnet 4.5": [{"label": "correct found", "base": "8", "graph": "24", "rawBase": 8.333333333333334, "rawGraph": 24.0, "change": "+188%"}, {"label": "accuracy", "base": "0.150", "graph": "0.348", "rawBase": 0.14970000000000003, "rawGraph": 0.3479666666666667, "change": "+132%"}, {"label": "cost per run", "base": "$4", "graph": "$6", "rawBase": 3.7731100000000004, "rawGraph": 6.3969759999999996, "change": "+70%"}, {"label": "tool calls", "base": "92", "graph": "76", "rawBase": 91.66666666666667, "rawGraph": 76.33333333333333, "change": "−17%"}, {"label": "input tokens", "base": "1.21M", "graph": "2.08M", "rawBase": 1206838.3333333333, "rawGraph": 2080238.6666666667, "change": "+72%"}, {"label": "output tokens", "base": "10.2k", "graph": "10.4k", "rawBase": 10173.0, "rawGraph": 10417.333333333334, "change": "+2%"}], "GPT-6 Astra": [{"label": "correct found", "base": "18", "graph": "30", "rawBase": 17.666666666666668, "rawGraph": 29.666666666666668, "change": "+68%"}, {"label": "accuracy", "base": "0.271", "graph": "0.375", "rawBase": 0.27116666666666667, "rawGraph": 0.37503333333333333, "change": "+38%"}, {"label": "cost per run", "base": "$25", "graph": "$25", "rawBase": 25.148853333333335, "rawGraph": 24.99967666666667, "change": "−1%"}, {"label": "tool calls", "base": "187", "graph": "188", "rawBase": 187.33333333333334, "rawGraph": 187.66666666666666, "change": "0%"}, {"label": "input tokens", "base": "2.40M", "graph": "2.39M", "rawBase": 2402882.0, "rawGraph": 2388527.6666666665, "change": "−1%"}, {"label": "output tokens", "base": "22.4k", "graph": "22.3k", "rawBase": 22400.666666666668, "rawGraph": 22288.0, "change": "−1%"}]}}, {"scenario": "Let's say you get a task to require authentication for every API endpoint. Before you can safely roll that out, you need to know exactly which endpoints exist and who is calling them. If you miss a caller, you can break legitimate traffic the moment authentication is enabled. If you miss an endpoint, it may remain publicly accessible without anyone realizing it.", "short": "HTTP endpoints", "question": "Which services serve HTTP endpoints, and what paths does each one serve?", "graphQuery": "List every service that exposes an HTTP API or endpoint, together with the endpoint paths it serves. Include services that have no source code in this checkout.", "note": "Opus named 48 services with no repo in the checkout, 47 straight from its graph query. Astra already scored well alone and slipped.", "report": "HTTP ENDPOINTS", "graphDocuments": 498, "models": {"Opus 4.7": [{"label": "correct found", "base": "18", "graph": "25", "rawBase": 18.0, "rawGraph": 25.0, "change": "+39%"}, {"label": "accuracy", "base": "0.249", "graph": "0.331", "rawBase": 0.24873333333333333, "rawGraph": 0.3309666666666667, "change": "+33%"}, {"label": "cost per run", "base": "$37", "graph": "$10", "rawBase": 37.077025, "rawGraph": 10.458825000000001, "change": "−72%"}, {"label": "tool calls", "base": "121", "graph": "58", "rawBase": 121.33333333333333, "rawGraph": 58.333333333333336, "change": "−52%"}, {"label": "input tokens", "base": "2.35M", "graph": "0.60M", "rawBase": 2345368.3333333335, "rawGraph": 602511.6666666666, "change": "−74%"}, {"label": "output tokens", "base": "25.3k", "graph": "18.9k", "rawBase": 25286.666666666668, "rawGraph": 18948.666666666668, "change": "−25%"}], "Sonnet 4.5": [{"label": "correct found", "base": "7", "graph": "27", "rawBase": 7.333333333333333, "rawGraph": 27.333333333333332, "change": "+273%"}, {"label": "accuracy", "base": "0.221", "graph": "0.499", "rawBase": 0.22103333333333333, "rawGraph": 0.49913333333333326, "change": "+126%"}, {"label": "cost per run", "base": "$2", "graph": "$5", "rawBase": 2.069217, "rawGraph": 4.895701, "change": "+137%"}, {"label": "tool calls", "base": "35", "graph": "31", "rawBase": 35.0, "rawGraph": 30.666666666666668, "change": "−12%"}, {"label": "input tokens", "base": "0.66M", "graph": "1.58M", "rawBase": 659377.3333333334, "rawGraph": 1581145.3333333333, "change": "+140%"}, {"label": "output tokens", "base": "6.1k", "graph": "10.2k", "rawBase": 6072.333333333333, "rawGraph": 10151.0, "change": "+67%"}], "GPT-6 Astra": [{"label": "correct found", "base": "48", "graph": "46", "rawBase": 48.0, "rawGraph": 45.666666666666664, "change": "−5%"}, {"label": "accuracy", "base": "0.609", "graph": "0.556", "rawBase": 0.6090333333333333, "rawGraph": 0.5562666666666666, "change": "−9%"}, {"label": "cost per run", "base": "$14", "graph": "$12", "rawBase": 14.138150000000001, "rawGraph": 11.628593333333333, "change": "−18%"}, {"label": "tool calls", "base": "89", "graph": "72", "rawBase": 88.66666666666667, "rawGraph": 71.66666666666667, "change": "−19%"}, {"label": "input tokens", "base": "1.30M", "graph": "1.06M", "rawBase": 1295333.3333333333, "rawGraph": 1055232.6666666667, "change": "−19%"}, {"label": "output tokens", "base": "23.7k", "graph": "21.5k", "rawBase": 23696.333333333332, "rawGraph": 21525.333333333332, "change": "−9%"}]}}, {"scenario": "You are preparing to migrate the message bus. You already know which services publish events, but there is no reliable list of everything consuming them. Each consumer may register its subscription only in its own startup code, so there is no central file you can check. To migrate safely, you have to search every service and piece together the full list of consumers yourself.", "short": "Message-bus consumers", "question": "Which services consume from a message bus, and which topics do they read?", "graphQuery": "Give me everything you hold about message buses and event streams: every service linked to a messaging system, every topic, every publisher and every subscriber. Include Kafka, NATS, RabbitMQ, Pub/Sub, MQTT and Redis streams, and services with no source code in this checkout.", "note": "The graph links services to 13 messaging systems but has no topic nodes and no subscribe/publish edges. It can say \"talks to Kafka\", not \"consumes from topic X\".", "report": "MESSAGE-BUS CONSUMERS", "graphDocuments": null, "models": {"Opus 4.7": [{"label": "correct found", "base": "7", "graph": "9", "rawBase": 7.0, "rawGraph": 9.0, "change": "+29%"}, {"label": "accuracy", "base": "0.562", "graph": "0.659", "rawBase": 0.5621333333333334, "rawGraph": 0.6593666666666667, "change": "+17%"}, {"label": "cost per run", "base": "$23", "graph": "$21", "rawBase": 23.07726, "rawGraph": 20.590295, "change": "−11%"}, {"label": "tool calls", "base": "37", "graph": "35", "rawBase": 37.0, "rawGraph": 35.0, "change": "−5%"}, {"label": "input tokens", "base": "1.48M", "graph": "1.32M", "rawBase": 1479684.0, "rawGraph": 1319578.0, "change": "−11%"}, {"label": "output tokens", "base": "11.8k", "graph": "10.6k", "rawBase": 11760.0, "rawGraph": 10621.666666666666, "change": "−10%"}], "Sonnet 4.5": [{"label": "correct found", "base": "5", "graph": "5", "rawBase": 4.666666666666667, "rawGraph": 5.0, "change": "+7%"}, {"label": "accuracy", "base": "0.437", "graph": "0.423", "rawBase": 0.43723333333333336, "rawGraph": 0.4232, "change": "−3%"}, {"label": "cost per run", "base": "$4", "graph": "$4", "rawBase": 4.295956, "rawGraph": 3.8432149999999994, "change": "−11%"}, {"label": "tool calls", "base": "26", "graph": "27", "rawBase": 26.0, "rawGraph": 26.666666666666668, "change": "+3%"}, {"label": "input tokens", "base": "1.41M", "graph": "1.26M", "rawBase": 1411422.0, "rawGraph": 1256100.0, "change": "−11%"}, {"label": "output tokens", "base": "4.1k", "graph": "5.0k", "rawBase": 4112.666666666667, "rawGraph": 4994.333333333333, "change": "+21%"}], "GPT-6 Astra": [{"label": "correct found", "base": "11", "graph": "10", "rawBase": 10.666666666666666, "rawGraph": 10.0, "change": "−6%"}, {"label": "accuracy", "base": "0.719", "graph": "0.576", "rawBase": 0.7191000000000001, "rawGraph": 0.5764, "change": "−20%"}, {"label": "cost per run", "base": "$14", "graph": "$16", "rawBase": 14.468853333333334, "rawGraph": 15.659336666666666, "change": "+8%"}, {"label": "tool calls", "base": "132", "graph": "116", "rawBase": 132.0, "rawGraph": 115.66666666666667, "change": "−12%"}, {"label": "input tokens", "base": "1.38M", "graph": "1.50M", "rawBase": 1381828.6666666667, "rawGraph": 1497782.0, "change": "+8%"}, {"label": "output tokens", "base": "13.0k", "graph": "13.6k", "rawBase": 13011.333333333334, "rawGraph": 13630.333333333334, "change": "+5%"}]}}, {"scenario": "You are about to change an API and you need to know what else has to change with it.", "short": "API callers", "question": "Which services call the platform’s HTTP API?", "graphQuery": "Which services call the platform's HTTP API, and what are their upstream and downstream dependencies?", "note": "Opus found 12 of the 13 real callers (9 alone) and returned 30 services instead of 54. The graph below is what the query returned.", "report": "API CALLERS", "graphDocuments": 12, "models": {"Opus 4.7": [{"label": "correct found", "base": "9", "graph": "12", "rawBase": 8.666666666666666, "rawGraph": 11.666666666666666, "change": "+35%"}, {"label": "accuracy", "base": "0.777", "graph": "0.943", "rawBase": 0.7767, "rawGraph": 0.9432, "change": "+21%"}, {"label": "cost per run", "base": "$26", "graph": "$30", "rawBase": 26.287595, "rawGraph": 29.935429999999997, "change": "+14%"}, {"label": "tool calls", "base": "64", "graph": "80", "rawBase": 64.33333333333333, "rawGraph": 80.0, "change": "+24%"}, {"label": "input tokens", "base": "1.65M", "graph": "1.90M", "rawBase": 1647556.3333333333, "rawGraph": 1900350.3333333333, "change": "+15%"}, {"label": "output tokens", "base": "21.0k", "graph": "19.1k", "rawBase": 20990.0, "rawGraph": 19069.0, "change": "−9%"}], "Sonnet 4.5": [{"label": "correct found", "base": "4", "graph": "8", "rawBase": 3.6666666666666665, "rawGraph": 8.333333333333334, "change": "+127%"}, {"label": "accuracy", "base": "0.439", "graph": "0.773", "rawBase": 0.43873333333333336, "rawGraph": 0.7731333333333335, "change": "+76%"}, {"label": "cost per run", "base": "$4", "graph": "$3", "rawBase": 3.814422, "rawGraph": 2.901655, "change": "−24%"}, {"label": "tool calls", "base": "19", "graph": "21", "rawBase": 19.333333333333332, "rawGraph": 21.0, "change": "+9%"}, {"label": "input tokens", "base": "1.25M", "graph": "0.94M", "rawBase": 1252065.6666666667, "rawGraph": 942776.6666666666, "change": "−25%"}, {"label": "output tokens", "base": "3.9k", "graph": "4.9k", "rawBase": 3881.6666666666665, "rawGraph": 4888.333333333333, "change": "+26%"}], "GPT-6 Astra": [{"label": "correct found", "base": "11", "graph": "12", "rawBase": 10.666666666666666, "rawGraph": 11.666666666666666, "change": "+9%"}, {"label": "accuracy", "base": "0.864", "graph": "0.909", "rawBase": 0.8644333333333334, "rawGraph": 0.9087333333333335, "change": "+5%"}, {"label": "cost per run", "base": "$30", "graph": "$26", "rawBase": 30.327433333333335, "rawGraph": 26.051666666666666, "change": "−14%"}, {"label": "tool calls", "base": "147", "graph": "118", "rawBase": 147.33333333333334, "rawGraph": 117.66666666666667, "change": "−20%"}, {"label": "input tokens", "base": "2.93M", "graph": "2.51M", "rawBase": 2932595.0, "rawGraph": 2513768.3333333335, "change": "−14%"}, {"label": "output tokens", "base": "20.0k", "graph": "18.3k", "rawBase": 20029.666666666668, "rawGraph": 18279.666666666668, "change": "−9%"}]}}, {"scenario": "You are introducing contract testing, but first you need to understand what is already in place. Some services define formal API contracts, while others expose endpoints without documenting their expected requests and responses. Before you can decide what to test or where to start, you need a reliable list of the services that already have contracts you can test against.", "short": "Schemas", "question": "Which services declare a machine-readable data or API contract, and what does each contract describe?", "graphQuery": "Which services define schemas, data models or API contracts, and which services consume them? Include services that have no source code in this checkout.", "note": "Opus got more precise (0.530 to 0.642). Astra found 11 services with no repo in the checkout, most straight from the graph.", "report": "SCHEMAS", "graphDocuments": null, "models": {"Opus 4.7": [{"label": "correct found", "base": "28", "graph": "30", "rawBase": 28.0, "rawGraph": 30.0, "change": "+7%"}, {"label": "accuracy", "base": "0.559", "graph": "0.637", "rawBase": 0.5585333333333333, "rawGraph": 0.6365666666666667, "change": "+14%"}, {"label": "cost per run", "base": "$20", "graph": "$15", "rawBase": 20.21346, "rawGraph": 14.79031, "change": "−27%"}, {"label": "tool calls", "base": "82", "graph": "87", "rawBase": 81.66666666666667, "rawGraph": 87.0, "change": "+7%"}, {"label": "input tokens", "base": "1.26M", "graph": "0.89M", "rawBase": 1260755.6666666667, "rawGraph": 894889.0, "change": "−29%"}, {"label": "output tokens", "base": "17.4k", "graph": "18.2k", "rawBase": 17361.666666666668, "rawGraph": 18226.333333333332, "change": "+5%"}], "Sonnet 4.5": [{"label": "correct found", "base": "23", "graph": "22", "rawBase": 23.333333333333332, "rawGraph": 21.666666666666668, "change": "−7%"}, {"label": "accuracy", "base": "0.546", "graph": "0.548", "rawBase": 0.5462333333333333, "rawGraph": 0.5484, "change": "0%"}, {"label": "cost per run", "base": "$4", "graph": "$4", "rawBase": 4.366116, "rawGraph": 4.051953, "change": "−7%"}, {"label": "tool calls", "base": "76", "graph": "76", "rawBase": 75.66666666666667, "rawGraph": 76.33333333333333, "change": "+1%"}, {"label": "input tokens", "base": "1.42M", "graph": "1.31M", "rawBase": 1415410.3333333333, "rawGraph": 1307329.3333333333, "change": "−8%"}, {"label": "output tokens", "base": "8.0k", "graph": "8.7k", "rawBase": 7992.333333333333, "rawGraph": 8664.333333333334, "change": "+8%"}], "GPT-6 Astra": [{"label": "correct found", "base": "32", "graph": "28", "rawBase": 31.666666666666668, "rawGraph": 27.666666666666668, "change": "−13%"}, {"label": "accuracy", "base": "0.371", "graph": "0.429", "rawBase": 0.3711333333333333, "rawGraph": 0.4289, "change": "+16%"}, {"label": "cost per run", "base": "$27", "graph": "$15", "rawBase": 27.442999999999998, "rawGraph": 14.890296666666666, "change": "−46%"}, {"label": "tool calls", "base": "219", "graph": "126", "rawBase": 219.0, "rawGraph": 126.33333333333333, "change": "−42%"}, {"label": "input tokens", "base": "2.64M", "graph": "1.42M", "rawBase": 2638940.0, "rawGraph": 1417759.6666666667, "change": "−46%"}, {"label": "output tokens", "base": "21.1k", "graph": "14.3k", "rawBase": 21072.0, "rawGraph": 14254.0, "change": "−32%"}]}}, {"scenario": "You are preparing to change a shared service, database, queue, or external API. Before you touch it, you need to know which systems sit upstream of each service and keep it running. These runtime dependencies often do not appear as build dependencies, so searching imports and package files will not give you the full picture. To understand what each service relies on, you need to ask:", "short": "Upstream dependencies", "question": "What does each service depend on at run time?", "graphQuery": "For each service, list its upstream dependencies — the services and external systems it calls or sends data to at run time. Include third-party and external systems, and include anything that has no source code in this checkout.", "note": "Scored on coverage, not an answer key. Astra: 0 names traceable to a query alone, 21 with the graph. Costs fell 35% to 55%.", "report": "UPSTREAM DEPENDENCIES", "graphDocuments": 193, "models": {"Opus 4.7": [{"label": "off-disk named", "base": "0", "graph": "6", "rawBase": 0.0, "rawGraph": 6.0, "change": "+6"}, {"label": "traceable to query", "base": "0", "graph": "5", "rawBase": 0.0, "rawGraph": 5.0, "change": "+5"}, {"label": "declared targets", "base": "0.606", "graph": "0.576", "rawBase": 0.6060606060606061, "rawGraph": 0.5757575757575757, "change": "−5%"}, {"label": "cost per run", "base": "$10", "graph": "$6", "rawBase": 9.61146, "rawGraph": 6.0064649999999995, "change": "−38%"}, {"label": "tool calls", "base": "53", "graph": "48", "rawBase": 53.333333333333336, "rawGraph": 48.333333333333336, "change": "−9%"}, {"label": "input tokens", "base": "0.58M", "graph": "0.33M", "rawBase": 584812.3333333334, "rawGraph": 333342.6666666667, "change": "−43%"}, {"label": "output tokens", "base": "11.2k", "graph": "13.4k", "rawBase": 11190.333333333334, "rawGraph": 13417.666666666666, "change": "+20%"}], "Sonnet 4.5": [{"label": "off-disk named", "base": "1", "graph": "6", "rawBase": 0.6666666666666666, "rawGraph": 6.333333333333333, "change": "+5"}, {"label": "traceable to query", "base": "0", "graph": "3", "rawBase": 0.0, "rawGraph": 3.3333333333333335, "change": "+3"}, {"label": "declared targets", "base": "0.727", "graph": "0.697", "rawBase": 0.7272727272727272, "rawGraph": 0.6969696969696969, "change": "−4%"}, {"label": "cost per run", "base": "$4", "graph": "$3", "rawBase": 4.069615, "rawGraph": 2.632743, "change": "−35%"}, {"label": "tool calls", "base": "34", "graph": "19", "rawBase": 34.333333333333336, "rawGraph": 19.333333333333332, "change": "−44%"}, {"label": "input tokens", "base": "1.33M", "graph": "0.84M", "rawBase": 1331545.0, "rawGraph": 842409.3333333334, "change": "−37%"}, {"label": "output tokens", "base": "5.0k", "graph": "7.0k", "rawBase": 4998.666666666667, "rawGraph": 7034.333333333333, "change": "+41%"}], "GPT-6 Astra": [{"label": "off-disk named", "base": "69", "graph": "67", "rawBase": 69.33333333333333, "rawGraph": 66.66666666666667, "change": "−4%"}, {"label": "traceable to query", "base": "0", "graph": "21", "rawBase": 0.0, "rawGraph": 21.333333333333332, "change": "+21"}, {"label": "declared targets", "base": "0.667", "graph": "1.000", "rawBase": 0.6666666666666666, "rawGraph": 1.0, "change": "+50%"}, {"label": "cost per run", "base": "$25", "graph": "$11", "rawBase": 24.648456666666664, "rawGraph": 11.137143333333333, "change": "−55%"}, {"label": "tool calls", "base": "188", "graph": "97", "rawBase": 188.33333333333334, "rawGraph": 97.0, "change": "−48%"}, {"label": "input tokens", "base": "2.35M", "graph": "1.02M", "rawBase": 2352845.6666666665, "rawGraph": 1021741.0, "change": "−57%"}, {"label": "output tokens", "base": "22.4k", "graph": "18.4k", "rawBase": 22400.0, "rawGraph": 18394.666666666668, "change": "−18%"}]}}]};
+  const slides = document.querySelectorAll('.slide');
+  const nav = document.getElementById('nav');
+  const counter = document.getElementById('counter');
+  const TOTAL = slides.length;
+  let current = 0;
+
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    nav.appendChild(dot);
+  }
+
+  function goTo(index) {
+    if (index === current) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    const prev = current;
+    current = index;
+    slides[current].classList.add('active');
+    nav.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    counter.textContent = `${current + 1} / ${TOTAL}`;
+    setTimeout(() => slides[prev].classList.remove('exit'), 500);
+  }
+
+  function next() { goTo((current + 1) % TOTAL); }
+  function prev() { goTo((current - 1 + TOTAL) % TOTAL); }
+
+  const qlist = document.getElementById('qlist');
+  const LOWER_IS_BETTER = ['cost per run', 'tool calls'];
+  const PRETTY = { 'correct found': 'Correct found', 'accuracy': 'Accuracy', 'cost per run': 'Cost / run', 'tool calls': 'Tool calls',
+    'off-disk named': 'Named off-checkout', 'traceable to query': 'Traceable to query', 'declared targets': 'Declared targets' };
+  const SHOW = ['correct found', 'accuracy', 'off-disk named', 'traceable to query', 'declared targets', 'cost per run', 'tool calls'];
+  let selected = -1;
+
+  BM.questions.forEach((q, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = '<span class="n">' + (i + 1) + '</span><span></span>';
+    li.lastChild.textContent = q.question;
+    li.addEventListener('click', () => selectQ(i));
+    qlist.appendChild(li);
+  });
+
+  function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+  function selectQ(i) {
+    selected = i;
+    document.getElementById('qempty').style.display = 'none';
+    document.getElementById('qbody').style.display = 'block';
+    const q = BM.questions[i];
+    qlist.querySelectorAll('li').forEach((li, k) => li.classList.toggle('sel', k === i));
+    document.getElementById('qtitle').textContent = q.question;
+    document.getElementById('qscen').textContent = q.scenario;
+    document.getElementById('qgq').innerHTML = '<b>Graph query</b>' + esc(q.graphQuery);
+    document.getElementById('mcards').innerHTML = BM.models.map((m) => {
+      const rows = q.models[m].filter((r) => SHOW.includes(r.label)).map((r) => {
+        const better = LOWER_IS_BETTER.includes(r.label) ? r.rawGraph < r.rawBase : r.rawGraph > r.rawBase;
+        const same = r.rawGraph === r.rawBase;
+        const cls = same ? '' : (better ? 'good' : 'bad');
+        return '<div class="mrow"><span>' + PRETTY[r.label] + '</span><span class="v">' + esc(r.base) + ' <span class="ar">&rarr;</span> <span class="' + cls + '">' + esc(r.graph) + '</span></span></div>';
+      }).join('');
+      return '<div class="mcard"><h4>' + esc(m) + '</h4><div class="mhead"><span>&nbsp;</span><span>alone &rarr; + graph</span></div>' + rows + '</div>';
+    }).join('');
+    const docs = q.graphDocuments ? ' <b>The graph returned ' + q.graphDocuments + ' documents for this query.</b>' : '';
+    document.getElementById('qnote').innerHTML = esc(q.note) + docs;
+    document.getElementById('qgraph').style.display = q.short === 'API callers' ? 'block' : 'none';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (current === 3 && /^[1-8]$/.test(e.key)) { selectQ(Number(e.key) - 1); return; }
+    if (current === 3 && e.key === 'ArrowDown') { e.preventDefault(); selectQ((selected + 1) % BM.questions.length); return; }
+    if (current === 3 && e.key === 'ArrowUp') { e.preventDefault(); selectQ((selected - 1 + BM.questions.length) % BM.questions.length); return; }
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.nav, .qa')) return;
+    if (e.clientX < window.innerWidth / 2) prev(); else next();
+  });
+
+  counter.textContent = `1 / ${TOTAL}`;
+</script>
+
+
+</body>
+</html>

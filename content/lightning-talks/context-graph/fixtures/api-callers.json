@@ -1,0 +1,26 @@
+{
+ "source": "ai-harness saved result (not re-queried)",
+ "run": "2026-09-18T17-12-26-989Z__model-benchmark",
+ "case": "xrepo-02-api-caller-blast-radius-gf",
+ "model": "anthropic/claude-opus-4-7+cgq",
+ "epoch": 0,
+ "query": "Which services call the platform's HTTP API, and what are their upstream and downstream dependencies?",
+ "documentCount": 12,
+ "latencyMs": 46859,
+ "attempts": 1,
+ "documentNames": [
+  "act-kit",
+  "amixr-api-go-client",
+  "crossplane-function-…-data",
+  "crossplane-provider-…",
+  "developer-advocacy",
+  "gcx",
+  "…-ansible-collection",
+  "irm-tooling",
+  "mcp-…",
+  "memo",
+  "strava-datasource",
+  "terraform-provider-…"
+ ],
+ "note": "Names containing the estate name are redacted with an ellipsis."
+}
