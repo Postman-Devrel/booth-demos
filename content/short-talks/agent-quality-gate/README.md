@@ -62,7 +62,7 @@
 
 **Call to action (for attendees):**
 
-- Postman CLI: <https://www.postman.com/product/postman-cli/>
+- `npx @postman/postman-plugin`, then ask your agent to review your next API change
 - API Context Graph: <https://www.postman.com/context-graph/>
 - Clone the product repo and run the gate yourself: `git clone
   https://github.com/Postman-Devrel/agent-quality-gate.git && ./gate/run-all.sh`
@@ -335,7 +335,7 @@ in between.
 
 - **Show:** CTA slide.
 - CTA, read it out:
-  - Postman CLI: <https://www.postman.com/product/postman-cli/>
+  - `npx @postman/postman-plugin`, then ask your agent to review your next API change
   - API Context Graph: <https://www.postman.com/context-graph/>
   - Clone the product repo and run the gate yourself: `git clone
     https://github.com/Postman-Devrel/agent-quality-gate.git && ./gate/run-all.sh`

@@ -121,7 +121,7 @@ table.score td.status-na { color: var(--fg-3); font-style: italic; }
   <div class="eyebrow">Short talk</div>
   <h1>Let the Gate<br/>Decide</h1>
   <div class="rule"></div>
-  <p class="sub">A quality gate for coding agents — five deterministic Postman CLI steps, run where the agent that wrote the change can't see them, skip them, or edit them.</p>
+  <p class="sub">A quality gate for coding agents: five deterministic steps, each a command in the Postman CLI, run where the agent that wrote the change can't see them, skip them, or edit them.</p>
   <div class="byline">
     <span class="who">Anthony Viard</span>
     <span class="role">Postman DevRel</span>
@@ -141,7 +141,7 @@ table.score td.status-na { color: var(--fg-3); font-style: italic; }
     <div class="arrow">=</div>
     <div class="box fail">Consumer broken</div>
   </div>
-  <p class="caption">That's not hypothetical — it's what a plausible "clean up this endpoint" request does, every time, unless something else is watching the contract.</p>
+  <p class="caption">That's not hypothetical. It's what a plausible "clean up this endpoint" request does, every time, unless something else is watching the contract.</p>
 </section>
 
 <!-- 3. Why it happens -->
@@ -169,15 +169,15 @@ table.score td.status-na { color: var(--fg-3); font-style: italic; }
 <!-- 4. The idea -->
 <section class="slide" data-i="3">
   <div class="eyebrow">The idea</div>
-  <h2>Five deterministic steps.<br/>One Postman CLI command each.</h2>
+  <h2>Five deterministic steps.<br/>Each one a command in the Postman CLI.</h2>
   <div class="grid g5">
-    <div class="card na"><div class="num">1 · skills-check</div><h3>postman skills status</h3><p>not_available today — grey, excluded from the score</p></div>
-    <div class="card"><div class="num">2 · contract-lint</div><h3>postman spec lint</h3><p>governance rules — shape, not compatibility</p></div>
+    <div class="card na"><div class="num">1 · skills-check</div><h3>postman skills status</h3><p>not_available today, grey and excluded from the score</p></div>
+    <div class="card"><div class="num">2 · contract-lint</div><h3>postman spec lint</h3><p>governance rules: shape, not compatibility</p></div>
     <div class="card blocker"><div class="num">3 · tests</div><h3>collection run --use-mock</h3><p>JUnit + the committed collection vs. a mock of the new contract</p></div>
     <div class="card warn"><div class="num">4 · ai-readiness</div><h3>spec ai-readiness</h3><p>warn-only, how well an agent can use the API</p></div>
-    <div class="card blocker"><div class="num">5 · impact</div><h3>context-graph ask</h3><p>who depends on it — the one fuzzy, LLM-backed step</p></div>
+    <div class="card blocker"><div class="num">5 · impact</div><h3>context-graph ask</h3><p>who depends on it: the one fuzzy, LLM-backed step</p></div>
   </div>
-  <p class="caption">Score → letter rating A–E → hard blockers that override the score. Runs in CI, not on the agent's machine: it can't skip it, edit it, or see its secret.</p>
+  <p class="caption">Score, then a letter rating A to E, then hard blockers that override the score. Runs in CI, not on the agent's machine: it can't skip it, edit it, or see its secret.</p>
 </section>
 
 <!-- 5. The loop -->
@@ -198,7 +198,7 @@ table.score td.status-na { color: var(--fg-3); font-style: italic; }
 <section class="slide" data-i="5">
   <div class="eyebrow">Now, live</div>
   <h2>A naive coder gets a<br/>plausible request.</h2>
-  <p class="sub">Not the careful agent that already knows the rule. A naive one — same tools, same order of work, no rule against renaming a field a consumer uses.</p>
+  <p class="sub">Not the careful agent that already knows the rule. A naive one: same tools, same order of work, no rule against renaming a field a consumer uses.</p>
   <div class="cta-list" style="margin-top:3vh">
     <div class="item">Clean up the list endpoint: rename `count` to `total` in the response, and make `patient_id` required when booking an appointment.</div>
   </div>
@@ -220,7 +220,7 @@ table.score td.status-na { color: var(--fg-3); font-style: italic; }
       <tr><td><b>Rating</b></td><td class="status-pass"><b>A (~93)</b></td><td class="status-fail"><b>C (~70), 2 hard blockers</b></td></tr>
     </tbody>
   </table>
-  <p class="caption">Expected outcome per the design's own scenario files — confirm with a live rehearsal before quoting these numbers as watched, not just documented.</p>
+  <p class="caption">Expected outcome per the design's own scenario files. Confirm it with a live rehearsal before quoting these numbers as watched, not just documented.</p>
 </section>
 
 <!-- 8. What it costs -->
@@ -228,8 +228,8 @@ table.score td.status-na { color: var(--fg-3); font-style: italic; }
   <div class="eyebrow">What it costs</div>
   <h2>The limits this talk<br/>doesn't hide.</h2>
   <div class="grid g3">
-    <div class="card na"><h3>skills-check is not_available</h3><p>A real Postman CLI bug, not a design choice. Grey, excluded from the score, never a silent pass.</p></div>
-    <div class="card warn"><h3>impact is the one fuzzy step</h3><p>The breaking verdict is a deterministic diff. Who depends on it comes from an LLM-backed Context Graph query — it can still miss a consumer.</p></div>
+    <div class="card na"><h3>skills-check is not_available</h3><p>A real bug in the Postman CLI, not a design choice. Grey, excluded from the score, never a silent pass.</p></div>
+    <div class="card warn"><h3>impact is the one fuzzy step</h3><p>The breaking verdict is a deterministic diff. Who depends on it comes from an LLM-backed Context Graph query, and it can still miss a consumer.</p></div>
     <div class="card"><h3>The gate never merges anything</h3><p>It reports a verdict. A human, or a branch-protection rule, still has to act on it.</p></div>
   </div>
 </section>
@@ -239,10 +239,10 @@ table.score td.status-na { color: var(--fg-3); font-style: italic; }
   <div class="eyebrow">Objections</div>
   <h2>Two questions, every time.</h2>
   <div class="qa">
-    <div class="q">"Lint passed — doesn't that mean the change was fine?"</div>
+    <div class="q">"If lint passed, doesn't that mean the change was fine?"</div>
     <div class="a">No. Lint checks the shape of a contract against governance rules, not its compatibility with the version before it. That gap is exactly why there are five steps, not one.</div>
     <div class="q">"Does this block the merge?"</div>
-    <div class="a">Not by itself. It's a CI check with a verdict — whether that verdict blocks a merge is a branch-protection setting on your repo, not something the gate enforces on its own.</div>
+    <div class="a">Not by itself. It's a CI check with a verdict, and whether that verdict blocks a merge is a branch-protection setting on your repo, not something the gate enforces on its own.</div>
   </div>
 </section>
 
@@ -252,7 +252,7 @@ table.score td.status-na { color: var(--fg-3); font-style: italic; }
   <h2>A green build proves<br/>the code agrees with<br/>the tests it also wrote.</h2>
   <p class="sub">The gate that catches what the build misses is independent, deterministic, and honest about what it can't do yet.</p>
   <div class="cta-list">
-    <div class="item">postman.com/product/postman-cli</div>
+    <div class="item">npx @postman/postman-plugin, then ask your agent to review your next API change</div>
     <div class="item">postman.com/context-graph</div>
     <div class="item">git clone github.com/Postman-Devrel/agent-quality-gate && ./gate/run-all.sh</div>
   </div>

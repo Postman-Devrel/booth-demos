@@ -35,7 +35,7 @@ key_messages:
   - The reviewer agent is read-only — it finds the exact commit's CI run, reads the machine-readable report, and writes a brief the coding agent can act on without a human relaying it.
   - Honesty about gaps is part of the design, not a cover-up — a step that cannot run today is shown in grey, excluded from the score, and never counted as a pass.
 cta:
-  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+  - "npx @postman/postman-plugin, then ask your agent to review your next API change"
   - "API Context Graph: https://www.postman.com/context-graph/"
   - "Clone the product repo and run the gate yourself: git clone https://github.com/Postman-Devrel/agent-quality-gate.git && ./gate/run-all.sh"
   - "This talk's slides and setup tooling: git clone https://github.com/Postman-Devrel/booth-demos.git -> cd booth-demos/content/short-talks/agent-quality-gate"
