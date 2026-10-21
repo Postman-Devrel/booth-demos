@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where Agents become Teammates</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --orange: #FF6C37;
+    --purple: #7A24F0;
+    --dark: #0A0A0A;
+    --gray-900: #212121;
+    --gray-600: #737373;
+    --gray-400: #A1A1A1;
+    --white: #FFFFFF;
+    --border: #2E2E2E;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    line-height: 1.5;
+  }
+
+  header { padding: 40px 24px 16px; text-align: center; }
+  header h1 { font-size: 2.4rem; font-weight: 800; }
+  header h1 span { color: var(--orange); }
+  header p { color: var(--gray-400); margin-top: 8px; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 16px 24px 64px; }
+  h2 { font-size: 1.1rem; text-transform: uppercase; letter-spacing: .08em; color: var(--orange); margin: 40px 0 14px; }
+
+  .deck { position: relative; width: 100%; aspect-ratio: 16 / 9; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--gray-900); }
+  .deck iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .deck-link { display: inline-block; margin-top: 10px; color: var(--gray-400); font-size: .9rem; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  a.card { display: block; padding: 18px; background: var(--gray-900); border: 1px solid var(--border); border-radius: 10px; color: var(--white); text-decoration: none; transition: border-color .15s; }
+  a.card:hover { border-color: var(--orange); }
+  a.card .kind { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--purple); font-weight: 700; }
+  a.card .title { font-weight: 700; margin: 4px 0; }
+  a.card .url { font-size: .8rem; color: var(--gray-600); word-break: break-all; }
+
+  pre { background: var(--gray-900); border: 1px solid var(--border); border-radius: 10px; padding: 16px; overflow-x: auto; font-size: .9rem; color: #D6D6D6; }
+  code { font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; }
+  .cmt { color: var(--gray-600); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Where Agents become <span>Teammates</span></h1>
+  <p>Presentation in a box — Astropods</p>
+</header>
+
+<main>
+
+  <h2>The slides</h2>
+  <div class="deck">
+    <iframe
+      src="https://embed.figma.com/deck/T6mOZx4xzBUPHMzgLRH2EL/Astropods-Deck-Template?p=f&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;page-id=0%3A1&amp;embed-host=share"
+      allowfullscreen></iframe>
+  </div>
+  <a class="deck-link" href="https://www.figma.com/deck/T6mOZx4xzBUPHMzgLRH2EL" target="_blank" rel="noopener">Open the deck in Figma (use this if the embed does not load) &rarr;</a>
+
+  <h2>The first agent, in four commands</h2>
+  <pre><code><span class="cmt"># install the CLI</span>
+curl -fsSL https://astropods.com/install | sh
+
+<span class="cmt"># create, authenticate, run</span>
+ast project create my-agent --model gateway
+cd my-agent
+ast login
+ast project start
+
+<span class="cmt"># publish and deploy</span>
+ast blueprint push my-agent
+ast blueprint deploy my-agent</code></pre>
+
+  <h2>Guides and code</h2>
+  <div class="grid">
+    <a class="card" href="https://postmanlabs.atlassian.net/wiki/x/WIHX8QE" target="_blank" rel="noopener">
+      <div class="kind">Guide</div><div class="title">Content + Demo Guide</div>
+      <div class="url">postmanlabs.atlassian.net/wiki/x/WIHX8QE</div></a>
+    <a class="card" href="https://github.com/Postman-Devrel/hello-world-agents/tree/main" target="_blank" rel="noopener">
+      <div class="kind">Repo</div><div class="title">hello-world-agents</div>
+      <div class="url">github.com/Postman-Devrel/hello-world-agents</div></a>
+    <a class="card" href="https://docs.astropods.com/welcome" target="_blank" rel="noopener">
+      <div class="kind">Docs</div><div class="title">Astropods documentation</div>
+      <div class="url">docs.astropods.com/welcome</div></a>
+    <a class="card" href="https://docs.astropods.com/get-started" target="_blank" rel="noopener">
+      <div class="kind">Docs</div><div class="title">Quickstart: your first agent</div>
+      <div class="url">docs.astropods.com/get-started</div></a>
+  </div>
+
+  <h2>Videos</h2>
+  <div class="grid">
+    <a class="card" href="https://www.loom.com/share/c0576e89c40546c3add20d6a71cbdaee" target="_blank" rel="noopener">
+      <div class="kind">Demo recording</div><div class="title">Astro Platform Overview</div>
+      <div class="url">loom.com/share/c0576e89&hellip;</div></a>
+    <a class="card" href="https://www.loom.com/share/fd1c313dce2c4dbe817c311a10dac42c" target="_blank" rel="noopener">
+      <div class="kind">Demo recording</div><div class="title">Building &amp; Deploying your first Agent, step by step</div>
+      <div class="url">loom.com/share/fd1c313d&hellip;</div></a>
+    <a class="card" href="https://www.youtube.com/watch?v=B3CWQ2Ar8go&amp;list=PLM-7VG-sgbtAVbHcnUNX-aZLN5nez-_4X" target="_blank" rel="noopener">
+      <div class="kind">YouTube series</div><div class="title">Agents in Action (playlist)</div>
+      <div class="url">youtube.com/playlist?list=PLM-7VG&hellip;</div></a>
+  </div>
+
+  <h2>Read</h2>
+  <div class="grid">
+    <a class="card" href="https://blog.postman.com/build-ai-agents-with-astropods/" target="_blank" rel="noopener">
+      <div class="kind">Blog</div><div class="title">Build, Deploy &amp; Monitor AI Agents with Astropods</div>
+      <div class="url">blog.postman.com/build-ai-agents-with-astropods</div></a>
+  </div>
+
+</main>
+</body>
+</html>
