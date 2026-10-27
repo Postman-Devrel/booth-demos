@@ -23,7 +23,8 @@ else
   exit 1
 fi
 
-if unzip -l "$DECK" 2>/dev/null | grep -q 'ppt/media/.*\.mp4'; then
+CONTENTS="$(unzip -l "$DECK" 2>/dev/null)"
+if grep -q 'ppt/media/.*\.mp4' <<<"$CONTENTS"; then
   echo "[OK]   Demo recording is embedded (slide 6)"
 else
   echo "[WARN] No .mp4 found in the deck. Slide 6 should hold copilot-api-simulation.mp4."
