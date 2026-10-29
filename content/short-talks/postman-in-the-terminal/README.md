@@ -18,7 +18,7 @@
 
 **The story (the narrative arc):**
 
-> Open on the pyramid of agentic API engineering: the API engineering chain, then what an agent needs from a tool to work that chain (a command per step, readable output, no human in the loop), then the Postman CLI and MCP, then the Postman plugin, then `postman init` committing the same skills into a repo. Those are slides 1 to 14. Then the demo runs on one **real repo**, `healthcare-org-app/healthcare-patients` (`patients-service`, Python/Flask, port 8100), which already has everything in files: the contract, a v3 collection with assertions, the skills `postman init` wrote, a short `CLAUDE.md` that points to the gate loop, and the platform team's quality gate in CI. There is no coding agent in the repo: the coder is your own Claude Code session (Postman plugin + the platform team's gate plugin). You rename one field "for readability" and open a PR. Nothing local looks wrong, and the gate fails it: rating D, contract tests and impact blocking. Then you ask your own session to run the gate loop: the read-only `gate-verdict` agent reads the verdict and writes a fixes brief, your session applies it, and it iterates (3 rounds at most). Two honest endings: the gate passes, or the loop stops with NEEDS_DECISION and a draft PR (a human decides). You do not merge. You open the gate's repo and show that each step is one Postman CLI command, then the Context Graph in the Postman app, which is how the gate knows who the rename breaks.
+> Open on the pyramid of agentic API engineering: the API engineering chain, then what an agent needs from a tool to work that chain (a command per step, readable output, no human in the loop), then the Postman CLI and MCP, then the Postman plugin. Those are slides 1 to 11. Then the demo runs on one **real repo**, `healthcare-org-app/healthcare-patients` (`patients-service`, Python/Flask, port 8100), which already has everything in files: the contract, a v3 collection with assertions, the skills `postman init` wrote, a short `CLAUDE.md` that points to the gate loop, and the platform team's quality gate in CI. There is no coding agent in the repo: the coder is your own Claude Code session (Postman plugin + the platform team's gate plugin). You rename one field "for readability" and open a PR. Nothing local looks wrong, and the gate fails it: rating D, contract tests and impact blocking. Then you ask your own session to run the gate loop: the read-only `gate-verdict` agent reads the verdict and writes a fixes brief, your session applies it, and it iterates (3 rounds at most). Two honest endings: the gate passes, or the loop stops with NEEDS_DECISION and a draft PR (a human decides). You do not merge. You open the gate's repo and show that each step is one Postman CLI command, then the Context Graph in the Postman app, which is how the gate knows who the rename breaks.
 
 > **The quality delta.** The gate's comment now opens with the API quality change against the base branch ("API quality is lowered by 22 % from main"), then the change risk. This answers the question "what is the evidence that it improves quality by x %?": per PR, the gate says how much quality moves against `main`; aggregated over PRs, it becomes org-level evidence. See the format in act 5a.
 
@@ -73,6 +73,7 @@
 4. **A fresh clone** at `/tmp/healthcare-patients`, replacing whatever was there. The folder name matters: with `-demo` in it, the reviewer once guessed the repo from the folder name.
 5. **`main` still has `mrn`** in the `Patient` schema of `openapi.yaml`: sanity check that a rehearsal didn't reach `main`.
 6. **Opens** the deck, the patients repo and the gate repo.
+7. **Prints the demo steps**: the manual change of step 2 (branch, rename by hand, commit, push, PR) and the prompt of step 3 for your own `claude` session (the gate loop, to paste once the gate comment has landed).
 
 It only reads GitHub and clones to `/tmp`. It never pushes and never opens a PR.
 
@@ -94,14 +95,14 @@ It only reads GitHub and clones to `/tmp`. It never pushes and never opens a PR.
 
 Nine acts, 28 minutes (Q&A included). Talk track is **verbatim** (blockquotes), read it if the room goes cold. Click track is interleaved at the exact point each action happens.
 
-The deck is `presentation/index.html`, 18 slides, from the Claude Design deck "From Click to Terminal". **The live demo starts at slide 15, "Live demo"**: that is the handoff point, the moment you leave the deck for a real terminal and a browser. You come back to slides 16 to 18 after act 6.
+The deck is `presentation/index.html`, 13 slides, from the Claude Design deck "From Click to Terminal". **The live demo starts at slide 12, "Live demo" (Now, Postman in the CI)**: that is the handoff point, the moment you leave the deck for a real terminal and a browser. You come back to slide 13 after act 6.
 
 | Act | Purpose | Slide(s) | Budget |
 |---|---|---|---|
 | 1 | **Cold open** — the agent that knows the CLI but not your API's rules | 01 Title, 02 Pyramid, 03 API engineering chain | 2–3 min |
 | 2 | **Why it happens** — what an agent sees, and what it needs from a tool | 04 What an agent sees, 05 What an agent needs | 3 min |
-| 3 | **The idea** — a command per step, skills in files, two ways in | 06 Pyramid CLI, 07 Every step has a command, 08 One command, two readers, 09 CLI first, MCP otherwise, 10 Pyramid plugin, 11 What the CLI alone does not give, 12 Plugin architecture, 13 How the agent picks a skill, 14 `postman init` | 3 min (about 15 s per slide, walk fast) |
-| 4 | **Demo, part 1** — the workspace in files, then the manual change that tanks the rating (**live demo starts at slide 15**) | 15 Live demo | 5 min |
+| 3 | **The idea** — a command per step, skills in files, two ways in | 05 Pyramid CLI, 06 Every step has a command, 07 One command, two readers, 08 Pyramid plugin, 09 What the CLI alone does not give, 10 Plugin architecture, 11 How the agent picks a skill | 3 min (about 15 s per slide, walk fast) |
+| 4 | **Demo, part 1** — the workspace in files, then the manual change that tanks the rating (**live demo starts at slide 12**) | 12 Live demo | 5 min |
 | 5 | **Demo, part 2** — the gate result, then the gate loop fixes it | — (live terminal and browser) | 7 min |
 | 6 | **Demo, part 3** — the gate's own repo, then the Context Graph | — (live terminal and browser) | 3 min |
 | 7 | **What you just saw, and what it costs** — upkeep | 16 What you just saw | 2 min |
@@ -122,14 +123,14 @@ Total: 28 minutes at the low end of each range, about 30 at the high end. The sl
 
 > "This is not a model problem. An agent sees files and a terminal. The consumers of your API are not in the repo. And a click in a UI is a step it can't take. What it needs from a tool is a command per step, with output it can read, and no human in the loop."
 
-- **Show:** slide 04 (what an agent sees), slide 05 (what an agent needs).
+- **Show:** slide 04 (what an agent needs from a tool).
 
 ### Act 3: The idea (~3 min)
 
 > "So the answer isn't a smarter agent, it's a better toolbox. Every step of that chain is one Postman CLI command. The skills that say which command, and when, are files, committed in the repo. The Postman plugin puts them in your own Claude Code; `postman init` commits the same skills into a repo, so any agent that works there gets them, an unattended one in CI included. Here's what that gives you in practice."
 
-- **Show:** slides 06 to 09 (the CLI: every step has a command, one command read by a human or an agent, CLI first and MCP otherwise), then slides 10 to 13 (the plugin: what the CLI alone doesn't give, the architecture, how an agent picks a skill), then slide 14 (`postman init`). Walk them, don't read them.
-- **Show:** advance to slide 15, **Live demo**. This is the handoff.
+- **Show:** slides 05 to 07 (the CLI: every step has a command, one command read by a human or an agent), then slides 08 to 11 (the plugin: what the CLI alone doesn't give, the architecture, how an agent picks a skill). Walk them, don't read them.
+- **Show:** advance to slide 12, **Live demo**. This is the handoff.
 
 ### Act 4: Demo, part 1 — the workspace in files, then a harmless-looking change (~5 min)
 
@@ -273,25 +274,25 @@ Total: 28 minutes at the low end of each range, about 30 at the high end. The sl
 
 > "And this is how the gate knows who the rename breaks. 32 services consume `patients-service`, the gate's count from the Context Graph: EHR, immunizations, lab results, lab orders, referrals, appointments, and the rest. That's a Postman Context Graph question, and it's one CLI command in the gate."
 
-- **Show:** back to the deck, slide 16.
+- **Show:** stay on slide 12 (or go back to it).
 
 ### Act 7: What you just saw, and what it costs (~2 min)
 
 > "What you saw: I made a change that looked fine, and a gate the agent can't edit stopped it. My own Claude Code read the verdict through a read-only reviewer and fixed the change in the same PR, without breaking a consumer, or stopped and asked a human to decide. What it costs: the skills are files you keep current with `postman skills`, the gate is code the platform team owns, and the impact step is only as good as your Context Graph: it knows which services declare you as a dependency, not which field they read."
 
-- **Show:** slide 16 (What you just saw).
+- **Show:** stay on slide 12; the loop is the demo you just ran.
 
 ### Act 8: Objections (~2–3 min)
 
 > "Three questions, every time. Does this block my merge? The gate returns FAILED. Whether FAILED actually blocks is a branch-protection setting: it's required on appointments-service, and not yet on `main` of patients. Can the agent cheat? It can't edit the gate: the rules are in the gate plugin and `CLAUDE.md`, and the gate runs in CI, with a secret the agent never sees. And can the Context Graph tell me which *field* a consumer reads? No, the graph answers at the endpoint level, not the field level. That's why the gate's brief says 'keep the old name, add the new one next to it', and why you don't treat 'no consumer found' as 'safe'."
 
-- **Show:** slide 17 (What to take away) as the backdrop, or stay on slide 16 if the room wants to talk.
+- **Show:** slide 12 as the backdrop if the room wants to talk.
 
 ### Act 9: Close + CTA (~1–2 min)
 
 > "A command per step, skills in files, a gate the agent can't edit. Install the plugin and your own agent gets the skills; run `postman init` and any agent in your repo does. The gate you saw is one team's use case, built from these blocks. Yours will look different."
 
-- **Show:** slide 18 (Try it).
+- **Show:** slide 13 (Try it).
 - CTA, read it out:
   - `npx @postman/postman-plugin`, then ask your own agent to work an API change
   - Postman CLI: <https://www.postman.com/product/postman-cli/>
@@ -302,7 +303,7 @@ Total: 28 minutes at the low end of each range, about 30 at the high end. The sl
 
 ### What to cut when you are over
 
-Cut act 7 first, then act 8 down to one question (does this block my merge), then compress act 3 (slides 06 to 13 in 10 seconds each, stop on 14). In act 4, skip 4a's per-file tour and show only `openapi.yaml`, the collection, `CLAUDE.md` and `quality-gate.yml`. In act 6, skip the gate repo's workflow and plugin tour, keep the steps and the Context Graph. If you're still over, let the gate loop run while you do act 6, as above. **Never cut** the cold open (act 1), the PR gate comment (5a) or the PR going green (5b): that's where the demo lands.
+Cut act 7 first, then act 8 down to one question (does this block my merge), then compress act 3 (slides 05 to 11 in 10 seconds each, stop on 12). In act 4, skip 4a's per-file tour and show only `openapi.yaml`, the collection, `CLAUDE.md` and `quality-gate.yml`. In act 6, skip the gate repo's workflow and plugin tour, keep the steps and the Context Graph. If you're still over, let the gate loop run while you do act 6, as above. **Never cut** the cold open (act 1), the PR gate comment (5a) or the PR going green (5b): that's where the demo lands.
 
 ---
 
