@@ -10,3 +10,4 @@ Rules, act plan, and deck size: [templates/formats/lightning-talk.md](../../temp
 | [claude-code-postman-plugin](claude-code-postman-plugin/) — From API to AI-ready | Postman Claude Code Plugin | ready |
 | [open-meteo-loop-eng](open-meteo-loop-eng/) — Stop prompting, start looping | Postman CLI | ready |
 | [postman-in-the-terminal](postman-in-the-terminal/) — An agent reviews your API change (booth cut) | Postman CLI | draft |
+| [context-graph](context-graph/) — You cannot grep what was never in the checkout | Postman Context Graph | draft |
