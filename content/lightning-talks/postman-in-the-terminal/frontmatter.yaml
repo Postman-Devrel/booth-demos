@@ -59,7 +59,7 @@ notes: >
 
   CI REHEARSAL OF 2026-10-29 (gate 0.5.0, PR #2, closed, not merged): rating D
   (60/100), FAILED, blockers contract-tests (3/10) and impact (32 consumers).
-  Read the real comment on the day. Since gate 0.6.2 the comment opens with the quality change against main;
+  Read the real comment on the day. Since gate 0.6.3 the comment opens with the gate score change against main;
   the numbers in the short talk are not measured on this demo.
 
   The gate plugin must be installed at user level and the old
