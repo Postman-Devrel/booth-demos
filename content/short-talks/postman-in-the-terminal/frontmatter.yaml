@@ -57,8 +57,9 @@ brand_style: design-sync
 notes: >
   THE DECK OF RECORD IS NOW `presentation/index.html`, built from the Claude
   Design deck "From Click to Terminal" (`presentation_url`, kept as the
-  source). 18 slides. The live demo starts at slide 15 ("Live demo"); slides
-  16 to 18 are "What you just saw", "What to take away" and "Try it". If the
+  source). 13 slides, in the Postman dark look of the agentic-sdlc deck. The
+  live demo starts at slide 12 ("Now, Postman in the CI"); slide 13 is
+  "Try it". If the
   Claude Design deck changes, re-export it into `presentation/index.html`
   rather than editing the two by hand.
 

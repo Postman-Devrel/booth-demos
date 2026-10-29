@@ -164,21 +164,39 @@ Pre-flight checklist:
   [ ] \`postman login\` done, on a team whose Context Graph has healthcare-org-app ingested
   [ ] github.com/$DEMO_REPO and github.com/$GATE_REPO open in browser tabs
   [ ] Postman app open on the Context Graph, patients-service's consumers, in ANOTHER tab (act 6)
-  [ ] Terminal tab 1 in $WORKDIR for the manual change (act 4), LARGE FONT (Cmd+=)
-  [ ] Terminal tab 2 in $WORKDIR running \`claude\`: YOUR OWN session is the coder (act 5),
-      with the Postman plugin and the gate plugin (user level), check /plugin
+  [ ] Terminal tab 1 in $WORKDIR for the manual change (step 2), LARGE FONT (Cmd+=)
+  [ ] Terminal tab 2 in $WORKDIR running \`claude\`: YOUR OWN session does the gate loop
+      (step 3), with the Postman plugin and the gate plugin (user level), check /plugin
   [ ] No open PR, no demo/live-* branch on $DEMO_REPO
 
-The live demo, on stage:
-  1. Slides 1-14, then slide 15 (Live demo). Act 4: show the workspace in files.
-  2. git checkout -b demo/live-rename-mrn, rename mrn to medical_record_number
-     in the response side of openapi.yaml, commit, push, gh pr create --fill
-     (never \`git add -A\`: the security hook leaves .claude/settings.json deleted)
-  3. Watch the "API quality gate" comment (about 80 s), then in the claude tab:
-     "The quality gate failed on demo/live-rename-mrn. Run the gate loop until
-     the gate passes. Don't merge."  Ends green or NEEDS_DECISION. Do NOT merge.
-  4. Show the gate repo, then the Context Graph in the Postman app.
-  5. Slides 16-18.
+The live demo, on stage. Slides 1-11, then slide 12 (Now, Postman in the CI).
+
+------------------------------------------------------------------------------
+STEP 2 · the change, by hand, in a terminal in $WORKDIR
+------------------------------------------------------------------------------
+  git checkout -b demo/live-rename-mrn
+  # in openapi.yaml, rename mrn to medical_record_number on the RESPONSE side only:
+  # the Patient schema (required, property, example, description) and the mrn keys
+  # in the response examples of PatientPage, PatientSearchResult, PatientSummary.
+  # Leave PatientCreateRequest and PatientUpdateRequest alone. No test, no collection.
+  git add openapi.yaml
+  git commit -m "Rename mrn to medical_record_number in patient responses"
+  git push -u origin demo/live-rename-mrn
+  gh pr create --title "Rename mrn to medical_record_number in patient responses" --body "Consumers should get medical_record_number."
+
+(Why by hand: an agent that follows the Postman plugin's rules updates the contract,
+the collection and the tests together, and the gate passes on the first run.)
+
+------------------------------------------------------------------------------
+PROMPT · step 3, the gate's verdict and the loop, in the claude tab
+(paste it once the "API quality gate" comment has landed, about 80 s after the push)
+------------------------------------------------------------------------------
+The quality gate failed on demo/live-rename-mrn. Run the gate loop until the
+gate passes. Don't merge.
+------------------------------------------------------------------------------
+
+The run ends green or NEEDS_DECISION. Do NOT merge.
+Then show the gate repo, the Context Graph in the Postman app, and slide 13.
 
 When you are done:  ./scripts/teardown.sh
 EOF
