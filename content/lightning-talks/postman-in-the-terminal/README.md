@@ -71,7 +71,7 @@ Exactly the short talk's acts 4b and 5, run with the same scripts. **Cut from th
 
 > "This check isn't mine and it isn't the agent's. It's the platform team's gate, and every step is a Postman CLI command."
 
-- **Say what the comment says.** The rehearsal read **rating D (60/100), FAILED (the bar is B), two blockers**: `contract-tests` (3/10 assertions pass, the collection still expects `mrn`) and `impact` ("32 consumer(s) of patients-service affected", the count comes from the Context Graph). Read the real comment on the day, the numbers can move. If the headline carries a "vs main" quality delta (gate 0.6.0), read it; don't quote the short talk's format examples as results.
+- **Say what the comment says.** The rehearsal read **rating D (60/100), FAILED (the bar is B), two blockers**: `contract-tests` (3/10 assertions pass, the collection still expects `mrn`) and `impact` (gate 0.6.2 words it "the change breaks 32 known consumers"; the rehearsal ran 0.5.0; the count comes from the Context Graph). Read the real comment on the day, the numbers can move. The comment opens with the quality change against main (gate 0.6.2): read it; don't quote the short talk's format examples as results.
 
 > "Rating D, two blockers. The collection is the consumers' side of the contract, and the impact step says thirty-two services consume this one. I could fix that myself. Instead I hand it to my own Claude Code."
 

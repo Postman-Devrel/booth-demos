@@ -20,7 +20,7 @@
 
 > Open on the pyramid of agentic API engineering: the API engineering chain, then what an agent needs from a tool to work that chain (a command per step, readable output, no human in the loop), then the Postman CLI and MCP, then the Postman plugin, then `postman init` committing the same skills into a repo. Those are slides 1 to 14. Then the demo runs on one **real repo**, `healthcare-org-app/healthcare-patients` (`patients-service`, Python/Flask, port 8100), which already has everything in files: the contract, a v3 collection with assertions, the skills `postman init` wrote, a short `CLAUDE.md` that points to the gate loop, and the platform team's quality gate in CI. There is no coding agent in the repo: the coder is your own Claude Code session (Postman plugin + the platform team's gate plugin). You rename one field "for readability" and open a PR. Nothing local looks wrong, and the gate fails it: rating D, contract tests and impact blocking. Then you ask your own session to run the gate loop: the read-only `gate-verdict` agent reads the verdict and writes a fixes brief, your session applies it, and it iterates (3 rounds at most). Two honest endings: the gate passes, or the loop stops with NEEDS_DECISION and a draft PR (a human decides). You do not merge. You open the gate's repo and show that each step is one Postman CLI command, then the Context Graph in the Postman app, which is how the gate knows who the rename breaks.
 
-> **The quality delta.** The gate's headline now carries the API quality index against the base branch, and the change risk. This answers the question "what is the evidence that it improves quality by x %?": per PR, the gate says how much quality moves against `main`; aggregated over PRs, it becomes org-level evidence. See the format in act 5a.
+> **The quality delta.** The gate's comment now opens with the API quality change against the base branch ("API quality is lowered by 22 % from main"), then the change risk. This answers the question "what is the evidence that it improves quality by x %?": per PR, the gate says how much quality moves against `main`; aggregated over PRs, it becomes org-level evidence. See the format in act 5a.
 
 > **What this demo is not:** a Postman feature tour, and not "Postman ships a quality gate". The gate is one team's use case, assembled from the CLI, skills and Context Graph. The point is how little glue it took, and that the agent can't cheat on it.
 
@@ -45,7 +45,7 @@
 | **Claude Code, the Postman CLI, `git`, `gh`, `python3`** | `setup.sh` checks all of them. `gh auth status` must pass: you need push access to [healthcare-org-app/healthcare-patients](https://github.com/healthcare-org-app/healthcare-patients) to push the branch and open the PR live. |
 | **Postman CLI logged in** | `postman login` before you present, on a team whose Context Graph has `healthcare-org-app` ingested. The local gate run in the gate loop needs it (`setup.sh` only WARNs if `postman whoami` fails). |
 | **The org-level `POSTMAN_API_KEY` secret** | Already set at the `healthcare-org-app` organization level and used by the gate's workflow in CI. Nothing to set per session. A repo-level secret with the same name would shadow it, see [section 6](#6-troubleshooting). |
-| **The gate plugin installed at user level** (gate 0.6.1 or later) | `claude plugin marketplace add healthcare-org-app/healthcare-api-quality-gate` then `claude plugin install healthcare-api-quality-gate@healthcare-api-quality-gate`. Check with `claude plugin list`. **Why user level:** a built-in Claude Code security hook deletes `.claude/settings.json` in a clone it considers untrusted (it writes `.claude/.settings-security-marker`), so the repo-level plugin enablement doesn't apply. |
+| **The gate plugin installed at user level** (gate 0.6.2 or later) | `claude plugin marketplace add healthcare-org-app/healthcare-api-quality-gate` then `claude plugin install healthcare-api-quality-gate@healthcare-api-quality-gate`. Check with `claude plugin list`. **Why user level:** a built-in Claude Code security hook deletes `.claude/settings.json` in a clone it considers untrusted (it writes `.claude/.settings-security-marker`), so the repo-level plugin enablement doesn't apply. |
 | **The old `postman-agent-quality-gate` plugin (0.4.0) disabled** | `claude plugin disable postman-agent-quality-gate@postman-agent-quality-gate` (or uninstall it). While it is enabled it loads a duplicate `gate-loop` and `gate-verdict`. `setup.sh` WARNs if it is still enabled. |
 | **The Postman plugin** | `postman@claude-plugins-official`, the plugin the talk is about. Your session uses it for the Postman work (the `postman:api-engineer` skill). |
 | **The Postman app, logged in** | Same team as the CLI. Used for act 6, the Context Graph UI. |
@@ -53,7 +53,7 @@
 
 > **The gate is not the thing you installed.** Nothing to install for the gate itself: it runs in the repo's CI (reusable workflow `gate.yml@v1`) and locally through `npx github:healthcare-org-app/healthcare-api-quality-gate#v1 run`, which needs Node 22.
 
-> **Presenter note from the CI rehearsals** (2026-10-29, gate 0.6.0 and 0.6.1: same results).
+> **Presenter note from the CI rehearsals** (2026-10-29, gate 0.6.0 and 0.6.1: same results; gate 0.6.2, released the same day, changed the comment's format and was verified in CI on the passing round only).
 > Write a PR body when you open the PR (act 4b): the loop reads the title and body as the intent to preserve, and `gh pr create --fill` gives an empty body. Use `gh pr create --title … --body …`.
 
 > **Git hygiene in the clone.** The security hook leaves a deleted `.claude/settings.json` in the working tree. **Never `git add -A`** in the clone (it would commit that deletion): `git add openapi.yaml` only.
@@ -182,30 +182,42 @@ Total: 28 minutes at the low end of each range, about 30 at the high end. The sl
 > "This check isn't mine, and it isn't the agent's. It's the platform team's quality gate. Every service that adopts it calls it from its own CI, patients and appointments today. Every step is a Postman CLI command."
 
 - **Timing:** the first comment lands about 83 seconds after the push (CI rehearsals of 2026-10-29, gate 0.6.0 and 0.6.1, `healthcare-org-app/healthcare-patients` PRs #4 and #5, closed and not merged).
-- **Say what the comment says.** The CI rehearsal (round 1) read: **`❌ API quality gate: rating D (60/100), 1 accepted lint exception · API quality 91 → 71 vs main (−20 pts, −22 %) · breaking change for 32 consumers`**, FAILED (the bar is B), **two blockers**:
+- **Say what the comment says.** The comment opens with its title, then **the quality change against `main` as the first bold line**, then the change risk, then the rating line. The failing round was rehearsed in CI with gate 0.6.0 and 0.6.1 (PRs #4 and #5); gate 0.6.2 shows it as follows (the wording is what the 0.6.2 code produces for those numbers; the failing round has not been re-run with 0.6.2):
+
+  ```
+  ❌ API quality gate: FAILED
+  ⬇️ API quality is lowered by 22 % from main
+  Change risk: 🔴 breaking change for 32 consumers
+  Rating D (60/100) · required: B or better, no blocker · 1 accepted lint exception · commit <sha> · CI run
+  ```
+
+  FAILED (the bar is B), **two blockers**. The step table (Score, vs main, Summary; no Status, Weight or Command columns) read, in the rehearsal:
 
   | Step | Result |
   |---|---|
   | `skills-check` | pass, 100 |
-  | `contract-lint` | pass, 100 (100 → 100; one accepted exception) |
-  | `contract-tests` | **fail, a blocker**: 30 (100 → 30 vs main), 3/10 assertions pass, the collection still expects `mrn` |
-  | `coverage` | pass, 100 (100 → 100), 10/10 |
-  | `ai-readiness` | warn, 70 (70 → 70) |
-  | `impact` | **fail, 0, a blocker**: "32 consumer(s) of patients-service affected" (ehr, immunizations, lab-results, lab-orders, referrals, appointments, ...) |
+  | `contract-lint` | pass, 100, 🟰 0 (one accepted exception) |
+  | `contract-tests` | **fail, a blocker**: 30, ⬇️ −70, 3/10 assertions pass, the collection still expects `mrn` |
+  | `coverage` | pass, 100, 🟰 0, 10/10 |
+  | `ai-readiness` | warn, 70, 🟰 0 |
+  | `impact` | **fail, 0, a blocker**: "the change breaks 32 known consumers" (the summary names three, then "+29 more") |
 
-  The 32 comes from the Context Graph, through `postman context-graph`. Read the real comment on the day; the numbers can move.
+  The blockers are visible under the table. **"What to fix (N)" is collapsed: click it open on stage.** Fail steps come first, warn steps are marked non-blocking. For `impact`, it lists the real breaking changes (for instance "Keep 'mrn' in GET /api/patients/{patient_id} response 200 (add the new name next to it)") and then `Affected consumers (32): a, b, c, +29 more`. Below it, "Accepted exceptions (1, human decisions)" and "Reproduce locally". The footer gives versions, spec, collection, baseline and score weights. The 32 comes from the Context Graph, through `postman context-graph`. Read the real comment on the day; the numbers can move.
 
-- **Baseline.** `main`'s own gate run had been skipped, so there was no artifact to compare with: the gate re-ran the steps on `main` and says so ("API quality 91 on main").
-- **The quality delta vs `main`** (CI rehearsals of 2026-10-29, gate 0.6.0 and 0.6.1: same results). The headline carries the API quality index against the base branch and the change risk. Round 1, the rename: 91 on `main`, 71 on the PR, **−20 pts, −22 %**. After the loop (round 2): 91, **0 pts, stable**:
+  On a `pull_request` run, the commit in the rating line is GitHub's PR merge commit, not the SHA you pushed: don't say it matches your push.
+
+- **Baseline.** `main`'s own gate run had been skipped, so there was no artifact to compare with: the gate re-ran the steps on `main` and says so (footer: baseline).
+- **The quality change vs `main`.** The first bold line of the comment is the answer to "how much did quality move?". Round 1, the rename: 91 on `main`, 71 on the PR, **lowered by 22 %**. After the loop (round 2): **unchanged** (91). The passing comment in 0.6.2 is verified in CI (`healthcare-patients` PR #6, run 40943655307); its first lines:
 
   ```
-  ❌ API quality gate: rating D (60/100), 1 accepted lint exception · API quality 91 → 71 vs main (−20 pts, −22 %) · breaking change for 32 consumers
-  ✅ API quality gate: PASSED with 1 accepted lint exception (rating A, 94/100) · API quality 91 → 91 vs main (0 pts, 0 %, stable) · no breaking change
+  ✅ API quality gate: PASSED
+  🟰 API quality is unchanged from main
+  Change risk: 🟢 no breaking change · 32 known consumers
   ```
 
   The numbers can move from run to run: read the real comment on the day.
 
-> "Rating D, failed, two blockers. The contract tests: the collection still expects `mrn`, and the mock generated from my new contract doesn't send it. And the impact step: thirty-two consumers of this service, from the Context Graph. And look at the headline: it tells me how much API quality moves against main. That's the answer to 'does this improve quality?', per PR. Over many PRs, it's your evidence."
+> "Rating D, failed, two blockers. The contract tests: the collection still expects `mrn`, and the mock generated from my new contract doesn't send it. And the impact step: thirty-two consumers of this service, from the Context Graph. And look at the first line of the comment: 'API quality is lowered by 22 % from main'. That's the answer to 'does this improve quality?', per PR. Over many PRs, it's your evidence."
 
 #### 5b. The gate loop (~5 min)
 
@@ -215,19 +227,19 @@ Total: 28 minutes at the low end of each range, about 30 at the high end. The sl
   ```
   The quality gate failed on demo/live-rename-mrn. Run the gate loop until the gate passes. Don't merge.
   ```
-- **Show (narrate while it works):** the `gate-loop` skill (gate plugin 0.6.1) does this:
+- **Show (narrate while it works):** the `gate-loop` skill (gate plugin 0.6.2) does this:
   1. It takes the **PR title and body as the intent to preserve**, and never reverts the change.
   2. **`gate-verdict`** (the only other agent, read-only) finds the CI run for that exact commit SHA, waits for it, reads the report, and returns a verdict plus a **numbered fixes brief**.
-  3. Your session applies the brief. For a rename it **keeps the old field, marked `deprecated`, and adds the new one next to it**, in the contract, the code, the tests and the collection. Postman work goes through `postman:api-engineer`: the session loaded it before fixing (contract, `app/routes.py`, tests, 8 collection requests), which is the talk's thesis in action. `gate-verdict` downloads the CI report into `gate-results/ci-<run id>/` and reads it with the Read tool, one simple command at a time: no permission prompt.
+  3. Your session applies the brief. For a rename it **keeps the old field, marked `deprecated`, and adds the new one next to it**, in the contract, the code, the tests and the collection. Postman work goes through `postman:api-engineer`: the session loaded it before fixing (contract, `app/routes.py`, tests, 8 collection requests), which is the talk's thesis in action. `gate-verdict` downloads the CI report into `<repo root>/gate-results/ci-<run id>/` and reads it with the Read tool, one simple command at a time: no permission prompt.
   4. It pushes to the **same branch**, new SHA, new verdict. **At most 3 rounds**, then a final report.
 
 > "It never edits the gate, it doesn't merge, and it never sees the Postman key CI uses. The rules are in the plugin and in a short `CLAUDE.md`, and the gate runs outside the agent."
 
 **Two honest endings, both fine on stage:**
 
-- **Green (a compatible rename).** The PR comment has been **updated in place**, not duplicated: `✅ … PASSED`, and the headline reads **`✅ API quality gate: PASSED with 1 accepted lint exception (rating A, 94/100) · API quality 91 → 91 vs main (0 pts, 0 %, stable) · no breaking change`** and the impact step says "Additive contract change; 32 known consumer(s)". In the rehearsal: **2 rounds out of 3**, about **3.5 minutes** of loop once running, one sticky comment updated in place. The session kept `mrn` with `deprecated: true` and added `medical_record_number` next to it in `openapi.yaml`, `app/routes.py` (both keys returned), `tests/` (a new test) and the collection (assertions + examples); no revert, nothing forbidden touched. Read the new rating out loud.
+- **Green (a compatible rename).** The PR comment has been **updated in place**, not duplicated: `✅ … PASSED`, and it now reads **`✅ API quality gate: PASSED`**, **`🟰 API quality is unchanged from main`**, **`Change risk: 🟢 no breaking change · 32 known consumers`**, then **Rating A (94/100)** · required: B or better, no blocker · 1 accepted lint exception. The impact step says "Additive contract change; 32 known consumers of patients-service" (gate 0.6.2, verified in CI on `healthcare-patients` PR #6). The loop numbers below (2 rounds, about 3.5 minutes) come from the 0.6.0/0.6.1 rehearsals. In the rehearsal: **2 rounds out of 3**, about **3.5 minutes** of loop once running, one sticky comment updated in place. The session kept `mrn` with `deprecated: true` and added `medical_record_number` next to it in `openapi.yaml`, `app/routes.py` (both keys returned), `tests/` (a new test) and the collection (assertions + examples); no revert, nothing forbidden touched. Read the new rating out loud.
 
-> **The delta, as a talking point:** the rename cost −20 pts (−22 %) of API quality against `main`; the compatible fix brings it back to 91 (stable) and removes the breaking change. That is the per-PR "quality moved by x %" evidence.
+> **The delta, as a talking point:** the rename lowered API quality by 22 % from main; the compatible fix brings it back (unchanged) and removes the breaking change. That is the per-PR "quality moved by x %" evidence.
 
 > "Same PR, same comment, green. The old field is still there, deprecated, so no consumer breaks. I asked for an outcome and I did not type a Postman command."
 
@@ -331,7 +343,7 @@ Full reset between sessions:
 | `.claude/settings.json` is deleted in the clone, `.claude/.settings-security-marker` appears | Expected: the security hook. Don't `git add -A`, add `openapi.yaml` only. |
 | The loop ends with NEEDS_DECISION and a draft PR | A designed ending, not a failure. Read the comment and the options out loud. `teardown.sh` closes the draft like any other demo PR. |
 | The loop stops after 3 rounds with the gate still red | Read the final report out loud: that's the designed stop. Look at the PR comment and the last brief, and say what the agent couldn't do (for instance, a lint finding that needs a human exception: the agent must not add it). |
-| The headline has no "vs main" quality delta | Gate older than 0.6.0 (tag `v1` not yet moved?). Say it's a feature of the next release and read what the comment says. |
+| The comment doesn't open with "API quality is … from main" | Gate older than 0.6.2 (older than 0.6.0: no quality delta at all). Check that tag `v1` points to 0.6.2 and re-run the workflow. Otherwise say it's a feature of the latest release and read what the comment says. |
 | The agent merged or pushed to `main` | It shouldn't: the gate loop and `CLAUDE.md` forbid it. If it did, revert on `main` by hand before the next session; `teardown.sh` never touches `main`. |
 | Venue Wi-Fi is down | There is no offline fallback. Stay on the slides, and show the files of act 4a and the gate repo from a cached browser tab. |
 
@@ -346,7 +358,7 @@ Full reset between sessions:
 | Its committed skills, written by `postman init` | [`postman/skills/`](https://github.com/healthcare-org-app/healthcare-patients/tree/main/postman/skills) and [`AGENTS.md`](https://github.com/healthcare-org-app/healthcare-patients/blob/main/AGENTS.md) |
 | Its gate loop and rules | [`CLAUDE.md`](https://github.com/healthcare-org-app/healthcare-patients/blob/main/CLAUDE.md) (short, points to `healthcare-api-quality-gate:gate-loop`) |
 | Its gate config and caller | [`quality-gate.yml`](https://github.com/healthcare-org-app/healthcare-patients/blob/main/quality-gate.yml), [`.github/workflows/quality-gate.yml`](https://github.com/healthcare-org-app/healthcare-patients/blob/main/.github/workflows/quality-gate.yml) |
-| **The platform team's gate** (a use case, not a Postman product) | <https://github.com/healthcare-org-app/healthcare-api-quality-gate> (tag `v1`; 0.6.0 adds the loop and the quality delta vs main) |
+| **The platform team's gate** (a use case, not a Postman product) | <https://github.com/healthcare-org-app/healthcare-api-quality-gate> (tag `v1`; 0.6.0 adds the loop and the quality delta vs main, 0.6.2 makes the PR comment readable: quality change first, change risk, collapsed fix list) |
 | The gate's Claude Code plugin | [`plugin/`](https://github.com/healthcare-org-app/healthcare-api-quality-gate/tree/v1/plugin): skill `gate-loop`, agent `gate-verdict` |
 | Postman Claude Code Plugin module (Liftoff) | <https://www.postman.com/liftoff/modules/claude-code-plugin/> |
 | Postman CLI | <https://www.postman.com/product/postman-cli/> |

@@ -30,7 +30,7 @@ primary_api:
   - "The Postman Claude Code plugin and `postman init`: the two paths a Postman skill takes to reach an agent"
   - "Postman CLI, one command per gate step: postman skills status, postman spec lint, postman collection run --use-mock, postman spec ai-readiness, postman context-graph ask"
   - "The committed contract and v3 collection: openapi.yaml and postman/collections/Patients API/ of healthcare-org-app/healthcare-patients (patients-service, port 8100)"
-  - "The platform team's gate: healthcare-org-app/healthcare-api-quality-gate (tag v1; 0.6.0 adds the loop and the quality delta vs main), its reusable workflow gate.yml, and its Claude Code plugin healthcare-api-quality-gate (skill gate-loop, agent gate-verdict)"
+  - "The platform team's gate: healthcare-org-app/healthcare-api-quality-gate (tag v1; 0.6.0 adds the loop and the quality delta vs main, 0.6.2 makes the PR comment readable: quality change first, change risk, collapsed fix list), its reusable workflow gate.yml, and its Claude Code plugin healthcare-api-quality-gate (skill gate-loop, agent gate-verdict)"
   - "API Context Graph: https://www.postman.com/context-graph/"
   - "Postman CLI: https://www.postman.com/product/postman-cli/"
 key_messages:
@@ -39,7 +39,7 @@ key_messages:
   - A change that looks harmless locally can still fail a quality gate. Here a rename in the response contract fails contract tests, because the collection is the consumers' side of the contract.
   - The gate loop closes the circle without a human relaying the report. The developer's own session reads the verdict through a read-only reviewer, applies the fixes brief (keep the old field deprecated, add the new one next to it), pushes to the same branch, and stops after 3 rounds, on PASSED, or on NEEDS_DECISION (draft PR with the options: a human decides).
   - The rules live in files, not in the prompt (the platform team's gate plugin, a short CLAUDE.md). The agent can't edit the gate, and the gate runs in CI with a secret the agent never sees.
-  - Per PR, the gate says how much API quality moves against main. Rehearsed in CI on 2026-10-29 (gates 0.6.0 and 0.6.1, same results) - the rename went 91 -> 71 (-20 pts, -22 %), the compatible fix brought it back to 91 (stable). Aggregated over PRs, that is org-level evidence that it improves quality.
+  - Per PR, the gate says how much API quality moves against main. Rehearsed in CI on 2026-10-29 (gates 0.6.0 and 0.6.1, same results) - the rename went 91 -> 71 (-20 pts, -22 %), the compatible fix brought it back to 91 (stable). Gate 0.6.2 opens the comment with that change ("API quality is lowered by 22 % from main", then "API quality is unchanged from main" once fixed); its passing comment is verified in CI. Aggregated over PRs, that is org-level evidence that it improves quality.
   - The quality gate is a use case a platform team built with Postman, in a small repo. It is not something Postman ships.
   - The Context Graph is how the gate knows who a break hits (32 consumers of patients-service, the gate's count), at the endpoint level, not the field level.
 cta:
@@ -91,20 +91,28 @@ notes: >
   NEEDS_DECISION ("that's where a human decides").
 
   QUALITY DELTA VS MAIN (the answer to "evidence that it improves quality by
-  x %"). Rehearsed in CI on 2026-10-29 (gates 0.6.0 and 0.6.1, healthcare-patients
-  PRs #4 and #5, closed, not merged; same results). Gate 0.6.0's headline carries the API quality index vs
-  the base branch and the change risk. Round 1: `API quality gate: rating D
-  (60/100), 1 accepted lint exception · API quality 91 -> 71 vs main (-20 pts,
-  -22 %) · breaking change for 32 consumers`. Steps: skills-check pass 100;
-  contract-lint pass 100 (100->100); contract-tests fail 30, 3/10 (100->30);
-  coverage pass 100; ai-readiness warn 70 (70->70); impact fail 0. Blockers:
-  contract-tests and impact. Baseline: main's own gate run had been skipped, so
-  the steps were re-run on main. After the loop (round 2): `API quality gate:
-  PASSED with 1 accepted lint exception (rating A, 94/100) · API quality 91 ->
-  91 vs main (0 pts, 0 %, stable) · no breaking change`; impact "Additive
-  contract change; 32 known consumer(s)". The rename cost 20 pts (22 %); the
-  compatible fix brings it back to 91 and removes the breaking change. First
-  comment about 83 s after the push.
+  x %"). Since gate 0.6.2 (released 2026-10-29, tag v1 moved) the PR comment
+  opens with its title, then the quality change against the base branch as the
+  first bold line, then the change risk, then the rating line. Round 1 was
+  rehearsed in CI with gates 0.6.0 and 0.6.1 (healthcare-patients PRs #4 and
+  #5, closed, not merged; same results); the 0.6.2 wording for it is the format
+  the code produces, not re-run in CI: `API quality gate: FAILED` / `API
+  quality is lowered by 22 % from main` / `Change risk: breaking change for 32
+  consumers` / `Rating D (60/100) · required: B or better, no blocker · 1
+  accepted lint exception`. Steps (Score, vs main): skills-check pass 100;
+  contract-lint pass 100 (0); contract-tests fail 30 (-70), 3/10; coverage pass
+  100 (0); ai-readiness warn 70 (0); impact fail 0 ("the change breaks 32 known
+  consumers"). Blockers: contract-tests and impact. "What to fix (N)" is
+  collapsed: click it open on stage. Baseline: main's own gate run had been
+  skipped, so the steps were re-run on main. After the loop (round 2), verified
+  in CI with 0.6.2 (healthcare-patients PR #6, run 40943655307): `API quality
+  gate: PASSED` / `API quality is unchanged from main` / `Change risk: no
+  breaking change · 32 known consumers` / `Rating A (94/100)`; impact "Additive
+  contract change; 32 known consumers of patients-service". The rename lowered
+  API quality by 22 %; the compatible fix brings it back (unchanged) and
+  removes the breaking change. In a pull_request run, the commit in the rating
+  line is GitHub's PR merge commit, not the pushed SHA. First comment about 83 s
+  after the push (0.6.0/0.6.1 rehearsals).
 
   THE LOOP, REHEARSED IN CI ON 2026-10-29 (gates 0.6.0 and 0.6.1, same results): 2 rounds
   out of 3, ending PASSED, about 3.5 min of wall time once running, one sticky comment
@@ -116,7 +124,7 @@ notes: >
 
   REHEARSAL NOTES. Write a PR body (`gh pr create --title ... --body ...`): `--fill` gives an empty body
   and the loop reads title + body as the intent. gate-verdict reads the CI report
-  from gate-results/ci-<run id>/ with no permission prompt (gate 0.6.1).
+  from <repo root>/gate-results/ci-<run id>/ with no permission prompt (gate 0.6.2).
 
   PRESENTER PREREQUISITES. (1) Install the gate plugin at USER level:
   `claude plugin marketplace add healthcare-org-app/healthcare-api-quality-gate`
