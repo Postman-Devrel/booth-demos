@@ -157,7 +157,7 @@ orange (`#FF6C37`) accents, a rainbow strip along the bottom edge and a glowing-
    `#0A0D0B` with a `--grey-35` stroke.
 
 Use another style only when the user specifies `brand_style: manual`: then ask for primary
-colour, accent colour, and font family. Reference deck: `content/short-talks/postman-in-the-terminal/presentation/index.html`.
+colour, accent colour, and font family.
 
 ### Slide count and structure
 
