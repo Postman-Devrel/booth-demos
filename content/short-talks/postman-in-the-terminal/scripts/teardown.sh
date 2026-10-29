@@ -1,55 +1,57 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# Postman plugin: an agent reviews your API change. Teardown.
+# Postman in the terminal — teardown.
 #
-# Closes the PR opened on stage, deletes its branch, and removes both local
-# folders (the bare-spec folder from act 4, and the demo repo clone from
-# act 5+). Safe to run when setup never ran.
+# Closes every demo PR opened from a demo/live-* branch on the patients repo
+# (with a comment), drafts included: a loop that ended in NEEDS_DECISION leaves
+# the PR open as a draft. It also deletes those branches on the remote and
+# removes the local clone. Safe to run when setup never ran.
 #
-# What it deliberately does NOT touch: the demo repo's main branch, its
-# Actions secrets, the Postman team's Context Graph connection to the
-# estate, and the workspace/collection/mock act 4 creates live on your
-# Postman account. All of that is either shared infrastructure this session
-# doesn't own, or a real resource on your account this script has no way to
-# identify after the fact — delete those by hand in the Postman app.
+# It never touches main. It cannot clean up anything else: the Postman
+# workspace, the Context Graph, or any local Postman resource a rehearsal
+# created on your own account.
 
-DEMO_REPO="Postman-Devrel/postman-plugin-pr-review-demo"
-BRANCH="remove-blood-type"
-LOCAL_PLUGIN_DIR="/tmp/postman-plugin-local-demo"
-WORKDIR="/tmp/postman-plugin-pr-review-demo"
+DEMO_REPO="healthcare-org-app/healthcare-patients"
+WORKDIR="/tmp/healthcare-patients"
 
-echo "=== Postman plugin: an agent reviews your API change. Teardown ==="
+echo "=== Postman in the terminal — Teardown ==="
 echo ""
 
-# --- Close the PR opened on stage, if any ------------------------------------
+# --- Close every demo PR (open or draft) ---------------------------------------------------------
 
-PR_NUMBER="$(gh pr list --repo "$DEMO_REPO" --head "$BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null)"
-if [ -n "${PR_NUMBER:-}" ] && [ "$PR_NUMBER" != "null" ]; then
-  if gh pr close "$PR_NUMBER" --repo "$DEMO_REPO" --delete-branch >/dev/null 2>&1; then
-    echo "[OK]   Closed PR #$PR_NUMBER and deleted branch $BRANCH on $DEMO_REPO"
-  else
-    echo "[WARN] Could not close PR #$PR_NUMBER automatically, check github.com/$DEMO_REPO/pulls"
-  fi
-else
-  echo "[OK]   No open PR from $BRANCH on $DEMO_REPO"
-  if gh api "repos/$DEMO_REPO/branches/$BRANCH" >/dev/null 2>&1; then
-    if gh api -X DELETE "repos/$DEMO_REPO/git/refs/heads/$BRANCH" >/dev/null 2>&1; then
-      echo "[OK]   Deleted leftover branch $BRANCH on $DEMO_REPO"
+PR_NUMBERS="$(gh pr list --repo "$DEMO_REPO" --state open --json number,headRefName --jq '.[] | select(.headRefName | startswith("demo/live-")) | .number' 2>/dev/null)"
+if [ -n "${PR_NUMBERS:-}" ]; then
+  while IFS= read -r num; do
+    [ -z "$num" ] && continue
+    if gh pr close "$num" --repo "$DEMO_REPO" --delete-branch \
+         --comment "Closing: demo rehearsal, not meant to be merged." >/dev/null 2>&1; then
+      echo "[OK]   Closed PR #$num and deleted its branch on $DEMO_REPO"
     else
-      echo "[WARN] Branch $BRANCH exists on $DEMO_REPO but could not be deleted automatically."
+      echo "[WARN] Could not close PR #$num automatically, check github.com/$DEMO_REPO/pulls"
     fi
-  fi
-fi
-
-# --- The local folders ---------------------------------------------------
-
-if [ -d "$LOCAL_PLUGIN_DIR" ]; then
-  rm -rf "$LOCAL_PLUGIN_DIR"
-  echo "[OK]   Removed act 4's bare-spec folder at $LOCAL_PLUGIN_DIR"
+  done <<< "$PR_NUMBERS"
 else
-  echo "[OK]   No bare-spec folder to remove"
+  echo "[OK]   No open demo PR on $DEMO_REPO"
 fi
+
+# --- Delete leftover demo/live-* branches ----------------------------------------
+
+REMOTE_BRANCHES="$(gh api "repos/$DEMO_REPO/branches" --paginate --jq '.[] | select(.name | startswith("demo/live-")) | .name' 2>/dev/null)"
+if [ -n "${REMOTE_BRANCHES:-}" ]; then
+  while IFS= read -r branch; do
+    [ -z "$branch" ] && continue
+    if gh api -X DELETE "repos/$DEMO_REPO/git/refs/heads/$branch" >/dev/null 2>&1; then
+      echo "[OK]   Deleted branch $branch on $DEMO_REPO"
+    else
+      echo "[WARN] Branch $branch exists on $DEMO_REPO but could not be deleted automatically."
+    fi
+  done <<< "$REMOTE_BRANCHES"
+else
+  echo "[OK]   No leftover demo/live-* branch on $DEMO_REPO"
+fi
+
+# --- The local clone ---------------------------------------------------------------
 
 if [ -d "$WORKDIR" ]; then
   rm -rf "$WORKDIR"
@@ -63,13 +65,11 @@ cat <<EOF
 === Teardown complete. ===
 
 Left standing on purpose:
-  - github.com/$DEMO_REPO's main branch and its Actions secrets
-  - the Postman team's Context Graph connection to the estate
+  - github.com/$DEMO_REPO's main branch and the org-level POSTMAN_API_KEY secret
+  - the healthcare-api-quality-gate repo and the Postman team's Context Graph
 
-Left standing because this script can't identify them:
-  - the workspace, collection, and mock act 4 created live on your Postman
-    account. Delete them by hand in the Postman app before the next
-    rehearsal, or they pile up.
+Not cleaned up (this script cannot identify them): anything created on your
+own Postman account during a rehearsal.
 
 Next session:  ./scripts/setup.sh
 EOF
