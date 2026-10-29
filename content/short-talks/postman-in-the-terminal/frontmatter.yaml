@@ -3,141 +3,171 @@ length: 28m (Q&A included)
 owner: Anthony Viard <anthony.viard@postman.com>
 status: draft
 audience: >
-  Developers building or supervising coding agents, and anyone who has wondered
-  what a Postman plugin actually gives an agent that the app's UI does not. No
-  Postman account needed for the slides; the live demo needs a Postman account
-  whose team has Context Graph enabled (the Postman DevRel team's already does,
-  with github.com/healthcare-org-app ingested, swap in your own API if you
-  present under a different account).
+  Developers building or supervising coding agents, platform and API-governance
+  teams, and anyone who has wondered what a Postman plugin gives an agent that
+  the app's UI does not. No Postman account needed for the slides; the live demo
+  needs a Postman account whose team has the Context Graph for
+  github.com/healthcare-org-app ingested (the Postman DevRel team's does).
 venues:
   - meetup
   - conference
 product: Postman CLI
 name: "Postman in the terminal"
 use_case: >
-  Show where an agent's Postman know-how actually comes from: committed Postman
-  skills, not a chat window remembering commands. Those skills reach an agent
-  two ways. The Postman Claude Code plugin puts them straight into a
-  developer's own agent. `postman init` commits the same skills into a repo, so
-  an agent running unattended in CI gets them too. The slides cover both paths;
-  the live demo shows the second one, end to end: a CI job doing the judgment
-  work no fixed script can, deciding whether a change to an API contract is
-  the kind a consumer could break on, and if so, asking the Context Graph who
-  depends on it before reporting back.
+  A platform team (the fictional healthcare-org-app) builds an API quality gate
+  with Postman building blocks, the CLI, committed skills and the Context
+  Graph, and every service calls it from its own CI. The demo runs on one real
+  service repo, healthcare-org-app/healthcare-patients (patients-service,
+  Python/Flask): a hand-made "readability" rename of `mrn` tanks the rating
+  (contract tests and impact fail), then the developer's own Claude Code
+  session (Postman plugin + the platform team's gate plugin) runs the gate
+  loop (verdict, fixes brief, push) until the gate passes or stops with
+  NEEDS_DECISION. There is no coding agent in the repo: the only second agent
+  is the read-only gate-verdict reviewer.
+  The gate is the healthcare org's use case built with Postman, not a Postman
+  product.
 primary_api:
   - "The Postman Claude Code plugin and `postman init`: the two paths a Postman skill takes to reach an agent"
-  - postman:api-engineer / postman:api-discovery skills, and postman context-graph ask underneath them
-  - "postman spec lint / postman mock generate / postman collection run: how the agent checks the contract still holds"
-  - "The committed contract: openapi.yaml (healthcare-org-app/healthcare-patients's GET /api/patients/{id})"
+  - "Postman CLI, one command per gate step: postman skills status, postman spec lint, postman collection run --use-mock, postman spec ai-readiness, postman context-graph ask"
+  - "The committed contract and v3 collection: openapi.yaml and postman/collections/Patients API/ of healthcare-org-app/healthcare-patients (patients-service, port 8100)"
+  - "The platform team's gate: healthcare-org-app/healthcare-api-quality-gate (tag v1; 0.6.0 adds the loop and the quality delta vs main, 0.6.2 makes the PR comment readable: quality change first, change risk, collapsed fix list), its reusable workflow gate.yml, and its Claude Code plugin healthcare-api-quality-gate (skill gate-loop, agent gate-verdict)"
   - "API Context Graph: https://www.postman.com/context-graph/"
   - "Postman CLI: https://www.postman.com/product/postman-cli/"
 key_messages:
-  - A coding agent's Postman know-how comes from committed skills, not from something it was told once in a chat.
-  - Those skills arrive two ways, and both matter: the plugin installs them in a developer's own agent, and `postman init` commits them into the repo, so an agent running in CI gets the same skills with nobody there to prompt it.
-  - >-
-    The Claude Code plugin delivers the same skills separately (verbatim from
-    `postman skills --help`), which is why a local developer session and an
-    unattended CI job can both reason the same way.
-  - One plain-English instruction to a local Claude Code session with the plugin installed is enough to chain multiple Postman skills on its own (bootstrap, then a collection, then a mock) — nobody names a Postman CLI command.
-  - An agent decides for itself whether a change is worth the Context Graph's time. It only asks when it judges the change risky, and it says so in one line when it doesn't.
-  - The CI agent reports. It never blocks a merge, and the demo is honest about that limit.
+  - A coding agent doesn't need Postman's UI. It needs a command per step of the API engineering chain, and the Postman CLI is that.
+  - An agent's Postman know-how lives in committed skills, not in a chat. The plugin puts them in a developer's own Claude Code; `postman init` commits the same skills into the repo.
+  - A change that looks harmless locally can still fail a quality gate. Here a rename in the response contract fails contract tests, because the collection is the consumers' side of the contract.
+  - The gate loop closes the circle without a human relaying the report. The developer's own session reads the verdict through a read-only reviewer, applies the fixes brief (keep the old field deprecated, add the new one next to it), pushes to the same branch, and stops after 3 rounds, on PASSED, or on NEEDS_DECISION (draft PR with the options: a human decides).
+  - The rules live in files, not in the prompt (the platform team's gate plugin, a short CLAUDE.md). The agent can't edit the gate, and the gate runs in CI with a secret the agent never sees.
+  - Per PR, the gate says how much API quality moves against main. Rehearsed in CI on 2026-10-29 (gates 0.6.0 and 0.6.1, same results) - the rename went 91 -> 71 (-20 pts, -22 %), the compatible fix brought it back to 91 (stable). Gate 0.6.2 opens the comment with that change ("API quality is lowered by 22 % from main", then "API quality is unchanged from main" once fixed); its passing comment is verified in CI. Aggregated over PRs, that is org-level evidence that it improves quality.
+  - The quality gate is a use case a platform team built with Postman, in a small repo. It is not something Postman ships.
+  - The Context Graph is how the gate knows who a break hits (32 consumers of patients-service, the gate's count), at the endpoint level, not the field level.
 cta:
-  - "npx @postman/postman-plugin, then ask your agent to review your next API change"
+  - "npx @postman/postman-plugin, then ask your agent to work an API change"
   - "Postman CLI: https://www.postman.com/product/postman-cli/"
   - "API Context Graph: https://www.postman.com/context-graph/"
-  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/short-talks/postman-in-the-terminal)"
   - "Claude Code Plugin module on Liftoff: https://www.postman.com/liftoff/modules/claude-code-plugin/"
   - "Join the Postman community on Discord: https://postman-community.com/kmg"
+  - "The demo service: https://github.com/healthcare-org-app/healthcare-patients"
+  - "The platform team's gate: https://github.com/healthcare-org-app/healthcare-api-quality-gate"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/short-talks/postman-in-the-terminal)"
 presentation_title: From Click to Terminal
 presentation_url: https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee145?file=From+Click+to+Terminal.dc.html&via=share
 brand_style: design-sync
 notes: >
-  ONE DECK OF RECORD, NO HTML FALLBACK, ON PURPOSE. The deck lives in Claude
-  Design at the `presentation_url` above; there is deliberately no
-  `presentation/index.html` and no `presentation_fallback`. That is an
-  exception to the short-talk template, which asks for
-  `presentation/index.html` — the exception is on record here so nobody
-  "fixes" it by recreating one. The 10-minute booth cut of this same demo
-  lives in `content/lightning-talks/postman-in-the-terminal/`.
+  THE DECK OF RECORD IS NOW `presentation/index.html`, built from the Claude
+  Design deck "From Click to Terminal" (`presentation_url`, kept as the
+  source). 18 slides. The live demo starts at slide 15 ("Live demo"); slides
+  16 to 18 are "What you just saw", "What to take away" and "Try it". If the
+  Claude Design deck changes, re-export it into `presentation/index.html`
+  rather than editing the two by hand.
 
-  THIS CUT DROPS THE UNPROMPTED-AGENT-ONLY FRAMING ON SLIDES, NOT ON STAGE.
-  The earlier cut's whole case was the CI agent running with nobody prompting
-  it. That part stays, and the word this cut used for it everywhere, including
-  the deck title, is gone, replaced with "nobody prompts it." The talk now
-  names both ways committed Postman skills reach an agent (the plugin into a
-  developer's own Claude Code, `postman init` into a repo for CI) on slides.
+  THE QUALITY GATE IS NOT A POSTMAN PRODUCT. It is a use case the (fictional)
+  healthcare org's platform team built with Postman: the CLI, committed skills
+  and the Context Graph. Say so on stage and don't present it as something
+  Postman ships.
 
-  THE LIVE PART NOW SHOWS TWO AGENTS, NOT ONE, AND THEY ARE NOT THE SAME
-  DEMONSTRATION TWICE. An earlier cut ran the plugin-backed step live by
-  asking a developer's own Claude Code to make the exact same contract change
-  the CI agent would judge; that showed the same thing twice and ran long, so
-  it was cut back to the single live agent. This cut brings a local live step
-  back, but a different one: act 4 hands a bare `openapi.yaml`, nothing else,
-  to a local Claude Code session with the Postman plugin installed, and asks
-  it to build a workspace, a collection, and a mock from scratch. The point
-  isn't contract judgment, that's still the CI agent's alone in act 6. It's
-  watching the plugin chain several Postman skills (`postman:bootstrap` ->
-  collection generation -> `postman:api-mocking`) off one plain-English
-  instruction, live, before the talk ever touches the real repo. See README
-  section 4 for the current click track and act numbering.
+  THE DEMO RUNS ON A REAL REPO, NOT PART OF THIS MONOREPO:
+  healthcare-org-app/healthcare-patients (patients-service). It is equipped
+  with the gate (healthcare-org-app/healthcare-api-quality-gate, tag v1)
+  through the caller workflow `.github/workflows/quality-gate.yml` and
+  `quality-gate.yml`. The gate's CI step uses the ORG-level `POSTMAN_API_KEY`
+  secret; a repo-level secret with the same name would shadow it.
 
-  THE LOCAL-PLUGIN STEP CREATES REAL POSTMAN RESOURCES, NOT CLEANED UP
-  AUTOMATICALLY. `setup.sh` copies `openapi.yaml` into a disposable folder
-  (`/tmp/postman-plugin-local-demo`) so act 4 starts from a bare spec, but
-  the workspace, collection, and mock the plugin creates there on stage are
-  real, on the presenter's own Postman account. `teardown.sh` removes the
-  local folder but has no way to find and delete those Postman resources,
-  that's a manual cleanup in the Postman app between rehearsals.
+  NO CODING AGENT ANYMORE. The coder is the presenter's own Claude Code
+  session (Postman plugin + the platform team's gate plugin
+  `healthcare-api-quality-gate`). The only second agent is `gate-verdict`
+  (read-only reviewer). The repo no longer has a coder sub-agent definition
+  (PR chore/drop-coder-agent); its CLAUDE.md is short and points to
+  `healthcare-api-quality-gate:gate-loop`.
 
-  THE DEMO REPO NOW SHIPS ITS OWN SKILLS, WRITTEN BY `postman init`. It commits
-  `AGENTS.md`, `.postman/`, and `postman/skills/` at its root, and the CI
-  agent's own prompt (`agents/api-change-reviewer.md`) no longer names a single
-  Postman CLI command, it points at `AGENTS.md`, which points at the skills.
-  The same skills exist in the Postman Claude Code plugin a developer installs
-  locally; `postman skills --help` states this directly: "The Claude Code
-  plugin delivers the same skills separately."
+  THE GATE LOOP (gate 0.6.0, PR feat/0.6.0-loop-and-baseline): takes the PR
+  title/body as the intent to preserve; never reverts the change; for a rename
+  keeps the old field `deprecated` and adds the new one next to it (contract,
+  code, tests, collection); uses postman:api-engineer for Postman work; stops
+  after 3 rounds or PASSED, or with NEEDS_DECISION (PR converted to draft and
+  one comment with the options, e.g. keep the old field deprecated or version
+  the API). Never merges. Two honest endings on stage: green, or
+  NEEDS_DECISION ("that's where a human decides").
 
-  THE CI AGENT'S OWN JUDGMENT IS STILL THE POINT, NOT A FIXED COMMAND LIST.
-  agents/api-change-reviewer.md is still five judgment calls ("read the diff,
-  judge it"; "if nothing risky changed, stop") rather than a numbered script.
-  Don't narrate it as running four commands in order, narrate the decision it
-  made.
+  QUALITY DELTA VS MAIN (the answer to "evidence that it improves quality by
+  x %"). Since gate 0.6.2 (released 2026-10-29, tag v1 moved) the PR comment
+  opens with its title, then the quality change against the base branch as the
+  first bold line, then the change risk, then the rating line. Round 1 was
+  rehearsed in CI with gates 0.6.0 and 0.6.1 (healthcare-patients PRs #4 and
+  #5, closed, not merged; same results); the 0.6.2 wording for it is the format
+  the code produces, not re-run in CI: `API quality gate: FAILED` / `API
+  quality is lowered by 22 % from main` / `Change risk: breaking change for 32
+  consumers` / `Rating D (60/100) · required: B or better, no blocker · 1
+  accepted lint exception`. Steps (Score, vs main): skills-check pass 100;
+  contract-lint pass 100 (0); contract-tests fail 30 (-70), 3/10; coverage pass
+  100 (0); ai-readiness warn 70 (0); impact fail 0 ("the change breaks 32 known
+  consumers"). Blockers: contract-tests and impact. "What to fix (N)" is
+  collapsed: click it open on stage. Baseline: main's own gate run had been
+  skipped, so the steps were re-run on main. After the loop (round 2), verified
+  in CI with 0.6.2 (healthcare-patients PR #6, run 40943655307): `API quality
+  gate: PASSED` / `API quality is unchanged from main` / `Change risk: no
+  breaking change · 32 known consumers` / `Rating A (94/100)`; impact "Additive
+  contract change; 32 known consumers of patients-service". The rename lowered
+  API quality by 22 %; the compatible fix brings it back (unchanged) and
+  removes the breaking change. In a pull_request run, the commit in the rating
+  line is GitHub's PR merge commit, not the pushed SHA. First comment about 83 s
+  after the push (0.6.0/0.6.1 rehearsals).
 
-  THE CI WORKFLOW'S LOGGING WAS A REAL BUG, FIXED DURING REHEARSAL. The first
-  CI rehearsal filtered the agent's output down to lines mentioning AGENTS.md
-  or postman/skills and swallowed the exit code with a trailing `|| true`.
-  That run reported success with no PR comment and no visible output. The
-  current workflow prints every Bash command the agent runs plus its final
-  result through `jq`, and exits on the real `claude -p` exit code via
-  `PIPESTATUS`. If a rehearsal ever looks silent again, suspect the logging
-  before the agent.
+  THE LOOP, REHEARSED IN CI ON 2026-10-29 (gates 0.6.0 and 0.6.1, same results): 2 rounds
+  out of 3, ending PASSED, about 3.5 min of wall time once running, one sticky comment
+  updated in place. The session kept `mrn` with `deprecated: true` and added
+  `medical_record_number` next to it in openapi.yaml, app/routes.py (both keys
+  returned), tests/ (a new test) and the collection (assertions + examples);
+  no revert, nothing forbidden touched. The session loaded postman:api-engineer
+  before fixing (contract, app/routes.py, tests, 8 collection requests).
 
-  THE CONTEXT GRAPH'S ANSWER IS ENDPOINT-LEVEL, NOT FIELD-LEVEL, AND SAY THAT
-  OUT LOUD. Across every CI rehearsal, the graph reported the same shape of
-  answer: dozens of services call the changed endpoint, but it cannot say
-  which of them reads the one field that changed, and team ownership often
-  comes back unresolved. The agent's better comments read the callers' source
-  to close that gap; a weaker run just reports the endpoint fan-in and asks a
-  human to confirm. Both are honest; narrate whichever one happens live.
+  REHEARSAL NOTES. Write a PR body (`gh pr create --title ... --body ...`): `--fill` gives an empty body
+  and the loop reads title + body as the intent. gate-verdict reads the CI report
+  from <repo root>/gate-results/ci-<run id>/ with no permission prompt (gate 0.6.2).
 
-  blood_type IS STILL THE FIELD TO REMOVE, ON PURPOSE. It's clinical data a
-  downstream consumer plausibly reads, and patients-service never reads it
-  back itself, so the checked-in collection stays green either way. That's the
-  honest trap the whole talk is about: nothing local looks wrong.
+  PRESENTER PREREQUISITES. (1) Install the gate plugin at USER level:
+  `claude plugin marketplace add healthcare-org-app/healthcare-api-quality-gate`
+  then `claude plugin install healthcare-api-quality-gate@healthcare-api-quality-gate`.
+  A built-in Claude Code security hook deletes `.claude/settings.json` in a
+  clone it considers untrusted (it writes `.claude/.settings-security-marker`),
+  so the repo-level plugin enablement does not apply. (2) Disable or uninstall
+  the old `postman-agent-quality-gate` plugin (0.4.0): it loads a duplicate
+  gate-loop / gate-verdict. (3) Clone to /tmp/healthcare-patients (not a name
+  with "demo": the reviewer once guessed the repo from the folder name).
+  (4) Never `git add -A` in the clone (it would commit the settings.json
+  deletion): `git add openapi.yaml` only.
 
-  CONTEXT GRAPH IS TEAM-GATED, NOT A FREE-TIER FEATURE. Whichever account's key
-  backs POSTMAN_API_KEY on the demo repo decides which team's graph answers,
-  the Postman DevRel team's already has the estate ingested.
+  THE REPO IS NOT LINKED TO A POSTMAN CLOUD WORKSPACE YET
+  (`workspace.id: ''` in `.postman/resources.yaml`). Act 4 shows the local,
+  git-native workspace, and says so. Linking a cloud workspace is a follow-up.
 
-  THE DEMO REPO IS REAL, EXTERNAL INFRASTRUCTURE, NOT PART OF THIS MONOREPO,
-  AND IT WAS RENAMED. It is now Postman-Devrel/postman-plugin-pr-review-demo
-  (its previous name on GitHub redirects here). It still has its own two
-  Actions secrets (POSTMAN_API_KEY, ANTHROPIC_API_KEY), already set, see
-  README section 2.
+  THE DEMO PR IS NEVER MERGED. The branch is `demo/live-rename-mrn`. The
+  gate-loop fix keeps `mrn` (deprecated) and adds
+  `medical_record_number` next to it (contract, `app/`, pytest tests,
+  collection; rehearsed in CI on 2026-10-29, gates 0.6.0 and 0.6.1: PASSED in 2 rounds),
+  or stops with NEEDS_DECISION and a draft PR. `teardown.sh`
+  closes the PR (draft or not) and deletes the branch; if a rehearsal reached `main`, `setup.sh`
+  refuses to run.
+
+  BLOCKING IS A BRANCH-PROTECTION SETTING, NOT A GATE FEATURE. The gate
+  returns FAILED; whether that blocks a merge depends on the repo requiring
+  the "gate / quality-gate" check. It is required on appointments-service,
+  not yet on patients' `main`. Say so when asked.
+
+  THE CONTEXT GRAPH IS ENDPOINT-LEVEL, NOT FIELD-LEVEL. 32 consumers of
+  patients-service per the gate (including ehr, immunizations, lab-results,
+  lab-orders, referrals, appointments); the graph can't say which field each one
+  reads. That is why the gate's brief says "keep the old name, add the new
+  one next to it". It is also team-gated: whichever team's key backs
+  POSTMAN_API_KEY decides which graph answers.
+
+  THE 10-MINUTE BOOTH CUT (`content/lightning-talks/postman-in-the-terminal/`)
+  WAS WRITTEN FOR THE PREVIOUS DEMO (bare spec, then a CI agent that only
+  comments) and wraps this folder's scripts. Re-check it against this
+  README before using it on the floor.
 
   SAME PRODUCT AS open-meteo-loop-eng, DIFFERENT SIGNAL AND DIFFERENT SCOPE.
-  That talk is the CLI as a test oracle for one API. This one is Postman
-  skills as an agent's know-how, committed into a repo for an agent nobody is
-  prompting, with the plugin explained on slides as the other place those
-  same skills land. If a booth crowd has seen both, lead with that
-  distinction.
+  That talk is the CLI as a test oracle for one API. This one is the CLI and
+  committed skills as an agent's toolbox, with a gate around the agent. If a
+  booth crowd has seen both, lead with that distinction.
