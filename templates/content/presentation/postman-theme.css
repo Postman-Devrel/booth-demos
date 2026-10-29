@@ -1,0 +1,17 @@
+/* Postman deck theme: dark mode of the Postman Deck Template (Google Slides, updated 2026-09-18).
+   Inline this file in presentation/index.html and copy assets/postman-logo.png next to it.
+   Slides are `.slide` elements (or `#stage>section`) of any size; the first one is the cover.
+   Tokens keep the names of the Aether scale so existing diagram markup works unchanged. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+:root{--blue-10:#12202F;--blue-60:#6AB0FF;--green-60:#3DD68C;--grey-00:#0D0709;--grey-05:#140B0F;--grey-10:#1D1116;--grey-20:#2A1A20;--grey-35:#4F3D45;--grey-40:#7A6A70;--grey-50:#A89AA0;--grey-60:#D2C8CC;--grey-90:#FFFFFF;--orange-10:#2A1410;--orange-40:#FFB08F;--orange-50:#E85D2A;--orange-60:#FF6C37;--orange-70:#FF6C37;--purple-10:#241A3A;--purple-60:#B48CFF;--red-60:#FF5C8A;--teal-10:#0F2A29;--teal-70:#4FD1C5;}
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--grey-90);background:#0D0709}
+code,pre,.mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace}
+.slide,#stage>section{position:absolute;background:radial-gradient(ellipse 60% 70% at 100% 0%,rgba(255,108,55,.32),rgba(255,108,55,0) 70%),radial-gradient(ellipse 50% 60% at 0% 100%,rgba(120,40,90,.28),rgba(120,40,90,0) 70%),linear-gradient(160deg,#150A10,#0D0709 55%);color:var(--grey-90)}
+/* rainbow strip along the bottom edge */
+.slide::after,#stage>section::after{content:'';position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(90deg,#FF6C37,#FF7AB8 38%,#B48CFF 62%,#4DA3FF 82%,#3DD68C)}
+/* Postman icon, bottom left (the logo PNG is icon + wordmark: only the icon shows) */
+.slide::before,#stage>section::before{content:'';position:absolute;left:100px;bottom:30px;width:40px;height:40px;background:url(assets/postman-logo.png) left center/auto 40px no-repeat;opacity:.9}
+/* cover slide: glowing horizon, full logo goes in the markup (assets/postman-logo.png, 330x100 at x=100 y=80) */
+.slide:first-child,#stage>section:first-child{background:radial-gradient(ellipse 110% 62% at 50% 128%,#FFF2DC 0%,#FFB36B 20%,#FF6A4D 32%,#C24DFF 46%,rgba(30,10,40,0) 68%),linear-gradient(#0D0709,#1A0B14)}
+.slide:first-child::before,#stage>section:first-child::before{display:none}
+/* cover subtitle: IBM Plex Mono, #FFD9C4; footer: "© All rights reserved by Postman Inc" */

@@ -142,9 +142,22 @@ dependencies beyond Google Fonts. It has to render on dead conference wifi.
 
 ### Brand style
 
-Run `/design-sync` to pull the team brand style and apply the returned tokens. If it is
-unavailable or the user specifies `brand_style: manual`, ask for primary colour, accent
-colour, and font family.
+Default is the **Postman deck theme**, the dark mode of the Postman Deck Template: near-black
+background with an orange glow, Inter for text, IBM Plex Mono for code and subtitles, Postman
+orange (`#FF6C37`) accents, a rainbow strip along the bottom edge and a glowing-horizon cover.
+
+1. Inline `templates/content/presentation/postman-theme.css` in the deck's `<style>` (the deck stays
+   one file, with the Google Fonts link as its only external dependency).
+2. Copy `templates/content/presentation/assets/postman-logo.png` to `presentation/assets/`.
+3. Cover slide: logo at the top left, title in white Inter 600, subtitle in IBM Plex Mono
+   `#FFD9C4`, footer "© All rights reserved by Postman Inc". Do not put the presenter's name,
+   photo or social handles on any slide unless the user asks for them.
+4. Colour diagrams with the tokens in `:root` (`--orange-*`, `--purple-60`, `--blue-60`,
+   `--teal-70`, `--grey-*`), never with hard-coded light-mode colours. Terminal panels use
+   `#0A0D0B` with a `--grey-35` stroke.
+
+Use another style only when the user specifies `brand_style: manual`: then ask for primary
+colour, accent colour, and font family.
 
 ### Slide count and structure
 
