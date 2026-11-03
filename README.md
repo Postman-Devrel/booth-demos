@@ -32,7 +32,7 @@ The same material can exist in several formats. When it does, the shorter one se
 | [Claude Code + Postman](content/lightning-talks/claude-code-postman-plugin/) | lightning-talk | 10m | Postman Claude Code Plugin | ready |
 | [Stop Prompting. Start Looping.](content/lightning-talks/open-meteo-loop-eng/) | lightning-talk | 10m | Postman CLI | ready |
 | [The API You Can't Name](content/lightning-talks/orbit-search-by-intent/) | lightning-talk | 10m | Orbit by Postman | draft |
-| [Presentation in a Box — Where Agents become Teammates](content/lightning-talks/astropods-presentation-in-a-box/) | lightning-talk | 10m | Astropods | draft |
+| [Astropods — Where Agents become Teammates](content/lightning-talks/astropods/) | lightning-talk | 10m | Astropods | draft |
 | [Postman in the terminal](content/short-talks/postman-in-the-terminal/) | short-talk | 28m (Q&A included) | Postman CLI | draft |
 | [Postman in the terminal (booth cut)](content/lightning-talks/postman-in-the-terminal/) | lightning-talk | 10m | Postman CLI | draft |
 | [Context Graph](content/lightning-talks/context-graph/) | lightning-talk | 10m | Postman Context Graph | draft |

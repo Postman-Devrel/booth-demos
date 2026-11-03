@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# Presentation in a Box — Where Agents become Teammates — setup.
+# Astropods — Where Agents become Teammates — setup.
 #
 #   ./scripts/setup.sh             # install check, login check, scaffold the agent
 #   ./scripts/setup.sh --start     # ...and start it in the background
@@ -18,7 +18,7 @@ MODEL="${AGENT_MODEL:-gateway}"          # gateway | anthropic | openai
 START=0
 [ "${1:-}" = "--start" ] && START=1
 
-echo "=== Presentation in a Box — Where Agents become Teammates — Setup ==="
+echo "=== Astropods — Where Agents become Teammates — Setup ==="
 echo ""
 
 open_url() { open "$1" 2>/dev/null || xdg-open "$1" 2>/dev/null || return 1; }
@@ -30,7 +30,7 @@ if [ ! -f "$DECK" ]; then
   exit 1
 fi
 if head -c 64 "$DECK" | grep -qi '<!doctype html' && grep -q '</html>' "$DECK"; then
-  echo "[OK]   Deck launcher found and well-formed"
+  echo "[OK]   Deck found and well-formed"
 else
   echo "[FAIL] Deck is present but is not a complete HTML file — restore it from git."
   exit 1
@@ -111,7 +111,7 @@ cat <<EOF2
 Demo agent:  $WORKSPACE/$AGENT_NAME
 
 Pre-flight checklist:
-  [ ] Deck open, FULLSCREEN, on slide 1 (Figma deck loaded, not still spinning)
+  [ ] Deck open, FULLSCREEN, on slide 1 (all slide images loaded; press O to check)
   [ ] Terminal in $WORKSPACE/$AGENT_NAME, LARGE FONT
   [ ] 'ast whoami' shows you logged in
   [ ] Both Loom demos open in tabs as the offline fallback

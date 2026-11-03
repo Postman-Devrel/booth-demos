@@ -1,9 +1,9 @@
-# Presentation in a Box — Where Agents become Teammates
+# Astropods — Where Agents become Teammates
 
 > [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **10 minutes**. This README is the single source of truth.
 > Read it top to bottom before you present; everything you need is here.
 
-A "presentation in a box" for Astropods: the slides, the demo repo, the content guide, two recorded walkthroughs, the blog, and the video series, all linked from one place. The live demo takes a first agent from `ast project create` to running locally, and optionally to a deployed blueprint. Anyone who wants more leaves with the resource list in section 7.
+Everything for the Astropods talk in one place: the slides (a self-contained HTML deck in the Astropods theme), the demo repo, the content guide, two recorded walkthroughs, the blog, and the video series, all linked from one place. The live demo takes a first agent from `ast project create` to running locally, and optionally to a deployed blueprint. Anyone who wants more leaves with the resource list in section 7.
 
 ---
 
@@ -33,9 +33,39 @@ A "presentation in a box" for Astropods: the slides, the demo repo, the content 
 - Quickstart: https://docs.astropods.com/get-started
 - Blog and video series: see section 7
 
-**Total time: ~10 min.** Act 1, 2 and 4 are slides and work offline once the deck has loaded. Act 3 needs Docker; `--model gateway` and deploy need network and `ast login`. The two Loom recordings are the offline fallback for Act 3.
+**Total time: ~10 min.** Act 1, 2 and 4 are slides and work fully offline (the deck is a local file). Act 3 needs Docker; `--model gateway` and deploy need network and `ast login`. The two Loom recordings are the offline fallback for Act 3.
 
-> **Note:** The Figma deck's per-slide content wasn't available when this README was written, so the talk track below follows the Astropods lifecycle and the blog post, not verbatim slide copy. Check it against the deck in rehearsal and adjust the slide numbers.
+### The deck
+
+`presentation/index.html` is a self-contained HTML slideshow in the Astropods theme: 21 slides, no Figma embed, no network needed. 19 are pages from the Astropods Deck Template (images in `presentation/assets/slides/`), and 2 are native HTML slides (11 and 19).
+
+**Keys:** arrows, space or Enter to move, `F` fullscreen, `O` overview (jump to any slide), `Home` / `End`. Open a slide directly with `index.html#11`.
+
+| # | Slide | Used in |
+|---|---|---|
+| 1 | Title: One platform to govern every agent | Act 1 |
+| 2 | Agenda: Today's flight plan | Act 1 |
+| 3 | The problem (section 01) | Act 1 |
+| 4 | A flock of chaos | Act 1 |
+| 5 | The path to AI-native | Act 1 |
+| 6 | The platform (quote) | Act 2 |
+| 7 | Anything you ship is a governed agent | Act 2 |
+| 8 | 53,647 tasks handled by agents (example data) | Act 2, optional |
+| 9 | See where agents add the most value (example data) | Act 2, optional |
+| 10 | How it works: Create, Push, Deploy, Measure | Act 2, then hand off to the terminal |
+| **11** | **Live demo** (native slide, the `ast` commands) | **Act 3: leave the deck here** |
+| 12 | Set a rule once. Every agent follows it. | Act 4 |
+| 13 | Run inside your boundaries | Act 4 |
+| 14 | You do not need a fleet of agents to get value | Act 4 |
+| 15 | Donut chart (template placeholder) | Skip |
+| 16 | Quadrant chart (template placeholder) | Skip |
+| 17 | Poll (template placeholder) | Skip |
+| 18 | Let's keep in touch (template placeholder: `name@email.com`) | Skip, or edit |
+| **19** | **Take it further** (native slide, clickable links) | **Act 4: end here** |
+| 20 | The only platform your company needs (astropods.com, docs, support) | Optional |
+| 21 | Thank you | Optional |
+
+**Before you present:** slides 15-18 are unedited template placeholders. Press past them, or replace them (swap the PNG in `presentation/assets/slides/` and its `<section>` in `index.html`). Slides 8 and 9 show example workspace data, so say so on stage. The "Meet the crew" slide from the template was removed.
 
 ---
 
@@ -51,7 +81,7 @@ A "presentation in a box" for Astropods: the slides, the demo repo, the content 
 
 ### Astropods-specific setup
 
-- Open the Figma deck once before the session so it is cached. Link: https://www.figma.com/deck/T6mOZx4xzBUPHMzgLRH2EL
+- The deck is a local file and needs no network. Open `presentation/index.html` in a browser (or serve it: `cd presentation && python3 -m http.server 8000`) and press `F` for fullscreen.
 - Open both Loom recordings in tabs (section 7).
 - Optional: clone the demo repo, https://github.com/Postman-Devrel/hello-world-agents, to show finished agents.
 
@@ -68,7 +98,7 @@ ast upgrade                     # optional: keep the CLI current
 # ...and make sure Docker Desktop is running
 
 # From the repo root
-cd content/lightning-talks/astropods-presentation-in-a-box
+cd content/lightning-talks/astropods
 ./scripts/setup.sh --start      # scaffold the agent, start it, open the deck
 
 # On stage (Act 3)
@@ -83,7 +113,7 @@ cd ../..                        # back to the content folder
 ```
 
 Optional check that this folder still matches the repo pattern, from the repo root:
-`./scripts/validate-content.sh astropods-presentation-in-a-box`
+`./scripts/validate-content.sh astropods`
 
 ### Setup script
 
@@ -94,7 +124,7 @@ Optional check that this folder still matches the repo pattern, from the repo ro
 
 `setup.sh` will:
 
-1. Check the deck launcher exists and is well-formed.
+1. Check the deck exists and is well-formed.
 2. Check `ast` is installed (and print the install command if not).
 3. Check Docker is running.
 4. Check you are logged in (`ast whoami`) — warns, does not fail.
@@ -110,7 +140,7 @@ Optional check that this folder still matches the repo pattern, from the repo ro
 ### Pre-flight checklist
 
 - [ ] Terminal open in `workspace/hello-teammate`, font size bumped for the room
-- [ ] Deck open in the browser and fullscreened, Figma embed loaded
+- [ ] Deck open in the browser and fullscreened (press `O` to confirm every slide image loaded)
 - [ ] `ast whoami` shows you logged in
 - [ ] Docker running
 - [ ] No leftover agent from a previous run (`ast agent list`)
@@ -130,9 +160,9 @@ Optional check that this folder still matches the repo pattern, from the repo ro
 
 #### Click track
 
-**Show:** Deck, title slide — *Where Agents become Teammates*.
+**Show:** Deck, slide 1 (title). The deck title is *Where Agents become Teammates*; the opening slide reads "One platform to govern every agent."
 
-**Do:** Advance to the problem slide.
+**Do:** Advance through slides 2-5 (agenda, the problem, a flock of chaos, the path to AI-native).
 
 ---
 
@@ -144,9 +174,9 @@ Optional check that this folder still matches the repo pattern, from the repo ro
 
 #### Click track
 
-**Show:** Deck, the lifecycle slide (Project → Blueprint → Agent → Observability).
+**Show:** Deck, slides 6-7 (the platform, a governed agent), then slide 10 "How it works" (Create → Push → Deploy → Measure, which are Project → Blueprint → Agent → Insights). Slides 8-9 are optional.
 
-**Do:** Point at each stage as you name it. Then switch to the terminal.
+**Do:** Point at each stage as you name it. Advance to slide 11 "Live demo" (it lists the commands you are about to run), then switch to the terminal.
 
 ---
 
@@ -194,13 +224,13 @@ ast agent list
 
 #### Talk track
 
-> "That's the path: create, run, push, deploy, and watch. Everything I showed — the deck, the repo, the step-by-step recordings, the blog, and the Agents in Action series — is linked from one page. Scan the code, and go build your first teammate."
+> "That's the path: create, run, push, deploy, and watch. Everything I showed — the deck, the repo, the step-by-step recordings, the blog, and the Agents in Action series — is linked from one page. Everything is on this last slide. Go build your first teammate."
 
 #### Click track
 
-**Show:** Deck resource slide, or `presentation/index.html` (the resource hub).
+**Show:** Back in the deck at slide 12, then 13 and 14 (policies, deployment boundaries, "one agent with the right governance"). Jump to slide 19 "Take it further" (press `O` and pick it; every link is clickable).
 
-**Do:** Leave it up. End on the artifact, not the terminal.
+**Do:** Leave slide 19 up. End on the links, not the terminal. Slide 20 (contact) and 21 (thank you) are optional.
 
 ---
 
@@ -242,7 +272,7 @@ ast blueprint archive hello-teammate
 | Gateway model calls fail | `ast whoami` — if logged out, `ast login`. Or switch: `ast project configure --var ANTHROPIC_API_KEY=sk-...` with a project created using `--model anthropic`. |
 | Project directory already exists | `./scripts/teardown.sh && ./scripts/setup.sh`, or `ast project create hello-teammate --force`. |
 | Port or container conflict from an earlier run | `ast project stop` in the project, then `ast project start`. |
-| Figma embed is blank or spinning | Open the deck directly: https://www.figma.com/deck/T6mOZx4xzBUPHMzgLRH2EL |
+| A slide shows blank in the deck | Check `presentation/assets/slides/` is next to `index.html` (open the file from the repo, not a copy). |
 | Venue wifi is down | Play the Loom recordings (section 7) for Act 3. Acts 1, 2 and 4 are slides. |
 | CLI is out of date | `ast upgrade` |
 
@@ -252,7 +282,7 @@ ast blueprint archive hello-teammate
 
 | Resource | Link |
 |---|---|
-| Slides — Astropods deck (Figma) | https://www.figma.com/deck/T6mOZx4xzBUPHMzgLRH2EL |
+| Slides — Astropods deck (HTML) | `presentation/index.html` |
 | Content + Demo Guide (Confluence) | https://postmanlabs.atlassian.net/wiki/x/WIHX8QE |
 | Demo repo — hello-world-agents | https://github.com/Postman-Devrel/hello-world-agents/tree/main |
 | Video — Astro Platform Overview Demo | https://www.loom.com/share/c0576e89c40546c3add20d6a71cbdaee |
