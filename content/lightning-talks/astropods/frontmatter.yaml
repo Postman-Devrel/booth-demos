@@ -11,7 +11,7 @@ venues:
   - meetup
   - internal
 product: Astropods
-name: Presentation in a Box — Where Agents become Teammates
+name: Astropods — Where Agents become Teammates
 use_case: Give a presenter everything needed to explain what Astropods is and show a first agent going from `ast project create` to running locally (and optionally deployed), plus the full library of videos, blogs, and guides to hand to anyone who wants more.
 primary_api:
   - Astropods CLI (`ast`) — https://docs.astropods.com/install-cli
@@ -19,7 +19,7 @@ primary_api:
   - Quickstart — https://docs.astropods.com/get-started
   - Demo repo — https://github.com/Postman-Devrel/hello-world-agents/tree/main
   - Pre-built agent — https://github.com/astropods/agents (hello-astro)
-  - Slides — Figma deck "Astropods Deck Template" (see presentation/index.html)
+  - Slides — presentation/index.html (Astropods deck template, 21 slides)
 key_messages:
   - An agent that works on your laptop is not yet a teammate — it needs to be deployed, observable, and reachable where your team already works
   - Astropods has four stages — Project (local code + astropods.yml), Blueprint (a versioned, deployable snapshot), Agent (a running instance), and Observability (usage, cost, traces)
@@ -32,12 +32,13 @@ cta:
   - "Blog: https://blog.postman.com/build-ai-agents-with-astropods/"
   - "Agents in Action playlist: https://www.youtube.com/watch?v=B3CWQ2Ar8go&list=PLM-7VG-sgbtAVbHcnUNX-aZLN5nez-_4X"
 presentation_title: Where Agents become Teammates
-presentation_url: https://www.figma.com/deck/T6mOZx4xzBUPHMzgLRH2EL
+presentation_url: presentation/index.html
 brand_style: manual
 notes: >
-  This is a "presentation in a box": the deck, the demo repo, the content and demo
-  guide, the recorded walkthroughs, and the blog and video series all live in one
-  place. The deck of record is the Figma deck linked from presentation/index.html;
-  that file is a thin launcher plus a resource hub, not a re-creation of the slides.
-  The live demo is created fresh by scripts/setup.sh in ./workspace (gitignored).
-  The recorded Loom walkthroughs are the offline-safe fallback for the demo.
+  The deck is presentation/index.html: a self-contained HTML slideshow in the
+  Astropods theme. Nineteen of its slides are the Astropods Deck Template pages
+  (presentation/assets/slides/), and two are native HTML slides (the live demo
+  and the resources slide). No Figma embed, no network needed to present the
+  deck. The live demo is created fresh by scripts/setup.sh in ./workspace
+  (gitignored). The recorded Loom walkthroughs are the offline-safe fallback
+  for the demo.

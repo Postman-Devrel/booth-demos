@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# Presentation in a Box — Where Agents become Teammates — teardown.
+# Astropods — Where Agents become Teammates — teardown.
 #
 # Safe to run when setup never ran. Stops the local agent containers and removes
 # the scaffolded project. It does NOT touch anything deployed to the Astropods
@@ -12,7 +12,7 @@ WORKSPACE="$CONTENT_DIR/workspace"
 STATE="$CONTENT_DIR/.demo-state"
 AGENT_NAME="$(cat "$STATE" 2>/dev/null || echo "${AGENT_NAME:-hello-teammate}")"
 
-echo "=== Presentation in a Box — Where Agents become Teammates — Teardown ==="
+echo "=== Astropods — Where Agents become Teammates — Teardown ==="
 echo ""
 
 # --- Stop what setup started ------------------------------------------------

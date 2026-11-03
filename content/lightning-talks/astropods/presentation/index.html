@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astropods — Where Agents become Teammates</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #04296f;
+    --navy-deep: #031a47;
+    --blue: #1d4fa8;
+    --blue-soft: #8fb2f7;
+    --sky: #bdd5ff;
+    --paper: #f4f7ff;
+    --ink: #0b1220;
+    --muted: #44506e;
+    --line: #c3cbdd;
+    --sans: 'Inter Tight', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--navy-deep); font-family: var(--sans); }
+
+  /* The stage is a fixed 1920x1080 canvas, scaled to fit the window. */
+  #viewport { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #stage { position: relative; width: 1920px; height: 1080px; flex: none; transform-origin: center center; }
+
+  .slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .25s ease; }
+  .slide.active { opacity: 1; visibility: visible; }
+  .slide > img.full { width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; }
+
+  /* Native slides: same grid as the template (120px margins, rule at y=64). */
+  .slide.native { padding: 0 120px; }
+  .slide.native.light { background: var(--paper); color: var(--ink); }
+  .slide.native.dark { background: var(--navy); color: #fff; }
+  .slide.native .top { position: absolute; left: 120px; right: 120px; top: 64px; height: 66px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+  .slide.native.dark .top { border-top-color: rgba(143, 178, 247, .45); }
+  .slide.native .top img { height: 30px; display: block; }
+  .slide.native .top .section { position: absolute; left: 0; right: 0; text-align: center; font-size: 17px; color: var(--muted); }
+  .slide.native.dark .top .section { color: var(--sky); }
+
+  .eyebrow { display: flex; align-items: center; gap: 18px; font-size: 22px; color: var(--muted); }
+  .eyebrow b { font: 400 22px var(--mono); color: var(--blue); }
+  .eyebrow i { width: 36px; height: 1px; background: var(--line); }
+  .dark .eyebrow, .dark .eyebrow b { color: var(--sky); }
+  .dark .eyebrow i { background: rgba(143, 178, 247, .5); }
+
+  h1, h2 { font-weight: 300; letter-spacing: -.02em; line-height: 1.04; }
+  .lede { font-size: 26px; line-height: 1.55; color: var(--muted); }
+  .dark .lede { color: var(--sky); }
+
+  /* Live demo slide */
+  .demo .left { position: absolute; left: 120px; top: 240px; width: 700px; }
+  .demo h1 { font-size: 104px; margin: 28px 0 36px; }
+  .demo .steps { position: absolute; left: 120px; bottom: 120px; width: 700px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .demo .steps div { border-top: 1px solid rgba(143, 178, 247, .45); padding-top: 14px; font-size: 20px; color: var(--sky); }
+  .demo .steps b { display: block; font: 400 18px var(--mono); color: var(--blue-soft); margin-bottom: 6px; }
+  .term { position: absolute; right: 120px; top: 200px; width: 860px; height: 700px; background: #021640; border: 1px solid rgba(143, 178, 247, .4); border-radius: 22px; overflow: hidden; }
+  .term .bar { height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 24px; border-bottom: 1px solid rgba(143, 178, 247, .25); font-size: 17px; color: var(--sky); }
+  .term .bar span { width: 13px; height: 13px; border-radius: 50%; background: rgba(143, 178, 247, .45); }
+  .term .bar em { margin-left: 12px; font-style: normal; }
+  .term pre { padding: 34px 40px; font: 400 23px/1.7 var(--mono); color: #fff; white-space: pre-wrap; }
+  .term .c { color: var(--blue-soft); }
+  .term .p { color: #6fd6b0; }
+
+  /* Resources slide */
+  .res h1 { position: absolute; left: 120px; top: 190px; font-size: 96px; }
+  .res .lede { position: absolute; left: 120px; top: 310px; width: 1100px; font-size: 26px; }
+  .res .grid { position: absolute; left: 120px; right: 120px; top: 440px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .res a.card { display: block; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 30px 32px 28px; color: var(--ink); text-decoration: none; min-height: 190px; }
+  .res a.card:hover { border-color: var(--blue); }
+  .res .kind { font: 400 17px var(--mono); color: var(--blue); }
+  .res .name { font-size: 31px; font-weight: 400; margin: 12px 0 10px; line-height: 1.15; letter-spacing: -.01em; }
+  .res .url { font: 400 16px var(--mono); color: var(--muted); word-break: break-all; }
+  .res a.card.install { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .res a.card.install .kind { color: var(--sky); }
+  .res a.card.install .url { color: var(--sky); font-size: 16px; }
+
+  /* Chrome outside the stage */
+  #progress { position: fixed; left: 0; bottom: 0; height: 4px; background: var(--blue-soft); width: 0; transition: width .2s; z-index: 5; }
+  #count { position: fixed; right: 16px; bottom: 12px; font: 400 13px var(--mono); color: rgba(255, 255, 255, .55); z-index: 5; }
+  #hint { position: fixed; left: 16px; bottom: 12px; font: 400 13px var(--mono); color: rgba(255, 255, 255, .4); z-index: 5; transition: opacity .6s; }
+  body.presenting #hint, body.presenting #count { opacity: 0; }
+  .nav { position: fixed; top: 0; bottom: 0; width: 12%; z-index: 4; cursor: pointer; }
+  .nav.prev { left: 0; } .nav.next { right: 0; }
+
+  /* Overview (O) */
+  #overview { position: fixed; inset: 0; z-index: 10; background: rgba(3, 26, 71, .97); overflow: auto; padding: 40px; display: none; }
+  #overview.open { display: block; }
+  #overview .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+  #overview button { position: relative; aspect-ratio: 16 / 9; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: var(--navy); color: #fff; cursor: pointer; font: 500 18px var(--sans); }
+  #overview button.cur { border-color: var(--blue-soft); }
+  #overview button img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #overview button span { position: absolute; left: 8px; top: 6px; font: 400 12px var(--mono); background: rgba(3, 26, 71, .8); padding: 2px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div id="viewport">
+  <div id="stage">
+
+    <!-- Template slides 02-14 -->
+    <section class="slide" data-title="Title"><img class="full" src="assets/slides/slide-02.png" alt="Astropods: one platform to govern every agent. The agentOS for companies."></section>
+    <section class="slide" data-title="Agenda"><img class="full" src="assets/slides/slide-03.png" alt="Today's flight plan: the problem, the platform, how it works, next steps."></section>
+    <section class="slide" data-title="The problem"><img class="full" src="assets/slides/slide-04.png" alt="Section 01: The problem. Every organization is somewhere on the path to AI-native. Most are at the start."></section>
+    <section class="slide" data-title="A flock of chaos"><img class="full" src="assets/slides/slide-05.png" alt="A flock of chaos. Everyone is building agents. Nobody can see all of them."></section>
+    <section class="slide" data-title="Path to AI-native"><img class="full" src="assets/slides/slide-06.png" alt="The path to AI-native: a flock of chaos, getting in formation, a global fleet."></section>
+    <section class="slide" data-title="The platform"><img class="full" src="assets/slides/slide-07.png" alt="You bring the work you want done. We give you the spec, the guardrails, and the record of every run."></section>
+    <section class="slide" data-title="Governed agent"><img class="full" src="assets/slides/slide-08.png" alt="Anything you ship on Astropods is a governed agent: one view, production-grade controls, access per user or team."></section>
+    <section class="slide" data-title="Human and agent work"><img class="full" src="assets/slides/slide-09.png" alt="Example: 53,647 tasks handled by agents this month, next to the work your people do."></section>
+    <section class="slide" data-title="Intelligence budget"><img class="full" src="assets/slides/slide-10.png" alt="See where agents add the most value. Example chart of agent tasks by team."></section>
+    <section class="slide" data-title="How it works"><img class="full" src="assets/slides/slide-11.png" alt="From a local project to a governed agent: create, push, deploy, measure."></section>
+
+    <!-- Native slide: the live demo, in the Astropods theme -->
+    <section class="slide native dark demo" data-title="Live demo">
+      <div class="top"><img src="assets/astropods-dark.svg" alt="Astropods"><div class="section">Live demo</div></div>
+      <div class="left">
+        <div class="eyebrow"><b>▶</b><i></i>Live demo</div>
+        <h1>Your first agent, live.</h1>
+        <p class="lede">From an empty folder to a running agent with the <code style="font-family:var(--mono)">ast</code> CLI. Then the same blueprint, deployed.</p>
+      </div>
+      <div class="steps">
+        <div><b>01</b>Project</div><div><b>02</b>Blueprint</div><div><b>03</b>Agent</div><div><b>04</b>Insights</div>
+      </div>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span><em>terminal</em></div>
+<pre><span class="c"># install the CLI</span>
+<span class="p">$</span> curl -fsSL https://astropods.com/install | sh
+
+<span class="c"># create, authenticate, run</span>
+<span class="p">$</span> ast project create hello-teammate --model gateway
+<span class="p">$</span> cd hello-teammate
+<span class="p">$</span> ast login
+<span class="p">$</span> ast project start
+
+<span class="c"># publish and deploy</span>
+<span class="p">$</span> ast blueprint push hello-teammate
+<span class="p">$</span> ast blueprint deploy hello-teammate</pre>
+      </div>
+    </section>
+
+    <!-- Template slides 12-19 -->
+    <section class="slide" data-title="Policies"><img class="full" src="assets/slides/slide-12.png" alt="Set a rule once. Every agent follows it. Example rule: pause the agent and notify the owner in Slack when spend passes $1,000."></section>
+    <section class="slide" data-title="Deployment"><img class="full" src="assets/slides/slide-13.png" alt="Run inside your boundaries: managed, your VPC, or isolated."></section>
+    <section class="slide" data-title="Next steps"><img class="full" src="assets/slides/slide-15.png" alt="You do not need a fleet of agents to get value. You need one agent running with the right governance and measurement."></section>
+    <section class="slide" data-title="Caption chart"><img class="full" src="assets/slides/slide-16.png" alt="Template slide: donut chart with a caption."></section>
+    <section class="slide" data-title="Quadrant"><img class="full" src="assets/slides/slide-17.png" alt="Template slide: four-quadrant bubble chart."></section>
+    <section class="slide" data-title="Poll"><img class="full" src="assets/slides/slide-18.png" alt="Template slide: poll."></section>
+    <section class="slide" data-title="Keep in touch"><img class="full" src="assets/slides/slide-19.png" alt="Let's keep in touch with our teams."></section>
+
+    <!-- Native slide: where to go next -->
+    <section class="slide native light res" data-title="Take it further">
+      <div class="top"><img src="assets/astropods-light.svg" alt="Astropods"><div class="section">Next steps</div></div>
+      <h1>Take it further.</h1>
+      <p class="lede">One agent, the right governance, and a way to measure it. Start here.</p>
+      <div class="grid">
+        <a class="card install" href="https://docs.astropods.com/install-cli" target="_blank" rel="noopener"><div class="kind">Install</div><div class="name">Get the ast CLI</div><div class="url">curl -fsSL https://astropods.com/install | sh</div></a>
+        <a class="card" href="https://docs.astropods.com/get-started" target="_blank" rel="noopener"><div class="kind">Quickstart</div><div class="name">Your first agent</div><div class="url">docs.astropods.com/get-started</div></a>
+        <a class="card" href="https://docs.astropods.com/welcome" target="_blank" rel="noopener"><div class="kind">Docs</div><div class="name">Astropods documentation</div><div class="url">docs.astropods.com/welcome</div></a>
+        <a class="card" href="https://github.com/Postman-Devrel/hello-world-agents/tree/main" target="_blank" rel="noopener"><div class="kind">Repo</div><div class="name">hello-world-agents</div><div class="url">github.com/Postman-Devrel/hello-world-agents</div></a>
+        <a class="card" href="https://blog.postman.com/build-ai-agents-with-astropods/" target="_blank" rel="noopener"><div class="kind">Blog</div><div class="name">Build, Deploy &amp; Monitor AI Agents with Astropods</div><div class="url">blog.postman.com/build-ai-agents…</div></a>
+        <a class="card" href="https://www.youtube.com/watch?v=B3CWQ2Ar8go&amp;list=PLM-7VG-sgbtAVbHcnUNX-aZLN5nez-_4X" target="_blank" rel="noopener"><div class="kind">Video series</div><div class="name">Agents in Action</div><div class="url">youtube.com/watch?v=B3CWQ2Ar8go</div></a>
+      </div>
+    </section>
+
+    <!-- Template slides 20-21 -->
+    <section class="slide" data-title="Contact"><img class="full" src="assets/slides/slide-20.png" alt="The only platform your company needs to run AI operations. astropods.com, docs.astropods.com, support@astropods.com."></section>
+    <section class="slide" data-title="Thank you"><img class="full" src="assets/slides/slide-21.png" alt="Thank you."></section>
+
+  </div>
+</div>
+
+<a class="nav prev" aria-label="Previous slide"></a>
+<a class="nav next" aria-label="Next slide"></a>
+<div id="hint">← → / space: navigate &nbsp; F: fullscreen &nbsp; O: overview</div>
+<div id="count"></div>
+<div id="progress"></div>
+<div id="overview"><div class="tiles"></div></div>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(stage.querySelectorAll('.slide'));
+  var count = document.getElementById('count');
+  var bar = document.getElementById('progress');
+  var overview = document.getElementById('overview');
+  var tiles = overview.querySelector('.tiles');
+  var cur = 0;
+
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    stage.style.transform = 'scale(' + s + ')';
+  }
+
+  function show(n) {
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (el, i) { el.classList.toggle('active', i === cur); });
+    count.textContent = (cur + 1) + ' / ' + slides.length + ' · ' + slides[cur].dataset.title;
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+    Array.prototype.forEach.call(tiles.children, function (b, i) { b.classList.toggle('cur', i === cur); });
+  }
+
+  slides.forEach(function (el, i) {
+    var b = document.createElement('button');
+    var img = el.querySelector('img.full');
+    if (img) { var t = document.createElement('img'); t.src = img.src; t.alt = ''; t.loading = 'lazy'; b.appendChild(t); }
+    else { b.textContent = el.dataset.title; }
+    var n = document.createElement('span'); n.textContent = i + 1; b.appendChild(n);
+    b.addEventListener('click', function () { overview.classList.remove('open'); show(i); });
+    tiles.appendChild(b);
+  });
+
+  function toggleFull() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (overview.classList.contains('open')) { if (k === 'Escape' || k === 'o' || k === 'O') overview.classList.remove('open'); return; }
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { e.preventDefault(); show(cur + 1); }
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); show(cur - 1); }
+    else if (k === 'Home') show(0);
+    else if (k === 'End') show(slides.length - 1);
+    else if (k === 'f' || k === 'F') toggleFull();
+    else if (k === 'o' || k === 'O') overview.classList.add('open');
+  });
+
+  document.querySelector('.nav.prev').addEventListener('click', function () { show(cur - 1); });
+  document.querySelector('.nav.next').addEventListener('click', function () { show(cur + 1); });
+
+  var x0 = null;
+  document.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+  });
+
+  document.addEventListener('fullscreenchange', function () { document.body.classList.toggle('presenting', !!document.fullscreenElement); fit(); });
+  window.addEventListener('resize', fit);
+  setTimeout(function () { document.getElementById('hint').style.opacity = 0; }, 5000);
+
+  fit();
+  var start = parseInt((location.hash || '').slice(1), 10);
+  show(isNaN(start) ? 0 : start - 1);
+})();
+</script>
+</body>
+</html>
