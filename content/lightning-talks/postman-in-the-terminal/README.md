@@ -1,144 +1,224 @@
-# Postman in the terminal (booth cut)
+# From spec to green PR in 10 minutes
 
-> [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **10 minutes**. Delivered at booths and meetup lightning tracks. This is the slimmed-down cut of [content/short-talks/postman-in-the-terminal/](../../short-talks/postman-in-the-terminal/), which is the canonical folder: full product summary, prerequisites, troubleshooting, and the un-cut talk track all live there. This README only lists what's different in the 10-minute version and the commands typed on stage.
-
-**The claim:** a change that looks harmless locally fails a quality gate, and your own Claude Code session fixes it through that gate without you typing a Postman command. **The quality gate is not a Postman product.** It is a use case the (fictional) healthcare org's platform team built with Postman: the CLI, committed skills and the Context Graph. Say so on stage.
+> [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **~10 minutes**. Booth demo or meetup opener, in front of one person or a small group. No Q&A inside the slot: questions happen after, one to one.
+>
+> This is the booth cut of the short talk [From Click to Terminal: API Engineering in the Age of Agents](../../short-talks/postman-in-the-terminal/README.md). It keeps **only the live part**. For what is common (product, thesis, prerequisites in full, the long troubleshooting table, resources) the short talk's README is the reference: this one repeats only what you need in front of you at the booth.
 
 ---
 
-## The deck
+## 1. Product summary
 
-Same deck as the short talk (`presentation/index.html` in the short talk folder, built from the Claude Design deck "From Click to Terminal", see `frontmatter.yaml`). The full deck is 18 slides; this booth cut uses **6**: 1, 2, 14, 15, 17, 18. Slides 3 to 13 and 16 are cut: nobody at a booth waits through the pyramid layer by layer. `setup.sh` opens the deck.
+- **Product:** the [Postman Claude Code plugin](https://www.postman.com/liftoff/modules/claude-code-plugin/) and the [Postman CLI](https://www.postman.com/product/postman-cli/) underneath.
+- **Use case:** the OpenAPI spec of a new service, `transport-service` (`GET` and `POST /api/rides`, `GET /api/rides/{ride_id}`, `GET /health`), in a throwaway repo. A coding agent does the chain from the terminal: `postman init`, collection, tests, mock and run, GitHub workflow, push, PR, CI. Local, git-native workspace: nothing goes to the Postman cloud.
+- **One payoff:** a PR with a green "API checks" run. Everything that got it there is a file in git.
 
-## Act plan (4 acts, ~10 min)
+**The claim, in one line:**
+
+> **An agent doesn't need Postman's UI. It needs one command per step.** The CLI is that.
+
+**What this demo is not:** a feature tour, a cloud-workspace demo, or "Postman ships a quality gate". If someone asks about the gate on PR #9 of `healthcare-appointments`: it is a platform team's use case built with Postman, not a Postman product, and the subject of another talk. Give the link, don't demo it.
+
+**What is cut from the short talk:** the idea slides (pyramid, what an agent needs, CLI and plugin architecture), the "advanced use" PR #9 live, "what it costs" as its own act (one sentence at the close), and the long Q&A.
+
+**Network:** the live demo needs the network (GitHub for the repo, the push, the PR, the CI run). The local steps work on files and were not tested offline. There is no offline fallback for the CI part: see [Troubleshooting](#6-troubleshooting).
+
+---
+
+## 2. Pre-requisites
+
+Same as the [short talk](../../short-talks/postman-in-the-terminal/README.md#2-pre-requisites): Claude Code with the `postman@claude-plugins-official` plugin, the Postman CLI (1.85.0 in the rehearsal, 1.86.0 was announced), `git`, and `gh` authenticated with access to the `healthcare-org-app` organization (create repo, push, PR; `delete_repo` for teardown). The template repo `healthcare-org-app/healthcare-transport-template` must exist.
+
+Booth additions:
+
+| Requirement | Why |
+|---|---|
+| **`postman login` done beforehand** | Precaution only. The CI workflow needs no login (green with an empty `HOME`), but the local steps were **not tested logged out**. |
+| **Laptop on power, a large terminal font** | Passers-by read the screen from 2 metres. |
+| **Four browser tabs** (see the checklist) | The created repo, the backup PR, this deck, PR #9 for questions. |
+
+---
+
+## 3. Setup
+
+```bash
+./scripts/setup.sh          # --dry-run shows it without creating anything
+```
+
+`scripts/setup.sh` only `exec`s the short talk's script. It checks the prerequisites, creates a **throwaway public repo** `healthcare-org-app/healthcare-transport-<date>-<time>` from the template, clones **that repo** (not the template) into `/tmp/healthcare-transport-<date>-<time>`, creates the branch `demo/spec-to-pipeline`, writes `/tmp/.postman-terminal-demo.state`, and prints the checklist and the demo prompts. It never pushes and never opens a PR. It refuses to run if the state file exists (run teardown first).
+
+It opens this cut's deck, `presentation/index.html` (5 slides, `F` for fullscreen, `N` for notes). The QR codes on slide 5 load from `assets/`: check them once.
+
+### What is prepared before the visitor arrives, and what is live
+
+| Before (zero typing at the booth) | Live (the visitor sees it) |
+|---|---|
+| `./scripts/setup.sh`: repo, clone, branch | `ls -A` and the spec |
+| `claude` started in the clone, plugin loaded, large font | `postman init` |
+| Postman CLI present, `postman login` done | collection, **tests**, mock, run |
+| The tabs open (see checklist) | workflow, push, PR |
+| Deck on slide 1 | the CI run, then the PR |
+
+The point of preparing only the repo: the visitor must see the chain start from a bare spec. Nothing in the chain is pre-run. The only thing that runs in the background is the CI, after the push: talk over it.
+
+**Time reality.** The rehearsal numbers are: init 7.8 s, collection 4.3 s, mock 4.1 s, run 5 s, CI run 19 s (green, observed after a 45 s wait). That is about 21 s of CLI commands plus the CI run. **It excludes the agent's own time** (reading, editing, writing the workflow, committing), which was **not measured**. So the 6 minutes below are a budget to hold yourself to, not a duration anyone has timed. Do the full run once before the first session and write your own number here: `____`.
+
+### Pre-demo checklist
+
+- [ ] `./scripts/setup.sh` ended with no `[FAIL]`; note the clone path and the repo name
+- [ ] This folder's deck open on slide 1, fullscreen; the short talk's deck tab closed
+- [ ] Terminal in the clone, `claude` running, plugin loaded, large font (`Cmd+=`)
+- [ ] `ls -A` in the clone shows only the spec (and `.git`). `.postman/`, `postman/`, `AGENTS.md` and `.opencode/` appear at `init`.
+- [ ] Tab 1: the created repo (no PR yet). Tab 2: **backup**, the rehearsal PR <https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1> (run green in 19 s). **Check that it still loads: that repo was created by hand for the rehearsal and is meant to be deleted** (see [Tear down](#5-tear-down--reset)). Tab 3: PR #9 of `healthcare-appointments`, only for questions.
+- [ ] `postman --version` is 1.85.0 or later; ignore the "new version" notice
+
+---
+
+## 4. Talk track and click track
+
+Four acts, ~10 minutes. The talk track is verbatim (blockquotes); the click track is interleaved at the point each action happens. The deck has 5 slides: Title, The friction, The chain, Live demo, Try it. **There is no "advanced use" slide:** the format has one payoff and no branching, and PR #9 is a different story (a platform team's gate), so it is only a link on slide 5.
 
 | Act | Purpose | Slide(s) | Budget |
 |---|---|---|---|
-| 1 | **Hook** — an agent renames a field and breaks 32 services it has never heard of | 1, 2 | 1:00 |
-| 2 | **The setup** — where an agent's Postman skills come from, and what "working" will look like | 14, 15 | 1:00 |
-| 3 | **The demo** — rename by hand, PR, the gate fails, your own session runs the gate loop | — (live terminal and browser) | 6:30 |
-| 4 | **The close** — one sentence of meaning, then the CTA | 17, 18 | 1:00 |
+| 1 | **Hook**: the clicks an agent can't take | 01, 02 | 1.5 min |
+| 2 | **Setup**: one command per step, what "working" looks like | 03 | 1 min |
+| 3 | **Live demo**: spec to green PR | 04, then terminal and browser | 6 min |
+| 4 | **Close**: one sentence of meaning, then the CTA | 05 | 1.5 min |
 
-Total ≈ 9:30, leaving 30 s of slack for the loop. These are estimates: validate in rehearsal, and time the gate loop in particular (see act 3c).
+### Act 1: Hook (~1.5 min)
 
-### Act 1: Hook (~1:00)
+> "Think about the last time you set Postman up for a new service. You open the app. You import the spec. You click to generate a collection, click to add tests, click to create a mock, click to wire it into your CI. Every one of those is a click, and an agent can't take a click. An agent has files and a terminal."
 
-> "Ask a coding agent to rename a field in an API. It will do it, cleanly, in thirty seconds. The code compiles, the tests it wrote pass. And it has just broken thirty-two other services it has never heard of. Nothing it can see tells it so."
+- **Show:** slide 01, then slide 02 (every step was a click; what the agent has: files, a terminal).
 
-- **Show:** slide 1 — *From Click to Terminal* (0:15).
-- **Show:** slide 2 — *The pyramid of agentic API engineering* (0:45). Say it once: an agent needs a command per step, and skills that say which one.
+### Act 2: The setup (~1 min)
 
-### Act 2: The setup (~1:00)
+> "So give each step a command. Postman's CLI has one for every link of that chain, and the skills that say which command to run are files in the repo. In the next six minutes I start from a spec of a new service, and I ask an agent to take it to a green pull request. What I want you to watch is step three: a collection generated from a spec has no assertion in it. The tests are real work."
 
-> "The answer isn't a smarter agent, it's a better toolbox. Every step is one Postman CLI command, and the skills that say which command, and when, are files. The Postman plugin puts them in your own Claude Code; `postman init` commits them into a repo. Now a real repo, and a real gate."
+- **Show:** slide 03 (the chain, with the rehearsal times: CLI time only, not the agent). Say once that the times are from one rehearsal.
+- **Show:** advance to slide 04, then leave the deck for the terminal.
 
-- **Show:** slide 14 — *`postman init`* (0:30).
-- **Show:** slide 15 — *Live demo* (0:30). Name the setup in two sentences and move on:
+### Act 3: Live demo (~6 min)
 
-> "This is `patients-service`, a repo of a made-up healthcare org. Its platform team built a quality gate with Postman, and every service calls it from CI. The gate is their use case, not a Postman product. There is no coding agent in this repo: the coder is my own Claude Code."
+> **The prompts below are drafts.** The rehearsal ran the commands one by one in a Claude session, not from prompts, and **not with an agent working alone**: the journal does not measure the agent's variability or the total time. Say each prompt in your own words, one step at a time, and read what the agent runs. Bracketed times are the CLI's own, from the rehearsal.
 
-What "working" looks like: the gate goes red on my change, and my session turns it green, or stops and tells me why. I never merge.
+#### 3a. The spec (~30 s)
 
-### Act 3: The demo (~6:30)
+> "A throwaway repo, created from a template a minute ago. All I have is the spec of a ride transport service: list and create rides, get one, a health check."
 
-Exactly the short talk's acts 4b and 5, run with the same scripts. **Cut from the short talk:** the workspace tour (4a), the gate repo tour (6a) and the Context Graph UI (6b). For the full talk track, click track, prerequisites and troubleshooting, see **[the short talk's README](../../short-talks/postman-in-the-terminal/README.md#4-talk-track-and-click-track)**.
+- **Do:** in the clone, `ls -A`, then show `openapi.yaml`.
 
-#### 3a. The change, by hand (~1:15)
+#### 3b. `postman init` (~45 s)
 
-> "I'm the developer having a tidy-up afternoon. `mrn` is cryptic, `medical_record_number` reads better. I rename it in the responses, and leave the request bodies alone."
+- **Do:** `Set this repo up for Postman. Local only, no cloud.`
+- **Command that works:** `postman init --json -y` [7.8 s].
+- **Show:** `ls -A`: `.postman/resources.yaml` (`workspace.id` is empty), `postman/` with 16 skills, `AGENTS.md`, `.opencode/`.
 
-- **Do:** terminal tab 1, in `/tmp/healthcare-patients`:
+> "`workspace.id` is empty: local, nothing in the cloud. Those skills in `postman/skills/` are the agent's know-how, committed. Anyone's agent that opens this repo gets them."
 
-  ```bash
-  git checkout -b demo/live-rename-mrn
-  # in openapi.yaml, rename mrn -> medical_record_number on the response side only:
-  #   the Patient schema (required, the property, its example, the description)
-  #   and the mrn: keys in the response examples of PatientPage, PatientSearchResult, PatientSummary
-  #   leave PatientCreateRequest and PatientUpdateRequest alone
-  git add openapi.yaml
-  git commit -m "Rename mrn to medical_record_number in patient responses"
-  git push -u origin demo/live-rename-mrn
-  gh pr create --fill
-  ```
+> **Trap, `--no-cloud`.** The `bootstrap` skill cites `postman init --json --no-cloud`; CLI 1.85.0 refuses it. If the agent tries it, it recovers with `postman init --json -y`. Say it out loud: it is a real finding, and the skill's own rule is to run `-h` first.
+> **Trap, `.opencode/`.** `init` creates it (`opencode.json`, `package.json`, `node_modules`). It will be in `ls -A`. Expected.
 
-  **Never `git add -A`** in the clone: a Claude Code security hook deletes `.claude/settings.json` there, and `-A` would commit the deletion.
+#### 3c. The collection, then the tests (~1 min 45 s)
 
-> "A readability clean-up. Nothing local looks wrong. Open the PR."
+- **Do:** `Generate the Postman collection from the spec.` Command: `postman spec generate collection ./openapi.yaml -n "Transport API"` [4.3 s]: 4 requests with examples, v3 YAML.
+- **Show:** open one request file. **There is no assertion.**
 
-#### 3b. The gate fails it (~1:15)
+> "Generating a collection is not testing. Four requests, zero assertions: this can only fail if the server is down."
 
-- **Show:** the PR in the browser. The gate's sticky comment, "API quality gate", lands about 80 s after the push (CI rehearsal of 2026-10-29). Talk through the wait with the line below, then read the real comment.
+- **Do:** `Add tests to every request.` In the rehearsal: `postman collection request update … --scripts 'test:…'`, four times, 4 `pm.test` in all.
 
-> "This check isn't mine and it isn't the agent's. It's the platform team's gate, and every step is a Postman CLI command."
+> **Good moment, not a script.** In the rehearsal an assertion on the list used `rides` while the spec says `items`; the run caught it. If it happens, say so. Don't plan on it.
+> **Trap.** `.postman/resources.yaml` does **not** register the collection after `spec generate collection`. Don't claim it does.
 
-- **Say what the comment says.** The rehearsal read **rating D (60/100), FAILED (the bar is B), two blockers**: `contract-tests` (3/10 assertions pass, the collection still expects `mrn`) and `impact` (gate 0.6.3 words it "the change breaks 32 known consumers"; the rehearsal ran 0.5.0; the count comes from the Context Graph). Read the real comment on the day, the numbers can move. The comment opens with the gate score change against main (gate 0.6.3): read it; don't quote the short talk's format examples as results.
+#### 3d. The mock, and the tests against it (~1 min 15 s)
 
-> "Rating D, two blockers. The collection is the consumers' side of the contract, and the impact step says thirty-two services consume this one. I could fix that myself. Instead I hand it to my own Claude Code."
+- **Do:** `Generate a mock from the spec and run the tests against it.` Commands: `postman mock generate ./openapi.yaml -n "Transport mock" --port 4500` [4.1 s], then `postman collection run "postman/collections/Transport API" --use-mock '{{baseUrl}} mock:./postman/mocks/transport-mock'` [5 s].
+- **Show:** the run output: **4 requests, 4 assertions, 0 failures** in the rehearsal.
 
-#### 3c. The gate loop (~4:00)
+> **If you are behind:** merge 3c's test step and 3d into a single prompt (`Add tests to every request, generate a mock from the spec and run the tests against it`). **That merged prompt was never run.**
 
-- **Do:** terminal tab 2, your own `claude` session in the clone (Postman plugin and the platform team's gate plugin), type:
+#### 3e. Workflow, push, PR (~1 min 30 s)
 
-  ```
-  The quality gate failed on demo/live-rename-mrn. Run the gate loop until the gate passes. Don't merge.
-  ```
+- **Do:** `Add a GitHub workflow that runs these checks on every PR, with the ci-integration skill.` It writes `.github/workflows/api-checks.yml`: contract lint with `--issueType=syntax`, collection lint, run against the mock, AI readiness (75/100, threshold 70). **No secret.**
+- **Show:** the file, ten seconds: say what each step is.
+- **Do:** `Commit, push the branch and open a PR.` Make sure the PR has a title and a body. The push goes to `demo/spec-to-pipeline` of the **created** repo.
 
-- **Show (narrate while it works):** the `gate-loop` skill takes the PR title as the intent to preserve and never reverts it; the read-only `gate-verdict` reviewer finds the CI run for the exact commit, reads the verdict and writes a numbered fixes brief; your session applies it (keep `mrn` marked `deprecated`, add `medical_record_number` next to it, in the contract, code, tests and collection), pushes to the same branch, repeats. At most 3 rounds.
+> **Traps in the workflow.** `postman spec lint` without a login fails ("Governance linting requires you to be logged in"): hence `--issueType=syntax`. The `junit` reporter is refused for v3 collections (only `cli`): no `-r junit`. If the agent writes either, the CI is red, and that is an honest story (a red run was not rehearsed).
 
-> "It never edits the gate, it doesn't merge, and it never sees the key CI uses. The rules live in files, not in my prompt."
+#### 3f. The CI run (~15 s of your time; the run is short)
 
-- **Timing.** One CI round is about 80 s plus the agent's work, so the loop may not be done at 4:00. Don't wait in silence and don't cut the payoff: rehearse it and time it. If it is still working when the act ends, say so, read where the session is (the latest verdict and the PR comment), and carry on to the close. Never fake a result.
-- **Two honest endings, both fine on stage:**
-  - **Green:** the PR comment is updated in place to PASSED. "Same PR, same comment, green. The old field is still there, deprecated, so no consumer breaks. I asked for an outcome and I didn't type a Postman command."
-  - **NEEDS_DECISION:** the PR is converted to draft with one comment listing the options (keep the old field deprecated, or version the API). "It stopped and told me why. That's where a human decides."
-- **Do not merge**, in either case.
+- **Show:** the PR in the browser, then the **Actions** run "API checks". Rehearsal: **green, 19 s in all**, observed after a 45 s wait.
+- Talk over the wait with act 4's first sentence; do not stare at the spinner.
+- **If it is slow or red at the 8-minute mark:** switch to the backup tab (the rehearsal PR, green in 19 s) and **say it is the rehearsal's**. **Do not merge.**
 
-### Act 4: The close (~1:00)
+### Act 4: Close (~1.5 min)
 
-> "A command per step, skills in files, a gate the agent can't edit. Install the plugin and your own agent gets the skills; run `postman init` and any agent in your repo does. The gate you saw is one team's use case, built from these blocks. Yours will look different."
+> "That's the whole chain, spec to green PR, and every step is a file in git. Nothing went to the cloud except a git push. One thing to be honest about: the skills are files, so they age like code, and they can disagree with the CLI: you saw `--no-cloud`. And this workflow tests the mock, not your running service. The agent didn't need a UI. It needed one command per step."
 
-- **Show:** slide 17 — *What to take away* (0:40).
-- **Show:** slide 18 — *Try it* (0:20), the CTA:
+- **Show:** the PR, with its green check (end on the thing that got created, not on the terminal), then slide 05 (Try it) for the CTA:
   - `npx @postman/postman-plugin`, then ask your own agent to work an API change
-  - Postman CLI: <https://www.postman.com/product/postman-cli/>
-  - API Context Graph: <https://www.postman.com/context-graph/>
-  - The demo repos: [healthcare-patients](https://github.com/healthcare-org-app/healthcare-patients) and [healthcare-api-quality-gate](https://github.com/healthcare-org-app/healthcare-api-quality-gate)
-  - Grab the full 28-minute version: `git clone https://github.com/Postman-Devrel/booth-demos.git` → `cd booth-demos/content/short-talks/postman-in-the-terminal`
+  - Claude Code Plugin module on Liftoff (QR) and the Postman Discord (QR)
+  - The demo template: <https://github.com/healthcare-org-app/healthcare-transport-template>
+  - Going further, a platform team's gate on a PR (not a Postman product): <https://github.com/healthcare-org-app/healthcare-appointments/pull/9>
+
+> **If asked "does the gate block the merge?"** It is not a required check on `main` of `healthcare-appointments` (the branch is not protected). Blocking is a branch-protection setting, not a gate feature.
 
 ### What to cut when you are over
 
-Act 2 first (fold it into the hook, one sentence, skip slide 14). Then the narration in 3b while the gate runs. Never cut the gate comment (3b), the loop's ending (3c) or the CTA.
+1. Act 2: fold it into the hook (one sentence: "one command per step, watch step 3").
+2. 3a: show the spec at a glance. 3b: skip the `ls -A` commentary.
+3. Merge the test and mock prompts (never run: see 3d).
+4. At the 8-minute mark with no green run, go to the backup tab.
 
-If someone asks "does this block my merge?": the gate returns FAILED, and blocking is a branch-protection setting (required on appointments-service, not yet on patients' `main`). If they ask which field a consumer reads: the Context Graph answers at the endpoint level, not the field level, which is why the brief says "keep the old name, add the new one next to it". Answer one-to-one after the run.
-
----
-
-## Mapping: short-talk act → this cut
-
-| Short-talk act | In the 10-minute cut |
-|---|---|
-| 1. Cold open | **kept** — act 1 (slides 1, 2), the opening line only |
-| 2. Why it happens | **cut** — folded into the act 1 line |
-| 3. The idea | **kept, compressed** — act 2 (slide 14, one sentence) |
-| 4. Demo, part 1 | **kept, 4b only** — act 3a. The workspace tour (4a) is cut |
-| 5. Demo, part 2 | **kept** — act 3b (gate comment) and 3c (gate loop) |
-| 6. Demo, part 3 | **cut** — no gate repo tour, no Context Graph UI |
-| 7. What you just saw, and what it costs | **cut** — answer one-to-one if asked |
-| 8. Objections | **cut** — answer one-to-one if asked |
-| 9. Close + CTA | **kept** — act 4 (slides 17, 18), condensed |
+**Never cut:** the missing assertion (3c) and the green PR (3f). The close shrinks to the CTA.
 
 ---
 
-## Offline
-
-None of the demo survives offline: it needs GitHub Actions and the Postman cloud (lint governance, the Context Graph). Only acts 1, 2 and 4 (the slides) work without the network.
-
-## Setup / teardown
+## 5. Tear down / reset
 
 ```bash
-./scripts/setup.sh      # wraps the short talk's setup.sh
-# ... deliver it ...
-./scripts/teardown.sh   # wraps the short talk's teardown.sh
+./scripts/teardown.sh        # --dry-run shows what it would do
 ```
 
-Both scripts exec the short talk's own `scripts/setup.sh` / `scripts/teardown.sh`, which check the tooling and the gate plugin, refuse to run on a leftover `demo/live-*` PR or branch, clone `healthcare-org-app/healthcare-patients` to `/tmp/healthcare-patients`, and open the deck and the repos. Teardown closes the demo PR (draft or not), deletes the branch and removes the clone. See the [short talk's README](../../short-talks/postman-in-the-terminal/README.md) for the pre-demo checklist and troubleshooting. Prerequisites that bite at a booth: `postman login` done, `gh auth status` with push access to the patients repo, the gate plugin `healthcare-api-quality-gate` installed at **user level**, and the old `postman-agent-quality-gate` plugin disabled. There is nothing booth-specific to set up beyond that.
+It `exec`s the short talk's script: it closes the open PR, deletes the throwaway repo **only after you type its full name** (your token needs the `delete_repo` scope), then deletes the clone in `/tmp` and the state file. It refuses any repo whose name does not start with `healthcare-transport-`. It leaves standing the template and PR #9 of `healthcare-appointments`.
+
+**It does not clean up the rehearsal repo** `healthcare-transport-rehearsal-1` (created by hand, to be deleted with `gh repo delete`): keep it until your last session if it is your backup tab.
+
+Between two visitors: `./scripts/teardown.sh && ./scripts/setup.sh`. How long that takes was not timed: run it ahead of the next visitor, not in front of them.
+
+---
+
+## 6. Troubleshooting
+
+The full table is in the [short talk's README](../../short-talks/postman-in-the-terminal/README.md#6-troubleshooting). The ones you will hit at the booth:
+
+| Issue | Fix |
+|---|---|
+| `postman init --json --no-cloud` fails | CLI 1.85.0 refuses it. Use `postman init --json -y`. |
+| `.opencode/` appears after `init` | Expected: `init` creates it. |
+| The generated collection has no tests | Expected. The tests are the agent's work (3c). |
+| A test fails against the mock on a property (`rides` vs `items`) | Fix the assertion, not the mock: the mock comes from the spec. |
+| `postman spec lint` fails: "Governance linting requires you to be logged in" | `--issueType=syntax` in CI. |
+| `-r junit` refused | v3 collections only support `cli`. Remove the reporter. |
+| The workflow wants a secret | The rehearsed one needs none. Remove any step that logs in (governance lint, workspace push). |
+| Push or PR looks like unrelated history | Work in the clone of the **created** repo, never push a clone of the template. |
+| The CI run is slow or red | Backup tab: the rehearsal PR, green in 19 s (say it is the rehearsal's). A red run caused by a known trap is a fair story. |
+| The backup tab is a 404 | The rehearsal repo was deleted. Tell the visitor, show the Actions run of your own PR, or replay a run the day before. |
+| Venue Wi-Fi is down | No offline fallback for the CI part. Stay on the slides; show the local steps if you have a pre-made clone (not tested offline). |
+
+---
+
+## 7. Additional resources
+
+| Resource | Link |
+|---|---|
+| The short talk this is cut from | [../../short-talks/postman-in-the-terminal/](../../short-talks/postman-in-the-terminal/README.md) |
+| **The template** (transport-service, spec only) | <https://github.com/healthcare-org-app/healthcare-transport-template> |
+| The rehearsal PR (CI green in 19 s, not merged; **to verify, this repo is meant to be deleted**) | <https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1> |
+| Going further: a platform team's quality gate on a PR (closed, not merged, not a Postman product) | <https://github.com/healthcare-org-app/healthcare-appointments/pull/9> |
+| Postman Claude Code Plugin module (Liftoff) | <https://www.postman.com/liftoff/modules/claude-code-plugin/> |
+| The Postman plugin | <https://github.com/postmanlabs/postman-plugin> |
+| Postman CLI | <https://www.postman.com/product/postman-cli/> |
+| Postman CLI command reference | <https://learning.postman.com/docs/postman-cli/postman-cli-options> |
+| Join the Postman community on Discord | <https://postman-community.com/kmg> |
+| Same product, different signal: the CLI as a test oracle | [../open-meteo-loop-eng/](../open-meteo-loop-eng/) |

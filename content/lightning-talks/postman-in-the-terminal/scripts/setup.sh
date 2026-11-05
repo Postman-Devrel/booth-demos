@@ -3,9 +3,12 @@ set -uo pipefail
 
 # Postman in the terminal (booth cut). Setup.
 #
-# This is a thin wrapper: the booth cut shares every script, every real
-# repo, and every check with the short talk. See
-# content/short-talks/postman-in-the-terminal/README.md for what this does.
+# This is a thin wrapper: the booth cut runs the same setup script as the short
+# talk (content/short-talks/postman-in-the-terminal/scripts/setup.sh). The demo
+# runs on a throwaway repo created from healthcare-org-app/healthcare-transport-template,
+# not on a shared real repo. See that talk's README for what the script does.
+# It opens this cut's deck (./presentation/index.html), through DECK_OVERRIDE.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+export DECK_OVERRIDE="$SCRIPT_DIR/../presentation/index.html"
 exec "$SCRIPT_DIR/../../../short-talks/postman-in-the-terminal/scripts/setup.sh" "$@"
