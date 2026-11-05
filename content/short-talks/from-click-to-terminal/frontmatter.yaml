@@ -48,7 +48,7 @@ cta:
   - "Join the Postman community on Discord: https://postman-community.com/kmg"
   - "The demo template: https://github.com/healthcare-org-app/healthcare-transport-template"
   - "Advanced use, a platform team's gate on a PR: https://github.com/healthcare-org-app/healthcare-appointments/pull/9"
-  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/short-talks/postman-in-the-terminal)"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/short-talks/from-click-to-terminal)"
 presentation_title: "From Click to Terminal: API Engineering in the Age of Agents"
 presentation_url: https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee145?file=From+Click+to+Terminal.dc.html&via=share
 brand_style: design-sync
@@ -100,7 +100,7 @@ notes: >
   the canonical path (that or `claude plugin install ...`) is still to align
   with the plugin team.
 
-  THE 10-MINUTE BOOTH CUT (`content/lightning-talks/postman-in-the-terminal/`)
+  THE 10-MINUTE BOOTH CUT (`content/lightning-talks/spec-to-green-pr/`)
   is written for an older demo and is being redone separately.
 
   SAME PRODUCT AS open-meteo-loop-eng, DIFFERENT SIGNAL AND DIFFERENT SCOPE.

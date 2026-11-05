@@ -36,10 +36,10 @@ cta:
   - "Join the Postman community on Discord: https://postman-community.com/kmg"
   - "The demo template: https://github.com/healthcare-org-app/healthcare-transport-template"
   - "Going further, a platform team's gate on a PR (not a Postman product): https://github.com/healthcare-org-app/healthcare-appointments/pull/9"
-  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/lightning-talks/postman-in-the-terminal)"
+  - "Grab the demo: git clone https://github.com/Postman-Devrel/booth-demos.git (content/lightning-talks/spec-to-green-pr)"
 presentation_title: "From spec to green PR in 10 minutes"
 brand_style: design-sync
-derived_from: short-talks/postman-in-the-terminal
+derived_from: short-talks/from-click-to-terminal
 notes: >
   WHAT IS CUT versus the short talk (25 min, Q&A included). The idea slides
   (the pyramid, what an agent needs, the CLI, the plugin architecture, how an

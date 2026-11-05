@@ -2,7 +2,7 @@
 
 > [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **~10 minutes**. Booth demo or meetup opener, in front of one person or a small group. No Q&A inside the slot: questions happen after, one to one.
 >
-> This is the booth cut of the short talk [From Click to Terminal: API Engineering in the Age of Agents](../../short-talks/postman-in-the-terminal/README.md). It keeps **only the live part**. For what is common (product, thesis, prerequisites in full, the long troubleshooting table, resources) the short talk's README is the reference: this one repeats only what you need in front of you at the booth.
+> This is the booth cut of the short talk [From Click to Terminal: API Engineering in the Age of Agents](../../short-talks/from-click-to-terminal/README.md). It keeps **only the live part**. For what is common (product, thesis, prerequisites in full, the long troubleshooting table, resources) the short talk's README is the reference: this one repeats only what you need in front of you at the booth.
 
 ---
 
@@ -26,7 +26,7 @@
 
 ## 2. Pre-requisites
 
-Same as the [short talk](../../short-talks/postman-in-the-terminal/README.md#2-pre-requisites): Claude Code with the `postman@claude-plugins-official` plugin, the Postman CLI (1.85.0 in the rehearsal, 1.86.0 was announced), `git`, and `gh` authenticated with access to the `healthcare-org-app` organization (create repo, push, PR; `delete_repo` for teardown). The template repo `healthcare-org-app/healthcare-transport-template` must exist.
+Same as the [short talk](../../short-talks/from-click-to-terminal/README.md#2-pre-requisites): Claude Code with the `postman@claude-plugins-official` plugin, the Postman CLI (1.85.0 in the rehearsal, 1.86.0 was announced), `git`, and `gh` authenticated with access to the `healthcare-org-app` organization (create repo, push, PR; `delete_repo` for teardown). The template repo `healthcare-org-app/healthcare-transport-template` must exist.
 
 Booth additions:
 
@@ -190,7 +190,7 @@ Between two visitors: `./scripts/teardown.sh && ./scripts/setup.sh`. How long th
 
 ## 6. Troubleshooting
 
-The full table is in the [short talk's README](../../short-talks/postman-in-the-terminal/README.md#6-troubleshooting). The ones you will hit at the booth:
+The full table is in the [short talk's README](../../short-talks/from-click-to-terminal/README.md#6-troubleshooting). The ones you will hit at the booth:
 
 | Issue | Fix |
 |---|---|
@@ -212,7 +212,7 @@ The full table is in the [short talk's README](../../short-talks/postman-in-the-
 
 | Resource | Link |
 |---|---|
-| The short talk this is cut from | [../../short-talks/postman-in-the-terminal/](../../short-talks/postman-in-the-terminal/README.md) |
+| The short talk this is cut from | [../../short-talks/from-click-to-terminal/](../../short-talks/from-click-to-terminal/README.md) |
 | **The template** (transport-service, spec only) | <https://github.com/healthcare-org-app/healthcare-transport-template> |
 | The rehearsal PR (CI green in 19 s, not merged; **to verify, this repo is meant to be deleted**) | <https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1> |
 | Going further: a platform team's quality gate on a PR (closed, not merged, not a Postman product) | <https://github.com/healthcare-org-app/healthcare-appointments/pull/9> |
