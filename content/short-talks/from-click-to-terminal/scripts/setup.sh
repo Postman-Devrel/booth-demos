@@ -181,15 +181,14 @@ The live demo, in the claude tab. One prompt per step (adapt the wording, keep t
 ------------------------------------------------------------------------------
 1 · INIT
 ------------------------------------------------------------------------------
-Initialize the Postman workspace for this repo. Use \`postman init --json -y\`
-(the CLI does not accept --no-cloud), stay local, no cloud push.
+Initialize the Postman workspace for this repo. Stay local, no cloud push.
 
 ------------------------------------------------------------------------------
 2 · COLLECTION + TESTS
 ------------------------------------------------------------------------------
-Generate a Postman collection from ./openapi.yaml, then add pm.test assertions
-to every request (status code, response shape from the spec). The generated
-collection has no assertions: that part is your work.
+Generate a Postman collection from the spec, then add tests to every request
+(status code, response shape from the spec). The generated collection has no
+assertions: that part is your work.
 
 ------------------------------------------------------------------------------
 3 · MOCK + RUN AGAINST THE MOCK
@@ -208,7 +207,7 @@ checks on every PR. It must work with no Postman login and no secret.
 ------------------------------------------------------------------------------
 Commit the changes on the current branch, push it, and open a pull request with
 a real description: what was generated, what the workflow checks, how it was
-verified locally. Do not use --fill. Don't merge.
+verified locally. Don't merge.
 
 Then watch the run: gh run watch   (rehearsed at about 19 s of CI).
 
