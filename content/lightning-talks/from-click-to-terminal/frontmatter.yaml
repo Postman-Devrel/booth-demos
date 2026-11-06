@@ -12,7 +12,7 @@ venues:
   - booth
   - meetup
 product: Postman CLI
-name: "From spec to green PR in 10 minutes"
+name: "From Click to Terminal"
 use_case: >
   The live part of the short talk "From Click to Terminal", cut to about ten
   minutes. A developer has the OpenAPI spec of a new service, transport-service
@@ -35,7 +35,7 @@ cta:
   - "Postman CLI: https://www.postman.com/product/postman-cli/"
   - "Join the Postman community on Discord: https://postman-community.com/kmg"
   - "Going further, a platform team's gate on a PR (not a Postman product): https://github.com/healthcare-org-app/healthcare-appointments/pull/9"
-presentation_title: "From spec to green PR in 10 minutes"
+presentation_title: "From Click to Terminal"
 brand_style: design-sync
 derived_from: short-talks/from-click-to-terminal
 notes: >
