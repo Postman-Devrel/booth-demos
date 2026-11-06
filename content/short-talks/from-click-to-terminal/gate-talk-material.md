@@ -365,7 +365,7 @@ notes: >
   one next to it". It is also team-gated: whichever team's key backs
   POSTMAN_API_KEY decides which graph answers.
 
-  THE 10-MINUTE BOOTH CUT (`content/lightning-talks/spec-to-green-pr/`)
+  THE 10-MINUTE BOOTH CUT (`content/lightning-talks/from-click-to-terminal/`)
   WAS WRITTEN FOR THE PREVIOUS DEMO (bare spec, then a CI agent that only
   comments) and wraps this folder's scripts. Re-check it against this
   README before using it on the floor.

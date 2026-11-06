@@ -1,6 +1,6 @@
 # From Click to Terminal: API Engineering in the Age of Agents
 
-> The 10-minute booth cut of this talk lives in [content/lightning-talks/spec-to-green-pr/](../../lightning-talks/spec-to-green-pr/). It was written for an older demo and is being redone: check it against this README before you use it on the floor.
+> The 10-minute booth cut of this talk lives in [content/lightning-talks/from-click-to-terminal/](../../lightning-talks/from-click-to-terminal/). It was written for an older demo and is being redone: check it against this README before you use it on the floor.
 
 > [Short talk](../../../templates/formats/short-talk.md) — target length **25 minutes (Q&A included)**. Delivered at meetups and conference breakouts. This README is the single source of truth. Read it top to bottom before your first attendee; everything you need to run the demo without improvising is here.
 >
@@ -272,5 +272,5 @@ Full reset between sessions:
 | Postman CLI | <https://www.postman.com/product/postman-cli/> |
 | Postman CLI command reference | <https://learning.postman.com/docs/postman-cli/postman-cli-options> |
 | Postman CLI installation | <https://learning.postman.com/docs/postman-cli/postman-cli-installation/> |
-| The 10-minute booth cut of this talk (to re-check against this README) | [../../lightning-talks/spec-to-green-pr/](../../lightning-talks/spec-to-green-pr/) |
+| The 10-minute booth cut of this talk (to re-check against this README) | [../../lightning-talks/from-click-to-terminal/](../../lightning-talks/from-click-to-terminal/) |
 | Same product, different signal, the CLI as a test oracle | [../../lightning-talks/open-meteo-loop-eng/](../../lightning-talks/open-meteo-loop-eng/) |

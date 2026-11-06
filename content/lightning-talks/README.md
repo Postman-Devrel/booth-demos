@@ -9,5 +9,5 @@ Rules, act plan, and deck size: [templates/formats/lightning-talk.md](../../temp
 | [fern](fern/) — Docs, SDKs, and a CLI for your API | Fern | ready |
 | [claude-code-postman-plugin](claude-code-postman-plugin/) — From API to AI-ready | Postman Claude Code Plugin | ready |
 | [open-meteo-loop-eng](open-meteo-loop-eng/) — Stop prompting, start looping | Postman CLI | ready |
-| [spec-to-green-pr](spec-to-green-pr/) — From spec to green PR in 10 minutes (booth cut of From Click to Terminal) | Postman CLI | draft |
+| [from-click-to-terminal](from-click-to-terminal/) — From Click to Terminal: API Engineering in the Age of Agents (10-minute booth cut of the short talk) | Postman CLI | draft |
 | [context-graph](context-graph/) — You cannot grep what was never in the checkout | Postman Context Graph | draft |
