@@ -39,6 +39,7 @@ BRANCH="demo/spec-to-pipeline"
 SUFFIX="$(date +%Y%m%d-%H%M%S)"
 REPO_NAME="healthcare-transport-$SUFFIX"     # no "demo" in the name: the reviewer once guessed the repo from it
 REPO="$ORG/$REPO_NAME"
+GATE_PR="https://github.com/healthcare-org-app/healthcare-appointments/pull/9"   # advanced usage: the quality gate, closed PR, shown at the end
 WORKDIR="/tmp/$REPO_NAME"
 
 echo "=== Postman in the terminal — Setup ==="
@@ -160,8 +161,14 @@ fi
 
 echo ""
 if [ "$DRY_RUN" = "1" ]; then
+  echo "[DRY]  would open https://github.com/$REPO"
+  echo "[DRY]  would open $GATE_PR"
   echo "[DRY]  would open $DECK"
 else
+  echo "Opening the created repo..."
+  open_url "https://github.com/$REPO" || echo "[WARN] Open https://github.com/$REPO manually."
+  echo "Opening the quality gate PR (advanced usage, shown at the end, not live)..."
+  open_url "$GATE_PR" || echo "[WARN] Open $GATE_PR manually."
   echo "Opening the deck..."
   open_url "$DECK" || echo "[WARN] Open $DECK manually."
 fi
@@ -173,7 +180,8 @@ cat <<EOF
 Pre-flight checklist:
   [ ] Deck open, FULLSCREEN, on slide 1
   [ ] Terminal tab in $WORKDIR running \`claude\` (Postman plugin loaded, check /plugin), LARGE FONT (Cmd+=)
-  [ ] A second tab on github.com/$REPO for the PR and the CI run
+  [ ] The GitHub tab of $REPO (opened by the script) ready for the PR and the CI run
+  [ ] The quality gate PR tab (opened by the script): advanced usage, shown at the end, not live
   [ ] No \`postman login\` and no POSTMAN_API_KEY needed for this demo
 
 The live demo, in the claude tab. One prompt per step (adapt the wording, keep the intent).
@@ -199,8 +207,8 @@ and show me the result.
 ------------------------------------------------------------------------------
 4 · WORKFLOW (ci-integration skill)
 ------------------------------------------------------------------------------
-Use the ci-integration skill to add a GitHub Actions workflow that runs these
-checks on every PR. It must work with no Postman login and no secret.
+Add a GitHub workflow that runs the checks on every PR, including the AI
+readiness score. It must work with no Postman login and no secret.
 
 ------------------------------------------------------------------------------
 5 · PUSH AND PR

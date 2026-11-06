@@ -88,14 +88,14 @@ Four acts, ~10 minutes. The talk track is verbatim (blockquotes); the click trac
 
 > "Think about the last time you set Postman up for a new service. You open the app. You import the spec. You click to generate a collection, click to add tests, click to create a mock, click to wire it into your CI. Every one of those is a click, and an agent can't take a click. An agent has files and a terminal."
 
-- **Show:** slide 01, then slide 02 (every step was a click; what the agent has: files, a terminal).
+- **Show:** slide 01, then slide 02 (every step was a click; the agent can't click, it needs a command to run in a terminal).
 
 ### Act 2: The setup (~1 min)
 
 > "So give each step a command. Postman's CLI has one for every link of that chain, and the skills that say which command to run are files in the repo. In the next six minutes I start from a spec of a new service, and I ask an agent to take it to a green pull request. What I want you to watch is step three: a collection generated from a spec has no assertion in it. The tests are real work."
 
-- **Show:** slide 03 (the chain, with the rehearsal times: CLI time only, not the agent). Say once that the times are from one rehearsal.
-- **Show:** advance to slide 04, then leave the deck for the terminal.
+- **Show:** slide 03 (the chain: one command per step; the collection has no assertion, step 3 is the agent's work).
+- **Show:** advance to slide 04 (Demo: spec, Postman plugin, GitHub CI), then leave the deck for the terminal.
 
 ### Act 3: Live demo (~6 min)
 
@@ -139,7 +139,7 @@ Four acts, ~10 minutes. The talk track is verbatim (blockquotes); the click trac
 
 #### 3e. Workflow, push, PR (~1 min 30 s)
 
-- **Do:** `Add a GitHub workflow that runs these checks on every PR, with the ci-integration skill.` It writes `.github/workflows/api-checks.yml`: contract lint with `--issueType=syntax`, collection lint, run against the mock, AI readiness (75/100, threshold 70). **No secret.**
+- **Do:** `Add a GitHub workflow that runs the checks on every PR, including the AI readiness score. It must work with no Postman login and no secret.` It writes `.github/workflows/api-checks.yml`. **No secret.**
 - **Show:** the file, ten seconds: say what each step is.
 - **Do:** `Commit, push the branch and open a PR.` Make sure the PR has a title and a body. The push goes to `demo/spec-to-pipeline` of the **created** repo.
 
@@ -157,8 +157,7 @@ Four acts, ~10 minutes. The talk track is verbatim (blockquotes); the click trac
 
 - **Show:** the PR, with its green check (end on the thing that got created, not on the terminal), then slide 05 (Try it) for the CTA:
   - `npx @postman/postman-plugin`, then ask your own agent to work an API change
-  - Claude Code Plugin module on Liftoff (QR) and the Postman Discord (QR)
-  - The demo template: <https://github.com/healthcare-org-app/healthcare-transport-template>
+  - Postman Liftoff (QR) and the Postman Discord (QR)
   - Going further, a platform team's gate on a PR (not a Postman product): <https://github.com/healthcare-org-app/healthcare-appointments/pull/9>
 
 > **If asked "does the gate block the merge?"** It is not a required check on `main` of `healthcare-appointments` (the branch is not protected). Blocking is a branch-protection setting, not a gate feature.
@@ -216,7 +215,7 @@ The full table is in the [short talk's README](../../short-talks/from-click-to-t
 | **The template** (transport-service, spec only) | <https://github.com/healthcare-org-app/healthcare-transport-template> |
 | The rehearsal PR (CI green in 19 s, not merged; **to verify, this repo is meant to be deleted**) | <https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1> |
 | Going further: a platform team's quality gate on a PR (closed, not merged, not a Postman product) | <https://github.com/healthcare-org-app/healthcare-appointments/pull/9> |
-| Postman Claude Code Plugin module (Liftoff) | <https://www.postman.com/liftoff/modules/claude-code-plugin/> |
+| Postman Liftoff | <https://www.postman.com/liftoff/> |
 | The Postman plugin | <https://github.com/postmanlabs/postman-plugin> |
 | Postman CLI | <https://www.postman.com/product/postman-cli/> |
 | Postman CLI command reference | <https://learning.postman.com/docs/postman-cli/postman-cli-options> |

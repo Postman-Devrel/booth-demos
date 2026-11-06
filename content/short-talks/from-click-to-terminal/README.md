@@ -30,13 +30,11 @@
 
 - `npx @postman/postman-plugin`, then ask your own agent to work an API change
 - Postman CLI: <https://www.postman.com/product/postman-cli/>
-- Claude Code Plugin module on Liftoff: <https://www.postman.com/liftoff/modules/claude-code-plugin/>
+- Postman Liftoff: <https://www.postman.com/liftoff/>
 - Join the Postman community on Discord: <https://postman-community.com/kmg>
-- The demo template: <https://github.com/healthcare-org-app/healthcare-transport-template>
 - Advanced use, a gate on a PR (no live): <https://github.com/healthcare-org-app/healthcare-appointments/pull/9>
-- This talk's slides and setup tooling: `git clone https://github.com/Postman-Devrel/booth-demos.git` → `cd booth-demos/content/short-talks/from-click-to-terminal`
 
-> **Open question: the install path.** The CTA says `npx @postman/postman-plugin` (also on slides 10 and 15). The canonical path (that, or `claude plugin install …`) is not decided: align it with the plugin team before the next delivery.
+> **Open question: the install path.** The CTA says `npx @postman/postman-plugin` (also on slides 10 and 13). The canonical path (that, or `claude plugin install …`) is not decided: align it with the plugin team before the next delivery.
 
 ---
 
@@ -49,9 +47,9 @@
 | **The Postman plugin** | `postman@claude-plugins-official`, the plugin the talk is about. Your session uses it for the Postman work (`postman:api-engineer`, `postman:ci-integration`). |
 | **The template repo** | `healthcare-org-app/healthcare-transport-template`, marked as a template, with the spec only. Check it exists before presenting. |
 | **A Postman login** | **Not needed by the CI workflow** (it ran green with an empty `HOME`, no secret). Whether the local steps (`init`, `generate`, `mock`, `run`) work logged out was **not tested**: `postman login` before you present, as a precaution. |
-| **The deck** | A local file, `presentation/index.html`, 15 slides, no sign-in. Fonts come from Google Fonts: without network it falls back to system fonts. |
+| **The deck** | A local file, `presentation/index.html`, 13 slides, no sign-in. Fonts come from Google Fonts: without network it falls back to system fonts. |
 | **A backup tab** | A browser tab on the rehearsal PR <https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1> (run green in 19 s), in case the live CI is slow. Check it still exists: it is meant to be deleted. |
-| **A tab on PR #9** | <https://github.com/healthcare-org-app/healthcare-appointments/pull/9>, for questions after slide 14. |
+| **A tab on PR #9** | <https://github.com/healthcare-org-app/healthcare-appointments/pull/9>, for questions after the demo. |
 
 > **Git hygiene.** The created repo has its own history, unrelated to a local clone of the template: always work in the clone `setup.sh` makes **of the created repo**. Never push a clone of the template into it.
 
@@ -89,17 +87,17 @@ It never merges anything.
 
 Seven acts, 25 minutes (Q&A included). Talk track is **verbatim** (blockquotes), read it if the room goes cold. Click track is interleaved at the exact point each action happens.
 
-The deck is `presentation/index.html`, 15 slides. **The live demo starts at slide 12, "From a spec to a green PR"**: that is the handoff point, the moment you leave the deck for a real terminal and a browser. You come back to slide 13 when the PR is green.
+The deck is `presentation/index.html`, 13 slides. **The live demo starts at slide 12, "Demo"** (spec, Postman plugin, GitHub CI): that is the handoff point, the moment you leave the deck for a real terminal and a browser. You come back to slide 13 (Try it) when the PR is green.
 
 | Act | Purpose | Slide(s) | Budget |
 |---|---|---|---|
 | 1 | **Cold open** — the clicks an agent can't take | 01 Title, 02 Pyramid, 03 API engineering chain | 2 min |
 | 2 | **Why it happens** — what an agent needs from a tool | 04 What an agent needs | 2 min |
 | 3 | **The idea** — a command per step, skills in committed files, two ways in | 05 to 11 | 3 min (about 25 s per slide, walk fast) |
-| 4 | **Live demo** — spec to green PR | 12 From a spec to a green PR | 11 min |
-| 5 | **What it costs** | 13 What it costs | 2 min |
-| 6 | **Advanced use** — a platform team's gate, on a PR, no live | 14 Advanced use | 2 min |
-| 7 | **Q&A + CTA** | 15 Try it | 3 min |
+| 4 | **Live demo** — spec to green PR | 12 Demo | 11 min |
+| 5 | **What it costs** | no slide, spoken | 2 min |
+| 6 | **Advanced use** — a platform team's gate, on a PR, no live | no slide, the PR #9 tab | 2 min |
+| 7 | **Q&A + CTA** | 13 Try it | 3 min |
 
 Total: 25 minutes. The sum of the original plan (2 + 3 + 3 + 12 + 2 + 2 + 3) is 27: this table takes 1 minute from act 2 and 1 from the demo to fit the slot. The demo time itself is a **guess**: the rehearsal played the commands one by one and did not time an agent working from a prompt.
 
@@ -163,7 +161,7 @@ Total: 25 minutes. The sum of the original plan (2 + 3 + 3 + 12 + 2 + 2 + 3) is 
 
 #### 4e. The CI workflow, the push, the PR (~2 min)
 
-- **Do:** ask: `Add a GitHub workflow that runs these checks on every PR, with the ci-integration skill.` The skill writes `.github/workflows/api-checks.yml`. In the rehearsal it has four steps: a contract lint with `--issueType=syntax`, a collection lint, the collection run against the mock, and AI readiness (75/100, threshold 70). **No secret is configured or used.**
+- **Do:** ask: `Add a GitHub workflow that runs the checks on every PR, including the AI readiness score. It must work with no Postman login and no secret.` It writes `.github/workflows/api-checks.yml`. **No secret is configured or used.**
 - **Show:** the workflow file, briefly: say what each step is, and what it isn't (see act 5).
 - **Do:** ask: `Commit, push the branch and open a PR.` Make sure the PR has a title and a body (`gh pr create --title … --body …`). In the created repo, the push goes to the demo branch of `setup.sh`.
 
@@ -182,13 +180,13 @@ Total: 25 minutes. The sum of the original plan (2 + 3 + 3 + 12 + 2 + 2 + 3) is 
 
 > "What did this cost? Three things. First, the skills are files: they age like code, and they can disagree with the CLI. You saw it: the bootstrap skill cites an option, `--no-cloud`, that CLI 1.85.0 refuses. Second, look at what the `ci-integration` skill wrote, and what it didn't. It lints the contract for syntax, lints the collection, runs the tests against the mock, and scores AI readiness. It doesn't do governance lint, which needs a login. It doesn't give you a junit report on a v3 collection. It doesn't push to a cloud workspace. And it tests the mock, not your running service. Third, secrets. This workflow needed none. The day you add governance lint or a workspace push, the key goes in your CI secrets, and the agent never sees it."
 
-- **Show:** slide 13.
+- **Show:** no slide: stay on the PR or the terminal and say it.
 
 ### Act 6: Advanced use (~2 min)
 
 > "One more thing, no live. Once the checks live in files and in CI, a platform team can build on the same blocks. This is a real PR of another repo, `healthcare-appointments`, closed, never merged. A quality gate commented on it."
 
-- **Show:** slide 14, then, if you have time, the tab on PR #9. Read the four lines **as they are**:
+- **Show:** no slide: the tab on PR #9, if you have time. Read the four lines **as they are**:
 
   ```
   ❌ API quality gate: FAILED
@@ -207,12 +205,11 @@ Total: 25 minutes. The sum of the original plan (2 + 3 + 3 + 12 + 2 + 2 + 3) is 
 
 > "A command per step, skills in files. Install the plugin and your own agent gets them; run `postman init` and any agent in your repo does. Questions?"
 
-- **Show:** slide 15 (Try it). CTA, read it out:
+- **Show:** slide 13 (Try it). CTA, read it out:
   - `npx @postman/postman-plugin`, then ask your own agent to work an API change
   - Postman CLI: <https://www.postman.com/product/postman-cli/>
-  - Claude Code Plugin module on Liftoff: <https://www.postman.com/liftoff/modules/claude-code-plugin/>
+  - Postman Liftoff: <https://www.postman.com/liftoff/>
   - Join the Postman community on Discord: <https://postman-community.com/kmg>
-  - The demo template: <https://github.com/healthcare-org-app/healthcare-transport-template>
 
 ### What to cut when you are over
 
@@ -270,7 +267,7 @@ Full reset between sessions:
 | The rehearsal PR (CI green in 19 s, not merged) | <https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1> |
 | **Advanced use** (a platform team's quality gate on a PR, closed, not merged) | <https://github.com/healthcare-org-app/healthcare-appointments/pull/9> |
 | The gate's material for a future talk, out of date with this demo | [gate-talk-material.md](gate-talk-material.md) |
-| Postman Claude Code Plugin module (Liftoff) | <https://www.postman.com/liftoff/modules/claude-code-plugin/> |
+| Postman Liftoff | <https://www.postman.com/liftoff/> |
 | The Postman plugin | <https://github.com/postmanlabs/postman-plugin> |
 | Postman CLI | <https://www.postman.com/product/postman-cli/> |
 | Postman CLI command reference | <https://learning.postman.com/docs/postman-cli/postman-cli-options> |
