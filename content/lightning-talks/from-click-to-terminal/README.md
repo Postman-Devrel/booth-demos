@@ -1,4 +1,4 @@
-# From Click to Terminal
+# From Click to Terminal: API Engineering in the Age of Agents
 
 > [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **~10 minutes**. Booth demo or meetup opener, in front of one person or a small group. No Q&A inside the slot: questions happen after, one to one.
 >
