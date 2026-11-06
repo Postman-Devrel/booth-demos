@@ -1,0 +1,89 @@
+format: lightning-talk
+length: 10m
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  A passer-by or a small group at the booth or a meetup opener: developers who
+  build with or supervise coding agents, and people who have set Postman up by
+  clicking and wonder what changes when the user is an agent. No Postman account
+  needed to watch; the presenter's laptop needs the Postman CLI, Claude Code with
+  the Postman plugin, git and an authenticated gh.
+venues:
+  - booth
+  - meetup
+product: Postman CLI
+name: "From spec to green PR in 10 minutes"
+use_case: >
+  The live part of the short talk "From Click to Terminal", cut to about ten
+  minutes. A developer has the OpenAPI spec of a new service, transport-service
+  (GET and POST /api/rides, GET /api/rides/{ride_id}, GET /health), and a coding
+  agent runs the API engineering chain from the terminal: `postman init`,
+  generate the collection, add tests (the generated collection has no
+  assertion), generate a mock and run the tests against it, write a GitHub
+  workflow with the ci-integration skill, push, open a PR and watch the CI. It
+  runs on a throwaway repo created from
+  healthcare-org-app/healthcare-transport-template, with a local, git-native
+  workspace: nothing goes to the Postman cloud. The cut ends on the PR with its
+  green run, not on the terminal.
+key_messages:
+  - A coding agent doesn't need Postman's UI. It needs one command per step, and the Postman CLI gives it that.
+  - Generating is not testing. The collection generated from the spec has no assertion; the tests, the mock run and the CI workflow are the agent's work.
+  - The whole chain lives in files and in git, from spec to PR, with no cloud push. In the rehearsal the CI run was green in 19 s and needed no secret.
+cta:
+  - "npx @postman/postman-plugin, then ask your agent to work an API change"
+  - "Postman Liftoff: https://www.postman.com/liftoff/"
+  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+  - "Join the Postman community on Discord: https://postman-community.com/kmg"
+  - "Going further, a platform team's gate on a PR (not a Postman product): https://github.com/healthcare-org-app/healthcare-appointments/pull/9"
+presentation_title: "From spec to green PR in 10 minutes"
+brand_style: design-sync
+derived_from: short-talks/from-click-to-terminal
+notes: >
+  WHAT IS CUT versus the short talk (25 min, Q&A included). The idea slides
+  (the pyramid, what an agent needs, the CLI, the plugin architecture, how an
+  agent picks a skill: slides 02 to 11 of the talk) are gone: one slide of
+  friction and one slide of the chain replace them. "What it costs" is folded
+  into one sentence at the close. The advanced use (PR #9 of
+  healthcare-appointments, the platform team's quality gate) is NOT shown live
+  and has no slide: it is a link on the last slide and an answer if someone
+  asks. There is no Q&A inside the slot; questions happen after, one to one.
+  The deck is a new 5-slide file in the same Postman dark look, with the
+  assets copied from the short talk's deck.
+
+  HOW IT FITS IN 10 MINUTES. Budget: hook 1.5 min, chain 1 min, live demo 6
+  min, close 1.5 min. The README prepares everything it can before the visitor
+  arrives: `setup.sh` (throwaway repo, clone, branch), Claude Code open with
+  the plugin loaded, the tabs open. The rehearsal CLI times (init 7.8 s,
+  collection 4.3 s, mock 4.1 s, run 5 s, CI run 19 s) are CLI and CI time
+  only. They exclude the agent's own time. The 6 minutes of the live part are
+  therefore a BUDGET, not a measurement. The README gives a cut order and a
+  backup tab (the rehearsal PR) for when it runs over.
+
+  THE PROMPTS ARE NOT REHEARSED WITH AN AGENT ALONE. The rehearsal journal
+  played the commands one by one, in a Claude session with the plugin loaded.
+  It measured neither the agent's variability nor the total time of a chain
+  driven from prompts. Treat the prompts in the README as drafts, and do not
+  quote a total duration of the live part. A red CI run was not rehearsed
+  either.
+
+  KNOWN TRAPS (from the rehearsal journal): `postman init --json -y` is the
+  working command, the bootstrap skill cites `--no-cloud` which CLI 1.85.0
+  refuses; `postman init` creates `.opencode/`; the generated collection has no
+  assertion; `postman spec lint` without a login fails, so the CI uses
+  `--issueType=syntax`; the junit reporter is refused for v3 collections.
+
+  THE DEMO RUNS ON A THROWAWAY REPO, created from
+  healthcare-org-app/healthcare-transport-template by `setup.sh` and deleted by
+  `teardown.sh`. Both scripts here only `exec` the short talk's. `setup.sh`
+  opens the short talk's deck, not this one: open presentation/index.html by
+  hand. The backup tab is the rehearsal PR
+  https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1
+  (run green in 19 s). That repo is meant to be deleted: check the tab still
+  loads before every session.
+
+  THE INSTALL PATH IS NOT DECIDED. The CTA keeps `npx @postman/postman-plugin`;
+  the canonical path is still to align with the plugin team.
+
+  SAME PRODUCT AS open-meteo-loop-eng, DIFFERENT SIGNAL. That one is the CLI as
+  a test oracle for one API; this one is the CLI and skills as an agent's
+  toolbox over a whole chain, from spec to PR.

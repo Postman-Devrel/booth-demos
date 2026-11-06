@@ -1,0 +1,107 @@
+format: short-talk
+length: 25m (Q&A included)
+owner: Anthony Viard <anthony.viard@postman.com>
+status: draft
+audience: >
+  Developers building or supervising coding agents, platform and API-governance
+  teams, and anyone who has wondered what a Postman plugin gives an agent that
+  the app's UI does not. No Postman account needed for the slides; the live demo
+  runs on a throwaway GitHub repo and needs the Postman CLI and Claude Code with
+  the Postman plugin.
+venues:
+  - meetup
+  - conference
+product: Postman CLI
+name: "From Click to Terminal: API Engineering in the Age of Agents"
+use_case: >
+  A developer has the OpenAPI spec of a new service, transport-service
+  (GET and POST /api/rides, GET /api/rides/{ride_id}, GET /health), and asks a
+  coding agent to do the API engineering chain from the terminal: `postman
+  init`, generate the collection, add tests (the generated collection has no
+  assertion), generate a mock and run the tests against it, generate a GitHub
+  workflow with the ci-integration skill, push, open a PR and watch the CI.
+  Each demo clones a throwaway repo created from the template
+  healthcare-org-app/healthcare-transport-template. The workspace is local and
+  git-native: nothing is pushed to the Postman cloud (`workspace.id` stays
+  empty). The talk ends on one slide of advanced use, a closed, unmerged PR of
+  healthcare-appointments (#9) where a platform team's quality gate commented,
+  shown without live. The gate is that team's use case built with Postman, not
+  a Postman product, and the subject of another talk.
+primary_api:
+  - "The Postman Claude Code plugin and `postman init`: the two paths a Postman skill takes to reach an agent"
+  - "Postman CLI (1.85.0 in the rehearsal), one command per step: postman init --json -y, postman spec generate collection, postman collection request update, postman mock generate, postman collection run --use-mock"
+  - "The ci-integration skill, which writes .github/workflows/api-checks.yml (contract lint with --issueType=syntax, collection lint, run against the mock, AI readiness)"
+  - "The template repo: https://github.com/healthcare-org-app/healthcare-transport-template (transport-service, openapi.yaml only)"
+  - "Advanced use, shown without live: https://github.com/healthcare-org-app/healthcare-appointments/pull/9 (a platform team's quality gate, gate v0.6.3)"
+  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+key_messages:
+  - A coding agent doesn't need Postman's UI. It needs a command per step of the API engineering chain, and the Postman CLI is that.
+  - An agent's Postman know-how lives in committed skills, not in a chat. The plugin puts them in a developer's own Claude Code; `postman init` commits the same skills into the repo.
+  - Generating is not testing. The collection generated from the spec has no assertion; adding the tests, running them against a mock and wiring them in CI is the agent's work, one command per step.
+  - The whole chain stays in files and in git, from spec to green PR, with a local workspace and no cloud push. In the rehearsal the CI run took 19 s and needed no secret.
+  - It has a cost. The skills are files to keep current (the bootstrap skill cites an option the CLI refuses), the generated workflow tests the mock and not the running service, and a secret that is needed later stays in CI, out of the agent's sight.
+  - A platform team can build much more on the same blocks, such as a quality gate that comments on every PR. That is its own use case, built with Postman, not a Postman product, and the subject of another talk.
+cta:
+  - "npx @postman/postman-plugin, then ask your agent to work an API change"
+  - "Postman CLI: https://www.postman.com/product/postman-cli/"
+  - "Postman Liftoff: https://www.postman.com/liftoff/"
+  - "Join the Postman community on Discord: https://postman-community.com/kmg"
+  - "Advanced use, a platform team's gate on a PR: https://github.com/healthcare-org-app/healthcare-appointments/pull/9"
+presentation_title: "From Click to Terminal: API Engineering in the Age of Agents"
+presentation_url: https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee145?file=From+Click+to+Terminal.dc.html&via=share
+brand_style: design-sync
+notes: >
+  THE DECK OF RECORD IS `presentation/index.html`, 15 slides, in the Postman
+  dark look. It started from the Claude Design deck "From Click to Terminal"
+  (`presentation_url`, kept as the origin), but it has diverged: slides 01 to
+  11 are still that deck's (one mock command changed on slide 11), slides 12
+  (the demo chain), 13 (what it costs) and 14 (advanced use, PR #9) were
+  written here, and slide 15 (Try it) has new links. Do not re-export the
+  Claude Design deck over it: you would lose slides 12 to 15. The live demo
+  starts at slide 12.
+
+  THE OLD DEMO IS GONE FROM THIS TALK. The healthcare quality gate (rename of
+  `mrn`, the gate loop, the 32 consumers, the Context Graph step) is no longer
+  demoed. All of that material is kept, verbatim, in `gate-talk-material.md`
+  for a future talk. That file also records that its sentence "required on
+  appointments-service" is false: the gate is not a required check on `main` of
+  healthcare-appointments (the branch is not protected).
+
+  THE GATE IS NOT A POSTMAN PRODUCT. It is a use case a platform team built
+  with Postman. Say so on slide 14 and don't present it as something Postman
+  ships. The four lines quoted on slide 14 are the real ones of PR #9 (gate
+  v0.6.3).
+
+  THE DEMO RUNS ON A THROWAWAY REPO. `setup.sh` creates a repo
+  `healthcare-transport-<suffix>` from the template
+  `healthcare-org-app/healthcare-transport-template`, clones it to /tmp and
+  creates a demo branch. `teardown.sh` closes the PR, deletes the repo and
+  deletes the clone. The scripts are written separately from this README:
+  check that what the README says matches what they do.
+
+  LOCAL WORKSPACE, NO CLOUD PUSH. `workspace.id` stays empty in
+  `.postman/resources.yaml`. Say so when the file is on screen.
+
+  REHEARSAL FACTS (one rehearsal, CLI 1.85.0, plugin postman 2.0.1, commands
+  played one by one by Claude, see the README): init 7.8 s, collection 4.3 s,
+  mock 4.1 s, run 5 s (4 requests, 4 assertions), CI run green in 19 s
+  (https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1).
+  Not measured: an agent doing the whole chain from one prompt (variability,
+  total time), and a red CI run.
+
+  KNOWN TRAPS: `postman init --json -y` is the working command; the bootstrap
+  skill cites `--no-cloud`, which CLI 1.85.0 refuses. `postman init` creates
+  `.opencode/`. `spec lint` without a login fails, hence `--issueType=syntax`
+  in CI. The `junit` reporter is refused for v3 collections.
+
+  THE INSTALL PATH IS NOT DECIDED. The CTA keeps `npx @postman/postman-plugin`;
+  the canonical path (that or `claude plugin install ...`) is still to align
+  with the plugin team.
+
+  THE 10-MINUTE BOOTH CUT (`content/lightning-talks/spec-to-green-pr/`)
+  is written for an older demo and is being redone separately.
+
+  SAME PRODUCT AS open-meteo-loop-eng, DIFFERENT SIGNAL AND DIFFERENT SCOPE.
+  That talk is the CLI as a test oracle for one API. This one is the CLI and
+  committed skills as an agent's toolbox over a whole chain, from spec to PR.
+  If a booth crowd has seen both, lead with that distinction.

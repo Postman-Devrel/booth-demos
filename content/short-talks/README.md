@@ -8,4 +8,4 @@ Rules, act plan, and deck size: [templates/formats/short-talk.md](../../template
 | Content | Product | Status |
 |---|---|---|
 | [mcp-docs-best-friend](mcp-docs-best-friend/) — Make MCPs your documentation best friend | Fern | draft |
-| [postman-in-the-terminal](postman-in-the-terminal/) — Postman CLI and skills as an agent's toolbox, on a real API quality gate | Postman CLI | draft |
+| [from-click-to-terminal](from-click-to-terminal/) — From Click to Terminal: API Engineering in the Age of Agents | Postman CLI | draft |
