@@ -1,4 +1,4 @@
-# Presentation in a Box — Where Agents become Teammates
+# Where Agents become Teammates
 
 > [Lightning talk](../../../templates/formats/lightning-talk.md) — target length **10 minutes**. This README is the single source of truth.
 > Read it top to bottom before you present; everything you need is here.
