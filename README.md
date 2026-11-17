@@ -36,6 +36,7 @@ The same material can exist in several formats. When it does, the shorter one se
 | [From Click to Terminal: API Engineering in the Age of Agents](content/short-talks/from-click-to-terminal/) | short-talk | 25m (Q&A included) | Postman CLI | draft |
 | [From Click to Terminal: API Engineering in the Age of Agents](content/lightning-talks/from-click-to-terminal/) | lightning-talk | 10m | Postman CLI | draft |
 | [Context Graph](content/lightning-talks/context-graph/) | lightning-talk | 10m | Postman Context Graph | draft |
+| [Agentic SDLC with Context Graph and API Simulations](content/lightning-talks/agentic-sdlc/) | lightning-talk | 10m | Postman plugin (api-discovery, api-simulation) | draft |
 | [Make MCPs Your Documentation Best Friend](content/short-talks/mcp-docs-best-friend/) | short-talk | 25m (+ a 10m booth cut) | Fern | draft |
 
 ## Adding new content

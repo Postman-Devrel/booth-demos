@@ -1,0 +1,40 @@
+format: lightning-talk
+length: 10m
+owner: Talia Kohan <talia.kohan@postman.com>
+status: draft
+audience: >
+  Engineers and platform leads who already use coding agents on a multi-service codebase and have
+  watched an agent's change break something downstream. No Postman account is needed to follow the
+  talk; trying the skills yourself needs the Postman plugin.
+venues:
+  - conference
+product: Postman plugin (api-discovery with Context Graph, and api-simulation)
+name: Agentic SDLC with Context Graph and API Simulations
+use_case: Show how an agent gets the context to change an API safely (Context Graph via the api-discovery skill), develops against its dependencies without running them (api-simulation), and hands the result to a second agent through a Postman workspace.
+primary_api:
+  - Postman plugin skills api-discovery (includes Context Graph) and api-simulation
+  - Healthcare demo estate (claims-status-service with claims submission, patients, adjudication and billing as simulated dependencies)
+  - Recorded two-agent run (GitHub Copilot), embedded in the deck on slide 6
+key_messages:
+  - The agent writes the endpoint fast. The engineering around it (contract, dependencies, tests, handoff) is what takes longer.
+  - Context Graph is the library catalog. A better model is a faster librarian, but it still cannot find what is not on its shelves.
+  - Knowing where an API lives does not mean you can run it. An API simulation groups the dependency mocks into one runnable setup, with delays, errors and rate limits where you need them.
+  - Save the requests and assertions as a Postman collection and publish the simulation and collection to a workspace, so a second agent can pull them and rerun the checks before changing anything.
+cta:
+  - "Try all the skills: https://github.com/postmanlabs/postman-plugin/tree/main/skills"
+  - "Install the plugin: claude plugin install github:Postman-Devrel/postman-claude-code-plugin"
+presentation_title: Agentic SDLC with Context Graph and API Simulations
+brand_style: manual
+notes: >
+  DECK IS A POWERPOINT FILE, NOT HTML. The other talks in this repo ship a self-contained
+  presentation/index.html. This one ships presentation/Agentic_SDLC_Conference_Talk.pptx
+  (exported from Keynote, about 20 MB, the demo recording is embedded). presentation/index.html is
+  only a landing page that links to it, so validate-content.sh passes and setup.sh has something
+  to check. Edit the .pptx; do not look for slides in the HTML.
+  THE DEMO IS A RECORDING. Slide 6 embeds copilot-api-simulation.mp4 (95 seconds): Agent A
+  discovers the dependencies, builds the claims-review feature and publishes the workspace; Agent B
+  pulls it and adds payer filtering. Nothing runs live, so every act survives offline.
+  SPEAKER NOTES ARE THE TALK TRACK. The README quotes the slide notes. If you change the notes in
+  the deck, change them here too.
+  SLIDES 7-8. Slide 7 ("Try all the skills") and slide 8 (thank you) have no speaker notes yet,
+  so the close in the README is a placeholder.
