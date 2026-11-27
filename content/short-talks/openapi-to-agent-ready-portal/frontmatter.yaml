@@ -12,11 +12,11 @@ venues:
   - webinar
   - booth
 product: Fern (docs site, per-page Markdown, llms.txt, and an MCP server generated from one OpenAPI spec)
-name: Make MCPs Your Documentation Best Friend
+name: From One OpenAPI File to an Agent-Ready API Portal, with Fern
 use_case: >
   Cold-open on a good-looking API portal with JavaScript disabled to show what an agent
   actually receives, then build the whole agent-facing surface live from nothing: one OpenAPI
-  file in an empty folder, fern init, two small YAML files, fern generate --docs — and finish
+  file in an empty folder, fern init, one small YAML file, fern generate --docs — and finish
   by connecting the site's own MCP server to a local Claude Code session and asking it a
   question about the API that no model can guess the answer to.
 primary_api:
@@ -43,7 +43,7 @@ cta:
   - "Fern: https://buildwithfern.com"
   - "Try the same flow on your own spec: npm i -g fern-api && fern init --openapi ./your-spec.yaml"
   - "Postman Discord: https://discord.gg/postman"
-presentation_title: Make MCPs Your Documentation Best Friend
+presentation_title: From One OpenAPI File to an Agent-Ready API Portal, with Fern
 presentation_url: https://claude.ai/design/p/34e5524b-4e2d-436a-97bc-9a59609fb288?file=MCP+Docs+Best+Friend.dc.html&via=share
 presentation_fallback: presentation/index.html
 brand_style: manual
@@ -70,8 +70,9 @@ notes: >
   THE DEMO IS A LIVE BUILD, not a walkthrough. Act 7 starts with one OpenAPI file in an empty
   /tmp folder and ends with a published site, its Markdown, its llms.txt and its MCP server.
   It publishes ONE service (appointments, 10 operations), which means the single-API Fern
-  layout: generators.yml directly under fern/, and `- api: API Reference` with NO api-name.
-  Adding api-name to a single-API project fails the publish. Page paths are therefore
+  layout: a single docs.yml under fern/ whose `- api: API Reference` entry carries
+  `specs: [{type: openapi, path: ../appointments.yaml}]` and NO api-name. Adding api-name
+  to a single-API project fails the publish (older layouts). Page paths are therefore
   /api-reference/appointments/update, NOT the multi-API form the fallback site uses.
 
   The portal under site/ still renders all THREE services while the build publishes one. That
@@ -79,14 +80,17 @@ notes: >
   three tonight". Do not add the other two specs to the build to make the numbers match; the
   multi-API layout is a different talk.
 
-  DO NOT RUN `fern check` IN ACT 7b. Verified against fern 5.114.1 on 2026-09-07 and 5.115.0 on 2026-09-08: `fern init`
-  scaffolds a TypeScript SDK generator group, and the SDK validator throws exactly 5 errors on
+  DO NOT RUN `fern check` IN ACT 7b. Verified against fern 5.114.1 on 2026-09-07, 5.115.0 on 2026-09-08 and 5.230.4 on
+  2026-11-27: `fern init` scaffolds a TypeScript SDK target (a `groups:` block in generators.yml
+  up to 5.115; `sdk-config.yml` on 5.230), and the SDK validator throws exactly 5 errors on
   this spec's request examples (`starts_at`, `duration_minutes`, `reason` on create and
   update). The cause is real and not fixable in the spec: the request schemas are open
   (`additionalProperties`, because appointments-service stores a free-form JSONB `data`
   document), so the examples use keys Fern cannot see declared. Docs generation is unaffected.
-  Act 7c rewrites generators.yml down to `api.specs` alone, which removes the SDK group, and
-  `fern check` then passes. Any presence of the `groups:` block re-triggers it. setup.sh
+  FERN 5.230 CHANGED THE SCAFFOLD: `fern init --openapi` no longer writes generators.yml. It
+  COPIES the spec to fern/openapi.yml and writes docs.yml + sdk-config.yml. Act 7c therefore
+  deletes sdk-config.yml and the copy, and rewrites docs.yml to reference ../appointments.yaml
+  directly; `fern check` then passes. Any presence of sdk-config.yml re-triggers the errors. setup.sh
   reproduces this whole sequence in a throwaway folder on every run, so a CLI upgrade or a
   spec edit cannot break Act 7 silently.
 
@@ -163,8 +167,9 @@ notes: >
   hard-fails on that exact string, but read docs.yml before every publish anyway. WORKDIR and
   AGENTDIR are configurable too, so two people can run this from the same machine.
 
-  Stage numbers, verified 2026-09-07 against the published site: served portal shell 1,402
-  bytes; the update page 796,338 bytes as HTML and 9,189 as Markdown (~87x, say "nearly ninety
-  times", NOT "a hundred" — that was the three-service number); a warm searchDocs call 5-15s;
-  Act 7f end to end ~33s, prompt to finished answer, which is the number that matters because
+  Stage numbers, re-verified 2026-11-27 (Fern 5.230.4) against the published site: served
+  portal shell 1,402 bytes; the update page 258,711 bytes as HTML and 9,833 as Markdown
+  (~26x, say "about twenty-five times", NOT "ninety" — that was the 2026-09 number, when the
+  page was 796,338 bytes; the new Fern renders a much lighter page); a warm searchDocs call
+  5-15s; Act 7f end to end ~26-33s, prompt to finished answer, which is the number that matters because
   it is silence to fill. Re-measure if the spec or Fern changes.

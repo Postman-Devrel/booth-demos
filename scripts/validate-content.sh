@@ -4,7 +4,7 @@ set -uo pipefail
 # Validate every piece of content in this repo against the shared pattern.
 #
 #   ./scripts/validate-content.sh              # all content
-#   ./scripts/validate-content.sh mcp-docs-best-friend   # one slug
+#   ./scripts/validate-content.sh openapi-to-agent-ready-portal   # one slug
 #
 # Checks that each content folder sits in the right format directory, declares a
 # matching `format:` in its front matter, carries the required front-matter

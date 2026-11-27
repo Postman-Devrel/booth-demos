@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# Make MCPs Your Documentation Best Friend — setup.
+# From One OpenAPI File to an Agent-Ready API Portal, with Fern — setup.
 #
 # One talk, two lengths, ONE demo: the pipeline is BUILT on stage from a single
 # OpenAPI file. The 25-minute cut wraps that build in the cold open and the
@@ -71,7 +71,7 @@ FALLBACK="https://myhealthcare.docs.buildwithfern.com"
 FAILED=0
 note_fail() { echo "[FAIL] $1"; FAILED=1; }
 
-echo "=== Make MCPs Your Documentation Best Friend (25 min) — Setup ==="
+echo "=== From One OpenAPI File to an Agent-Ready API Portal, with Fern (25 min) — Setup ==="
 echo ""
 
 open_url()  { open "$1" 2>/dev/null || xdg-open "$1" 2>/dev/null || return 1; }
@@ -274,13 +274,15 @@ else
 fi
 
 # --- Preflight: does the scaffold + check sequence still pass? --------------
-# `fern init` scaffolds a TypeScript SDK generator group, and the SDK validator
-# rejects this spec's request examples: the schemas are open
-# (additionalProperties, because the service stores a free-form JSONB `data`
-# document) and the examples use keys that are therefore not declared. Five
-# errors, every time. Docs do not care, but `fern check` does, and red text on
-# stage is a bad look. Act 7c rewrites generators.yml down to `api.specs`,
-# which removes the SDK group, and the check then passes.
+# Fern CLI >= 5.2xx: `fern init --openapi` COPIES the spec to fern/openapi.yml and
+# scaffolds docs.yml plus sdk-config.yml (a TypeScript SDK target). There is no
+# generators.yml any more. The SDK validator rejects this spec's request
+# examples: the schemas are open (additionalProperties, because the service
+# stores a free-form JSONB `data` document) and the examples use keys that are
+# therefore not declared. Five errors, every time. Docs do not care, but
+# `fern check` does, and red text on stage is a bad look. Act 7c deletes
+# sdk-config.yml and the copied spec, and rewrites docs.yml to point at the
+# original spec one level up; the check then passes.
 #
 # This runs that exact sequence in a throwaway folder so a new CLI version or an
 # edited spec cannot break the demo silently. It also proves the demo needs no
@@ -293,15 +295,16 @@ if command -v fern >/dev/null 2>&1 && [ -f "$SRC_SPEC" ]; then
   PRE="$(mktemp -d)"
   cp "$SRC_SPEC" "$PRE/$SPEC_NAME"
   if ( cd "$PRE" && fern init --openapi "./$SPEC_NAME" --organization "$FERN_ORG" >/dev/null 2>&1 ); then
-    if [ -f "$PRE/fern/generators.yml" ] && [ ! -d "$PRE/fern/apis" ]; then
-      echo "[OK]   fern init scaffolds the single-API layout (generators.yml, no apis/)"
+    if [ -f "$PRE/fern/docs.yml" ] && [ -f "$PRE/fern/openapi.yml" ] && [ -f "$PRE/fern/sdk-config.yml" ] && [ ! -d "$PRE/fern/apis" ]; then
+      echo "[OK]   fern init scaffolds docs.yml + openapi.yml + sdk-config.yml (single-API, no apis/)"
     else
-      note_fail "fern init did not produce the single-API layout — docs.yml would need an api-name."
+      note_fail "fern init did not produce the expected scaffold (docs.yml, openapi.yml, sdk-config.yml) — Acts 7b-7c need re-writing. Found: $(cd "$PRE/fern" && ls | tr '\n' ' ')"
     fi
 
-    printf 'api:\n  specs:\n    - openapi: ../%s\n' "$SPEC_NAME" > "$PRE/fern/generators.yml"
-    printf 'instances:\n  - url: %s.docs.buildwithfern.com\ntitle: Appointments Service | Documentation\nnavigation:\n  - api: API Reference\n' \
-      "$FERN_HANDLE" > "$PRE/fern/docs.yml"
+    # Act 7c: drop the SDK target and the copied spec, point docs.yml at the original.
+    rm -f "$PRE/fern/sdk-config.yml" "$PRE/fern/openapi.yml"
+    printf 'instances:\n  - url: %s.docs.buildwithfern.com\ntitle: Appointments Service | Documentation\nnavigation:\n  - api: API Reference\n    specs:\n      - type: openapi\n        path: ../%s\n' \
+      "$FERN_HANDLE" "$SPEC_NAME" > "$PRE/fern/docs.yml"
 
     # `fern check` prints "All checks passed" only when it has nothing at all to
     # say. With warnings it prints "Found 0 errors and N warnings" instead —
@@ -459,19 +462,15 @@ Surfaces, in the order you use them:
 
 --- Act 7b: scaffold ---------------------------------------------
   fern init --openapi ./$SPEC_NAME --organization $FERN_ORG
-  ls fern            <- two files: fern.config.json + generators.yml, NO apis/
-  cat fern/generators.yml
+  ls fern            <- docs.yml, openapi.yml (a COPY of the spec), sdk-config.yml, fern.config.json
+  cat fern/docs.yml
 
-  DO NOT run 'fern check' yet. fern init scaffolds a TypeScript SDK generator
-  and the SDK validator throws 5 errors on this spec's request examples. Act
-  7c removes that generator and THEN checks green.
+  DO NOT run 'fern check' yet. fern init scaffolds a TypeScript SDK target
+  (sdk-config.yml) and the SDK validator throws 5 errors on this spec's request
+  examples. Act 7c removes it and THEN checks green.
 
---- Act 7c: two small YAML files ---------------------------------
-  cat > fern/generators.yml <<'YAML'
-api:
-  specs:
-    - openapi: ../$SPEC_NAME
-YAML
+--- Act 7c: one small YAML file ----------------------------------
+  rm fern/sdk-config.yml fern/openapi.yml
 
   cat > fern/docs.yml <<'YAML'
 instances:
@@ -479,6 +478,9 @@ instances:
 title: Appointments Service | Documentation
 navigation:
   - api: API Reference
+    specs:
+      - type: openapi
+        path: ../$SPEC_NAME
 YAML
 
   fern check       <- "All checks passed", or "Found 0 errors" if it has
@@ -492,7 +494,7 @@ YAML
 --- Act 7e: the four outputs, in the browser ---------------------
   1. $DOCS
      -> API Reference -> Appointments -> Update an appointment
-  2. add .md to that URL          <- same page, no chrome, ~90x smaller
+  2. add .md to that URL          <- same page, no chrome, ~25x smaller
   3. $DOCS/llms.txt
      -> read the "Instructions for AI Agents" header out loud
   4. $MCP
@@ -536,7 +538,7 @@ YAML
   [ ] Claude Code context CLEAN — a warm session answers without calling the
       tool, which destroys the payoff
   [ ] The subdomain verdict above says WARM
-  [ ] The numbers: $SHELL_BYTES bytes . 404 . 780 KB -> 9 KB (~90x) . 10 operations
+  [ ] The numbers: $SHELL_BYTES bytes . 404 . 260 KB -> 10 KB (~25x) . 10 operations
   [ ] The bridge sentence is ready: the portal shows three services, tonight
       we publish one
 
