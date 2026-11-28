@@ -874,7 +874,7 @@ hand:
 | The warm fallback site (**production — read-only**) | <https://myhealthcare.docs.buildwithfern.com> · [its `llms.txt`](https://myhealthcare.docs.buildwithfern.com/llms.txt) |
 | The fallback's payoff page, as Markdown | <https://myhealthcare.docs.buildwithfern.com/api-reference/healthcare-org/appointments-service/appointments/update.md> |
 | The app being documented | <https://myhealthcare.dev/> |
-| The upstream service | <https://github.com/healthcare-org-app/healthcare-appointments> |
+| The upstream service | <https://github.com/Postman-Devrel/healthcare-appointments> |
 | A multi-API Fern config, for the namespace story | <https://github.com/avdev4j/myhealthcare-fern-doc> |
 | Fern docs — AI features | <https://buildwithfern.com/learn/docs/ai-features/api-catalog> |
 | Model Context Protocol | <https://modelcontextprotocol.io> |

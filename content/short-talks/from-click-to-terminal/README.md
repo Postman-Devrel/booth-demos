@@ -32,7 +32,7 @@
 - Postman CLI: <https://www.postman.com/product/postman-cli/>
 - Postman Liftoff: <https://www.postman.com/liftoff/>
 - Join the Postman community on Discord: <https://postman-community.com/kmg>
-- Advanced use, a gate on a PR (no live): <https://github.com/healthcare-org-app/healthcare-appointments/pull/9>
+- Advanced use, a gate on a PR (no live): <https://github.com/Postman-Devrel/healthcare-appointments/pull/9>
 
 > **Open question: the install path.** The CTA says `npx @postman/postman-plugin` (also on slides 10 and 13). The canonical path (that, or `claude plugin install …`) is not decided: align it with the plugin team before the next delivery.
 
@@ -43,13 +43,13 @@
 | Requirement | How to get it |
 |---|---|
 | **Claude Code, the Postman CLI, `git`, `gh`** | `setup.sh` checks them. The rehearsal used Postman CLI 1.85.0 (the CLI said 1.86.0 was available) and the plugin `postman` 2.0.1. |
-| **`gh` authenticated, with the right scopes** | `gh auth status`. You need to create a repo in the `healthcare-org-app` organization, push to it and open a PR. `teardown.sh` deletes the repo, which needs the `delete_repo` scope on your token. In the rehearsal the push of a workflow file worked with the usual token, no `workflow` scope needed. |
+| **`gh` authenticated, with the right scopes** | `gh auth status`. You need to create a repo in the `Postman-Devrel` organization, push to it and open a PR. `teardown.sh` deletes the repo, which needs the `delete_repo` scope on your token. In the rehearsal the push of a workflow file worked with the usual token, no `workflow` scope needed. |
 | **The Postman plugin** | `postman@claude-plugins-official`, the plugin the talk is about. Your session uses it for the Postman work (`postman:api-engineer`, `postman:ci-integration`). |
-| **The template repo** | `healthcare-org-app/healthcare-transport-template`, marked as a template, with the spec only. Check it exists before presenting. |
+| **The template repo** | `Postman-Devrel/healthcare-transport-template`, marked as a template, with the spec only. Check it exists before presenting. |
 | **A Postman login** | **Not needed by the CI workflow** (it ran green with an empty `HOME`, no secret). Whether the local steps (`init`, `generate`, `mock`, `run`) work logged out was **not tested**: `postman login` before you present, as a precaution. |
 | **The deck** | A local file, `presentation/index.html`, 13 slides, no sign-in. Fonts come from Google Fonts: without network it falls back to system fonts. |
-| **A backup tab** | A browser tab on the rehearsal PR <https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1> (run green in 19 s), in case the live CI is slow. Check it still exists: it is meant to be deleted. |
-| **A tab on PR #9** | <https://github.com/healthcare-org-app/healthcare-appointments/pull/9>, for questions after the demo. |
+| **A backup tab** | The rehearsal PR <https://github.com/Postman-Devrel/healthcare-transport-rehearsal-2/pull/1> (run green in 16 s), in case the live CI is slow. Check it still exists. |
+| **A tab on PR #9** | <https://github.com/Postman-Devrel/healthcare-appointments/pull/9>, for questions after the demo. |
 
 > **Git hygiene.** The created repo has its own history, unrelated to a local clone of the template: always work in the clone `setup.sh` makes **of the created repo**. Never push a clone of the template into it.
 
@@ -64,7 +64,7 @@
 What it does (`./scripts/setup.sh --dry-run` shows it without creating anything):
 
 1. Checks the prerequisites (deck, git, gh and its login, claude, the Postman CLI and its version, the Postman plugin). No Postman login or API key is needed.
-2. Creates a public repo `healthcare-org-app/healthcare-transport-<date>-<time>` from the template `healthcare-org-app/healthcare-transport-template`.
+2. Creates a public repo `Postman-Devrel/healthcare-transport-<date>-<time>` from the template `Postman-Devrel/healthcare-transport-template`.
 3. Clones that repo (not the template) into `/tmp/healthcare-transport-<date>-<time>`, and writes the repo name and path to `/tmp/.postman-terminal-demo.state`. It refuses to run if that file already exists.
 4. Creates the branch `demo/spec-to-pipeline` in the clone.
 5. Opens the deck and prints the checklist and the demo prompts.
@@ -138,6 +138,8 @@ Total: 25 minutes. The sum of the original plan (2 + 3 + 3 + 12 + 2 + 2 + 3) is 
 > "Two things. `workspace.id` is empty: this is the local, git-native workspace, nothing in the cloud. And those 16 skills in `postman/skills/` are the agent's know-how, committed. Any agent that opens this repo gets them. Yes, there's an `.opencode/` folder too: `init` sets that up as well."
 
 > **Trap, `--no-cloud`.** The `bootstrap` skill cites `postman init --json --no-cloud`. CLI 1.85.0 refuses that option. If the agent tries it, the CLI says so; it recovers with `postman init --json -y`. Don't hide it: it is a real finding (to report to the plugin team), and the skill's own rule is "Never invent a subcommand or a flag. Run -h first and believe it."
+
+> **Trap, `init` creates a cloud workspace when you are logged in (CLI 1.94.0, rehearsal of 2026-11-28).** `postman init --json -y` printed `workspace created ... visibility: personal` and wrote its id in `.postman/resources.yaml`; with CLI 1.85.0 `workspace.id` stayed empty. For the "local, nothing in the cloud" line to be true on stage, either run the demo shell logged out (`HOME=$(mktemp -d)`), or say it out loud. The rehearsal PR blanks that id before committing. Also seen in 1.94.0: AI readiness scored 60/100 (75 in 1.85.0, so the rehearsal workflow uses `--min-score 60`), and the generated folder is named `api/rides`, which `postman collection request update --folder` cannot select (the agent edits the request file instead).
 
 #### 4c. The collection, then the tests (~3 min)
 
@@ -227,7 +229,7 @@ Cut act 6 first (keep one sentence: "a platform team can build a gate on this, a
 
 **It deliberately leaves standing:** the template repo, and PR #9 of `healthcare-appointments`.
 
-**It does not clean up** the rehearsal repo `healthcare-transport-rehearsal-1` (created by hand, to be deleted with `gh repo delete`; it needs the `delete_repo` scope) Don't delete it before the talk if you use it as the backup tab.
+**It does not clean up** the rehearsal repo `healthcare-transport-rehearsal-2` (created by hand; its name is not matched by the teardown guard rail). Don't delete it before the talk if you use it as the backup tab.
 
 Full reset between sessions:
 
@@ -254,7 +256,7 @@ Full reset between sessions:
 | The "new version available (1.86.0)" notice | Cosmetic: the rehearsal ran on 1.85.0. |
 | `setup.sh` or `teardown.sh` behaves differently from section 3 and 5 | Those sections describe the intended behaviour; the scripts are written separately. Trust the script's output and tell whoever maintains the README. |
 | The CI run is slow or red on stage | Switch to the backup tab (rehearsal PR #1) and say so, or keep a red run as the story (act 4f). |
-| `teardown.sh` can't delete the repo | The token lacks the `delete_repo` scope: `gh auth refresh -h github.com -s delete_repo`, then `gh repo delete healthcare-org-app/<repo>` by hand. |
+| `teardown.sh` can't delete the repo | The token lacks the `delete_repo` scope: `gh auth refresh -h github.com -s delete_repo`, then `gh repo delete Postman-Devrel/<repo>` by hand. |
 | Venue Wi-Fi is down | There is no offline fallback for the CI part. Stay on the slides, show the local steps in the terminal if you have a pre-made clone (not tested offline), and use the rehearsal PR from a cached tab. |
 
 ---
@@ -263,9 +265,9 @@ Full reset between sessions:
 
 | Resource | Link |
 |---|---|
-| **The template** (transport-service, spec only) | <https://github.com/healthcare-org-app/healthcare-transport-template> |
-| The rehearsal PR (CI green in 19 s, not merged) | <https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1> |
-| **Advanced use** (a platform team's quality gate on a PR, closed, not merged) | <https://github.com/healthcare-org-app/healthcare-appointments/pull/9> |
+| **The template** (transport-service, spec only) | <https://github.com/Postman-Devrel/healthcare-transport-template> |
+| The rehearsal PR (CI green in 16 s, not merged) | <https://github.com/Postman-Devrel/healthcare-transport-rehearsal-2/pull/1> |
+| **Advanced use** (a platform team's quality gate on a PR, closed, not merged) | <https://github.com/Postman-Devrel/healthcare-appointments/pull/9> |
 | The gate's material for a future talk, out of date with this demo | [gate-talk-material.md](gate-talk-material.md) |
 | Postman Liftoff | <https://www.postman.com/liftoff/> |
 | The Postman plugin | <https://github.com/postmanlabs/postman-plugin> |
