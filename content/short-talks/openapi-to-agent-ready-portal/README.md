@@ -1,4 +1,4 @@
-# Make MCPs Your Documentation Best Friend
+# From One OpenAPI File to an Agent-Ready API Portal, with Fern
 
 > [Short talk](../../../templates/formats/short-talk.md) — target length **25 minutes,
 > Q&A included**. Conference breakout, meetup main slot, or webinar. This README is the single
@@ -132,7 +132,7 @@ the live build (~7.5 min), Act 8 closes (~2 min).
 ## 3. Setup
 
 ```bash
-cd content/short-talks/mcp-docs-best-friend
+cd content/short-talks/openapi-to-agent-ready-portal
 ./scripts/setup.sh
 ```
 
@@ -152,7 +152,7 @@ to **exist**, and the build needs the pipeline to **not exist yet**. It will:
    `.git`.
 7. Create `$AGENTDIR` and assert it is **empty**.
 8. **Run the Act 7b–7c sequence in a throwaway folder** — `fern init`, then the trimmed
-   `generators.yml`, then `fern check` — so a CLI upgrade or a spec edit cannot break Act 7
+   `docs.yml`, then `fern check` — so a CLI upgrade or a spec edit cannot break Act 7
    silently. It also proves the demo needs no git: the throwaway folder is not a repository.
 9. Report whether the docs subdomain's search index is **WARM or COLD**, and check the warm
    fallback site.
@@ -209,7 +209,7 @@ Windows, left to right, in the order you will use them:
       which destroys the payoff
 - [ ] You will `cd /tmp/appointments-agent` before Act 7f. The agent must **not** see the spec
 - [ ] `setup.sh` said **WARM**
-- [ ] You know the numbers: **1,402 bytes · 404 · 780 KB → 9 KB (~90×) · 10 operations**
+- [ ] You know the numbers: **1,402 bytes · 404 · 260 KB → 10 KB (~25×) · 10 operations**
 - [ ] The bridge sentence is ready: *the portal shows three services, tonight we publish one*
 - [ ] Browser zoom set so text reads from 6 feet (`Cmd+=` / `Cmd+-`)
 
@@ -297,7 +297,7 @@ curl -s http://localhost:4173/ | wc -c
 
 ### Act 1: Who I am (45 sec) — slides 1–2
 
-**Show:** slide 1 — "Make MCPs Your Documentation Best Friend."
+**Show:** slide 1 — "From One OpenAPI File to an Agent-Ready API Portal, with Fern."
 
 **Do:** advance to slide 2.
 
@@ -462,41 +462,35 @@ grep -n -A4 'a plain update emits' appointments.yaml
 ```bash
 fern init --openapi ./appointments.yaml --organization postman-devrel
 ls fern
-cat fern/generators.yml
+cat fern/docs.yml
 ```
 
-**Show (payoff):** two files — `fern.config.json` and `generators.yml`. No `apis/` folder. And
-in `generators.yml`, `- openapi: ../appointments.yaml`.
+**Show (payoff):** four files — `fern.config.json`, `docs.yml`, `openapi.yml` and
+`sdk-config.yml`. No `apis/` folder. `docs.yml` already points at `./openapi.yml`.
 
-> "Step one. Fern scaffolded two files. And look at the important line: it points back at
-> `../appointments.yaml` — one level up, where I left it. It *references* my spec where it
-> lives; it did not copy it into a folder. That's the property the whole thing rests on. There
-> is one spec, and editing it is how everything downstream changes."
+> "Step one. Fern scaffolded a docs config, and — look — a copy of my spec next to it, plus an
+> SDK config, because the same spec generates SDKs too. That's a different talk. I don't want
+> a copy, though: I want Fern to build from the file where I left it, so there is exactly one
+> spec and editing it is how everything downstream changes. Next step fixes that."
 
-**Do:** point at the `groups:` block below it — the TypeScript SDK generator `fern init` also
-scaffolded.
+> **Do NOT run `fern check` here.** `fern init` scaffolds a TypeScript SDK target
+> (`sdk-config.yml`), and the SDK validator throws five errors on this spec's request
+> examples: the schemas are open (`additionalProperties`, because the service stores a
+> free-form JSONB `data` document), so the example keys are not declared members. Docs do not
+> care. `fern check` does. Act 7c removes that target and *then* checks green — check here and
+> you show the room red text for no reason. `setup.sh` runs this whole sequence as a
+> preflight, so you will know before you walk on if it ever changes.
+>
+> *Fern CLI changed this in the 5.2xx line (verified on 5.230.4, 2026-11-27): older versions
+> scaffolded `generators.yml` with a `../appointments.yaml` reference and no copy. If your
+> `ls fern` shows `generators.yml`, you are on an old CLI and this section does not apply.*
 
-> "It also wired up an SDK generator, because the same spec generates SDKs too. That's a
-> different talk — I'm dropping it in a second so we stay on docs."
+#### 7c — One small YAML file (1 min)
 
-> **Do NOT run `fern check` here.** `fern init` scaffolds a TypeScript SDK generator, and the
-> SDK validator throws five errors on this spec's request examples: the schemas are open
-> (`additionalProperties`, because the service stores a free-form JSONB `data` document), so
-> the example keys are not declared members. Docs do not care. `fern check` does. Act 7c
-> removes that generator and *then* checks green — check here and you show the room red text
-> for no reason. `setup.sh` runs this whole sequence as a preflight, so you will know before
-> you walk on if it ever changes.
-
-#### 7c — Two small YAML files (1 min)
-
-**Do:** paste the whole block from the `setup.sh` output — one paste, two files.
+**Do:** paste the whole block from the `setup.sh` output — one paste.
 
 ```bash
-cat > fern/generators.yml <<'YAML'
-api:
-  specs:
-    - openapi: ../appointments.yaml
-YAML
+rm fern/sdk-config.yml fern/openapi.yml
 
 cat > fern/docs.yml <<'YAML'
 instances:
@@ -504,6 +498,9 @@ instances:
 title: Appointments Service | Documentation
 navigation:
   - api: API Reference
+    specs:
+      - type: openapi
+        path: ../appointments.yaml
 YAML
 
 fern check
@@ -512,16 +509,16 @@ fern check
 **Show (payoff):** `All checks passed` — or `Found 0 errors and N warnings`, which is also a
 pass. Zero *errors* is the bar; warnings are Fern being chatty.
 
-> "Step two, and it's not really a command — it's two small YAML files. The first one is
-> `generators.yml` trimmed down to just 'here is my spec', because we're only doing docs
-> today. The second is the docs config: a subdomain, a title, and one navigation entry.
-> `- api: API Reference` with nothing after it, because this project has one API and Fern
-> resolves it from the file above. Five lines. That is the entire definition of a
+> "Step two, and it's not really a command — it's one small YAML file. I delete the SDK config
+> and the copy of the spec, because we're only doing docs today. Then the docs config: a
+> subdomain, a title, and one navigation entry, with `path: ../appointments.yaml` — one level
+> up, where I left it. It *references* my spec where it lives; it does not copy it. That's the
+> property the whole thing rests on. About ten lines. That is the entire definition of a
 > documentation site."
 
-> **Trap, if someone asks:** adding `api-name:` here is the single most common failure. It
-> belongs to multi-API projects, where it names a folder under `fern/apis/`. In a single-API
-> project it makes the publish fail looking for a folder that never existed.
+> **Trap, if someone asks:** the spec `path` is relative to `docs.yml`, so it is
+> `../appointments.yaml`, not `./`. And if `sdk-config.yml` is still there, `fern check`
+> fails with the five SDK errors above.
 
 #### 7d — Publish (1 min 15)
 
@@ -568,7 +565,7 @@ Answer **Yes** to the production warning.
 there in plain text.
 
 > "**Output two: Markdown.** Append dot-M-D to any URL on this site. Same page, no chrome. The
-> HTML version of this page is seven hundred and eighty kilobytes. This is nine. Nearly ninety
+> HTML version of this page is two hundred and sixty kilobytes. This is ten. About twenty-five
 > times smaller — and look: my warning survived. Same sentence I showed you in the spec,
 > different surface, zero copies."
 
@@ -802,7 +799,7 @@ MCP URL** so they catch the registration whatever name it was given.
 | State the demo creates | What teardown does |
 |---|---|
 | The docs MCP registration | **Removed** (`claude mcp remove`), by URL, from `$AGENTDIR`, `$WORKDIR` and `/private/tmp` — **before** the folders go, see section 5 |
-| `$WORKDIR` with `fern/`, `generators.yml`, `docs.yml` | **Removed** (setup recreates it with just the spec) |
+| `$WORKDIR` with `fern/` and its `docs.yml` | **Removed** (setup recreates it with just the spec) |
 | `$AGENTDIR` | **Removed** (setup recreates it empty) |
 | A `python3 -m http.server` in front of `site/` | **Stopped** (by pid, then by port, so a hand-started one is caught too) |
 | `.demo-state` (the server pid) and `/tmp/mcp-docs-portal.log` | Removed |
@@ -840,9 +837,9 @@ hand:
 | Port 4173 is already in use | `./scripts/teardown.sh` frees it, or `PORT=4180 ./scripts/setup.sh` — then use that URL in Act 0 **and in Safari**. |
 | `setup.sh` fails on the spec bundle | It needs PyYAML: `python3 -m pip install pyyaml`. If pip is blocked, the checked-in `spec-bundle.js` still works — the build only matters if you edited `openapi/`. |
 | Portal shows "Loading the API portal…" forever | `spec-bundle.js` failed to load. Hard-refresh (`Cmd+Shift+R`); if it persists, re-run `./scripts/build-spec-bundle.py`. |
-| **`fern check` shows 5 errors about `starts_at` / `reason` / `duration_minutes`** | Expected if you ran it before Act 7c. They are `[sdk]` errors from the TypeScript generator `fern init` scaffolds — this spec's schemas are open (`additionalProperties`) so its request examples fail the SDK validator. Docs are unaffected. Do Act 7c's trim and check again; it passes. Recover on stage with: *"that's the SDK generator complaining — we're not generating SDKs today, watch."* |
+| **`fern check` shows 5 errors about `starts_at` / `reason` / `duration_minutes`** | Expected if you ran it before Act 7c. They are `[sdk]` errors from the TypeScript target (`sdk-config.yml`) that `fern init` scaffolds — this spec's schemas are open (`additionalProperties`) so its request examples fail the SDK validator. Docs are unaffected. Do Act 7c's trim and check again; it passes. Recover on stage with: *"that's the SDK generator complaining — we're not generating SDKs today, watch."* |
 | **`fern generate --docs` opens a browser** | You are not logged in. `Ctrl+C`, `fern login`, retry. `setup.sh` fails on this exact condition — it should never surprise you on stage. |
-| **Publish fails: *"A valid API configuration was not found at fern/apis/..."*** | `docs.yml` has an `api-name:` line. Delete it. This project is single-API. |
+| **`fern check` or the publish cannot find the spec** | The spec `path` in `docs.yml` is relative to `docs.yml` itself: `../appointments.yaml`, not `./appointments.yaml`. Also check you did not leave an `api-name:` line (older Fern layouts) — this project is single-API and takes none. |
 | **Publish fails with `Failed to resolve organization` (HTTP 500)** | Your account belongs to no organization the CLI can resolve. Set `"organization": "postman-devrel"` in `fern.config.json` — leave `docs.yml`'s subdomain alone, they are independent. Diagnose with `fern org get`: *"No org-level CLI config set for X"* means X resolves and you are fine; **403** means no access. `setup.sh` runs this check for you. |
 | **`fern org get` returns 403 for every name you try** | You are not a member of any organization — this is what deleting one does. Nothing in the CLI can recreate it; open <https://dashboard.buildwithfern.com> to see what the account has. Fall back to the `myhealthcare` site for Act 7f. |
 | **You are tempted to delete the org to "start clean"** | Don't. See section 2. Republishing over the same subdomain is the reset. |
@@ -856,7 +853,7 @@ hand:
 | **`claude mcp add` says the server already exists** | You did not tear down, or it is registered in a *parent* directory. See section 5. `./scripts/teardown.sh` searches by URL across `$AGENTDIR`, `$WORKDIR` and `/private/tmp`. |
 | **`/mcp` shows the server as failed** | Check the URL has no trailing slash and `--transport http` is present. Verify by hand: `curl -s https://booth-demo.docs.buildwithfern.com/_mcp/server` should return a `fern-docs-mcp-server` descriptor. |
 | **The page URLs do not match what you expected** | This build is single-API, so pages sit at `/api-reference/appointments/update`. The `myhealthcare` fallback is multi-API and puts the same page at `/api-reference/healthcare-org/appointments-service/appointments/update`. Both are correct; the layout decides the path. Take URLs from `llms.txt` rather than typing them — and doing that on stage is an accidental demo of `llms.txt` doing its job. |
-| No network at all | Act 0, Acts 1–6 and Acts 7a–7c still run — you can genuinely scaffold and `fern check` offline. For the rest, walk slide 9 and say the numbers: **1,402-byte shell; 780 KB of HTML becomes 9 KB of Markdown, ~90× smaller; `llms.txt` indexes every page; the MCP server answers in one call.** Do not fake a terminal. |
+| No network at all | Act 0, Acts 1–6 and Acts 7a–7c still run — you can genuinely scaffold and `fern check` offline. For the rest, walk slide 9 and say the numbers: **1,402-byte shell; 260 KB of HTML becomes 10 KB of Markdown, ~25× smaller; `llms.txt` indexes every page; the MCP server answers in one call.** Do not fake a terminal. |
 
 ---
 

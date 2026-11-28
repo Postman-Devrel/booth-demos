@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# Make MCPs Your Documentation Best Friend — teardown.
+# From One OpenAPI File to an Agent-Ready API Portal, with Fern — teardown.
 #
 # The demo creates state in four places. This script resets three of them and
 # DELIBERATELY LEAVES THE FOURTH:
@@ -49,7 +49,7 @@ MCP="$DOCS/_mcp/server"   # registrations are matched by THIS, not by name
 PURGE=0
 [ "${1:-}" = "--purge" ] && PURGE=1
 
-echo "=== Make MCPs Your Documentation Best Friend — Teardown ==="
+echo "=== From One OpenAPI File to an Agent-Ready API Portal, with Fern — Teardown ==="
 echo ""
 
 # --- The MCP registration, FIRST --------------------------------------------

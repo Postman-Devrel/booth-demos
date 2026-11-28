@@ -7,5 +7,5 @@ Rules, act plan, and deck size: [templates/formats/short-talk.md](../../template
 
 | Content | Product | Status |
 |---|---|---|
-| [mcp-docs-best-friend](mcp-docs-best-friend/) — Make MCPs your documentation best friend | Fern | draft |
+| [openapi-to-agent-ready-portal](openapi-to-agent-ready-portal/) — From One OpenAPI File to an Agent-Ready API Portal, with Fern | Fern | draft |
 | [from-click-to-terminal](from-click-to-terminal/) — From Click to Terminal: API Engineering in the Age of Agents | Postman CLI | draft |
