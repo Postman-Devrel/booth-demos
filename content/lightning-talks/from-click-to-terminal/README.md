@@ -68,7 +68,7 @@ The point of preparing only the repo: the visitor must see the chain start from 
 - [ ] This folder's deck open on slide 1, fullscreen; the short talk's deck tab closed
 - [ ] Terminal in the clone, `claude` running, plugin loaded, large font (`Cmd+=`)
 - [ ] `ls -A` in the clone shows only the spec (and `.git`). `.postman/`, `postman/`, `AGENTS.md` and `.opencode/` appear at `init`.
-- [ ] Tab 1: the created repo (no PR yet). Tab 2: **backup**, the rehearsal PR (**gone after the move to Postman-Devrel, to recreate**) (run green in 19 s). **Check that it still loads: that repo was created by hand for the rehearsal and is meant to be deleted** (see [Tear down](#5-tear-down--reset)). Tab 3: PR #9 of `healthcare-appointments`, only for questions.
+- [ ] Tab 1: the created repo (no PR yet). Tab 2: **backup**, the rehearsal PR <https://github.com/Postman-Devrel/healthcare-transport-rehearsal-2/pull/1> (run green in 16 s, 2026-11-28, CLI 1.94.0). **Check that it still loads: that repo was created by hand for the rehearsal** (see [Tear down](#5-tear-down--reset)). Tab 3: PR #9 of `healthcare-appointments`, only for questions.
 - [ ] `postman --version` is 1.85.0 or later; ignore the "new version" notice
 
 ---
@@ -181,7 +181,7 @@ Four acts, ~10 minutes. The talk track is verbatim (blockquotes); the click trac
 
 It `exec`s the short talk's script: it closes the open PR, deletes the throwaway repo **only after you type its full name** (your token needs the `delete_repo` scope), then deletes the clone in `/tmp` and the state file. It refuses any repo whose name does not start with `healthcare-transport-`. It leaves standing the template and PR #9 of `healthcare-appointments`.
 
-**It does not clean up the rehearsal repo** `healthcare-transport-rehearsal-1` (created by hand, to be deleted with `gh repo delete`): keep it until your last session if it is your backup tab.
+**It does not clean up the rehearsal repo** `healthcare-transport-rehearsal-2` (created by hand, not matched by the teardown guard rail): keep it until your last session if it is your backup tab.
 
 Between two visitors: `./scripts/teardown.sh && ./scripts/setup.sh`. How long that takes was not timed: run it ahead of the next visitor, not in front of them.
 
@@ -213,7 +213,7 @@ The full table is in the [short talk's README](../../short-talks/from-click-to-t
 |---|---|
 | The short talk this is cut from | [../../short-talks/from-click-to-terminal/](../../short-talks/from-click-to-terminal/README.md) |
 | **The template** (transport-service, spec only) | <https://github.com/Postman-Devrel/healthcare-transport-template> |
-| The rehearsal PR (CI green in 19 s, not merged; **to verify, this repo is meant to be deleted**) | (**gone after the move to Postman-Devrel, to recreate**) |
+| The rehearsal PR (CI green in 16 s, not merged) | <https://github.com/Postman-Devrel/healthcare-transport-rehearsal-2/pull/1> |
 | Going further: a platform team's quality gate on a PR (closed, not merged, not a Postman product) | <https://github.com/Postman-Devrel/healthcare-appointments/pull/9> |
 | Postman Liftoff | <https://www.postman.com/liftoff/> |
 | The Postman plugin | <https://github.com/postmanlabs/postman-plugin> |

@@ -76,8 +76,9 @@ notes: >
   Postman-Devrel/healthcare-transport-template by `setup.sh` and deleted by
   `teardown.sh`. Both scripts here only `exec` the short talk's. `setup.sh`
   opens the short talk's deck, not this one: open presentation/index.html by
-  hand. The backup tab (the rehearsal PR, run green in 19 s) is gone with the
-  move to Postman-Devrel: recreate a rehearsal and link its PR here.
+  hand. The backup tab is the rehearsal PR
+  https://github.com/Postman-Devrel/healthcare-transport-rehearsal-2/pull/1
+  (run green in 16 s): check the tab still loads before every session.
 
   THE INSTALL PATH IS NOT DECIDED. The CTA keeps `npx @postman/postman-plugin`;
   the canonical path is still to align with the plugin team.

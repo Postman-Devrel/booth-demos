@@ -85,7 +85,7 @@ notes: >
   REHEARSAL FACTS (one rehearsal, CLI 1.85.0, plugin postman 2.0.1, commands
   played one by one by Claude, see the README): init 7.8 s, collection 4.3 s,
   mock 4.1 s, run 5 s (4 requests, 4 assertions), CI run green in 19 s
-  (the rehearsal PR was in healthcare-transport-rehearsal-1, gone with the move to Postman-Devrel: to recreate).
+  (https://github.com/Postman-Devrel/healthcare-transport-rehearsal-2/pull/1).
   Not measured: an agent doing the whole chain from one prompt (variability,
   total time), and a red CI run.
 
