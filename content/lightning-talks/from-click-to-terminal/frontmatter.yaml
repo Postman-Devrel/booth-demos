@@ -22,7 +22,7 @@ use_case: >
   assertion), generate a mock and run the tests against it, write a GitHub
   workflow with the ci-integration skill, push, open a PR and watch the CI. It
   runs on a throwaway repo created from
-  healthcare-org-app/healthcare-transport-template, with a local, git-native
+  Postman-Devrel/healthcare-transport-template, with a local, git-native
   workspace: nothing goes to the Postman cloud. The cut ends on the PR with its
   green run, not on the terminal.
 key_messages:
@@ -34,7 +34,7 @@ cta:
   - "Postman Liftoff: https://www.postman.com/liftoff/"
   - "Postman CLI: https://www.postman.com/product/postman-cli/"
   - "Join the Postman community on Discord: https://postman-community.com/kmg"
-  - "Going further, a platform team's gate on a PR (not a Postman product): https://github.com/healthcare-org-app/healthcare-appointments/pull/9"
+  - "Going further, a platform team's gate on a PR (not a Postman product): https://github.com/Postman-Devrel/healthcare-appointments/pull/9"
 presentation_title: "From Click to Terminal: API Engineering in the Age of Agents"
 brand_style: design-sync
 derived_from: short-talks/from-click-to-terminal
@@ -73,13 +73,11 @@ notes: >
   `--issueType=syntax`; the junit reporter is refused for v3 collections.
 
   THE DEMO RUNS ON A THROWAWAY REPO, created from
-  healthcare-org-app/healthcare-transport-template by `setup.sh` and deleted by
+  Postman-Devrel/healthcare-transport-template by `setup.sh` and deleted by
   `teardown.sh`. Both scripts here only `exec` the short talk's. `setup.sh`
   opens the short talk's deck, not this one: open presentation/index.html by
-  hand. The backup tab is the rehearsal PR
-  https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1
-  (run green in 19 s). That repo is meant to be deleted: check the tab still
-  loads before every session.
+  hand. The backup tab (the rehearsal PR, run green in 19 s) is gone with the
+  move to Postman-Devrel: recreate a rehearsal and link its PR here.
 
   THE INSTALL PATH IS NOT DECIDED. The CTA keeps `npx @postman/postman-plugin`;
   the canonical path is still to align with the plugin team.

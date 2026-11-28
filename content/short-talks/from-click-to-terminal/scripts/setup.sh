@@ -6,7 +6,7 @@ set -euo pipefail
 # The live demo builds a brand-new service from its OpenAPI spec: postman init,
 # collection, tests, mock, run against the mock, GitHub workflow (ci-integration
 # skill), push, PR, CI. It runs on a throwaway repo created from
-# healthcare-org-app/healthcare-transport-template (public, spec + README only).
+# Postman-Devrel/healthcare-transport-template (public, spec + README only).
 #
 # This script creates that repo (unique name), clones THE CREATED REPO into /tmp
 # (a local clone of the template would have an unrelated history and the PR
@@ -32,14 +32,14 @@ done
 
 CONTENT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DECK="${DECK_OVERRIDE:-$CONTENT_DIR/presentation/index.html}"
-ORG="healthcare-org-app"
+ORG="Postman-Devrel"
 TEMPLATE="$ORG/healthcare-transport-template"
 STATE_FILE="${STATE_FILE:-/tmp/.postman-terminal-demo.state}"
 BRANCH="demo/spec-to-pipeline"
 SUFFIX="$(date +%Y%m%d-%H%M%S)"
 REPO_NAME="healthcare-transport-$SUFFIX"     # no "demo" in the name: the reviewer once guessed the repo from it
 REPO="$ORG/$REPO_NAME"
-GATE_PR="https://github.com/healthcare-org-app/healthcare-appointments/pull/9"   # advanced usage: the quality gate, closed PR, shown at the end
+GATE_PR="https://github.com/Postman-Devrel/healthcare-appointments/pull/9"   # advanced usage: the quality gate, closed PR, shown at the end
 WORKDIR="/tmp/$REPO_NAME"
 
 echo "=== Postman in the terminal — Setup ==="

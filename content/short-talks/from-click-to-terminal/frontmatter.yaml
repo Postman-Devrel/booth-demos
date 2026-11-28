@@ -21,7 +21,7 @@ use_case: >
   assertion), generate a mock and run the tests against it, generate a GitHub
   workflow with the ci-integration skill, push, open a PR and watch the CI.
   Each demo clones a throwaway repo created from the template
-  healthcare-org-app/healthcare-transport-template. The workspace is local and
+  Postman-Devrel/healthcare-transport-template. The workspace is local and
   git-native: nothing is pushed to the Postman cloud (`workspace.id` stays
   empty). The talk ends on one slide of advanced use, a closed, unmerged PR of
   healthcare-appointments (#9) where a platform team's quality gate commented,
@@ -31,8 +31,8 @@ primary_api:
   - "The Postman Claude Code plugin and `postman init`: the two paths a Postman skill takes to reach an agent"
   - "Postman CLI (1.85.0 in the rehearsal), one command per step: postman init --json -y, postman spec generate collection, postman collection request update, postman mock generate, postman collection run --use-mock"
   - "The ci-integration skill, which writes .github/workflows/api-checks.yml (contract lint with --issueType=syntax, collection lint, run against the mock, AI readiness)"
-  - "The template repo: https://github.com/healthcare-org-app/healthcare-transport-template (transport-service, openapi.yaml only)"
-  - "Advanced use, shown without live: https://github.com/healthcare-org-app/healthcare-appointments/pull/9 (a platform team's quality gate, gate v0.6.3)"
+  - "The template repo: https://github.com/Postman-Devrel/healthcare-transport-template (transport-service, openapi.yaml only)"
+  - "Advanced use, shown without live: https://github.com/Postman-Devrel/healthcare-appointments/pull/9 (a platform team's quality gate, gate v0.6.3)"
   - "Postman CLI: https://www.postman.com/product/postman-cli/"
 key_messages:
   - A coding agent doesn't need Postman's UI. It needs a command per step of the API engineering chain, and the Postman CLI is that.
@@ -46,7 +46,7 @@ cta:
   - "Postman CLI: https://www.postman.com/product/postman-cli/"
   - "Postman Liftoff: https://www.postman.com/liftoff/"
   - "Join the Postman community on Discord: https://postman-community.com/kmg"
-  - "Advanced use, a platform team's gate on a PR: https://github.com/healthcare-org-app/healthcare-appointments/pull/9"
+  - "Advanced use, a platform team's gate on a PR: https://github.com/Postman-Devrel/healthcare-appointments/pull/9"
 presentation_title: "From Click to Terminal: API Engineering in the Age of Agents"
 presentation_url: https://claude.ai/design/p/355ac88d-3b8d-4bd5-b9d3-1dd677fee145?file=From+Click+to+Terminal.dc.html&via=share
 brand_style: design-sync
@@ -74,7 +74,7 @@ notes: >
 
   THE DEMO RUNS ON A THROWAWAY REPO. `setup.sh` creates a repo
   `healthcare-transport-<suffix>` from the template
-  `healthcare-org-app/healthcare-transport-template`, clones it to /tmp and
+  `Postman-Devrel/healthcare-transport-template`, clones it to /tmp and
   creates a demo branch. `teardown.sh` closes the PR, deletes the repo and
   deletes the clone. The scripts are written separately from this README:
   check that what the README says matches what they do.
@@ -85,7 +85,7 @@ notes: >
   REHEARSAL FACTS (one rehearsal, CLI 1.85.0, plugin postman 2.0.1, commands
   played one by one by Claude, see the README): init 7.8 s, collection 4.3 s,
   mock 4.1 s, run 5 s (4 requests, 4 assertions), CI run green in 19 s
-  (https://github.com/healthcare-org-app/healthcare-transport-rehearsal-1/pull/1).
+  (the rehearsal PR was in healthcare-transport-rehearsal-1, gone with the move to Postman-Devrel: to recreate).
   Not measured: an agent doing the whole chain from one prompt (variability,
   total time), and a red CI run.
 

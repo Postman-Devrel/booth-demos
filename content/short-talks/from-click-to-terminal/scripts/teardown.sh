@@ -8,7 +8,8 @@ set -euo pipefail
 # confirmation (needs the delete_repo scope), then removes the local clone and
 # the state file. Safe to run when setup never ran.
 #
-# Guard rails: it never deletes a repo that is not healthcare-org-app/healthcare-transport-*,
+# Guard rails: it never deletes a repo that is not Postman-Devrel/healthcare-transport-<YYYYMMDD>-<HHMMSS>
+# (so never the template),
 # and never removes a clone outside /tmp/healthcare-transport-*.
 #
 # Usage:  ./teardown.sh [--dry-run]     (or DRY_RUN=1 ./teardown.sh)
@@ -24,7 +25,7 @@ for arg in "$@"; do
 done
 
 STATE_FILE="${STATE_FILE:-/tmp/.postman-terminal-demo.state}"
-ORG="healthcare-org-app"
+ORG="Postman-Devrel"
 
 echo "=== Postman in the terminal — Teardown ==="
 [ "$DRY_RUN" = "1" ] && echo "(dry run: nothing is closed, deleted or removed)"
@@ -42,10 +43,12 @@ echo "State: repo=$REPO clone=$WORKDIR"
 
 # --- Guard rails ----------------------------------------------------------------------
 
+# $ORG is a shared organization (it also holds the template and other demo repos):
+# only a timestamped throwaway name is accepted, never the template.
 case "$REPO" in
-  "$ORG"/healthcare-transport-?*) ;;
+  "$ORG"/healthcare-transport-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]) ;;
   *)
-    echo "[FAIL] Refusing to act: '$REPO' is not $ORG/healthcare-transport-*. Check $STATE_FILE."
+    echo "[FAIL] Refusing to act: '$REPO' is not $ORG/healthcare-transport-<YYYYMMDD>-<HHMMSS>. Check $STATE_FILE."
     exit 1 ;;
 esac
 case "$REPO" in

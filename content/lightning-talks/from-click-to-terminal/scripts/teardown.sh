@@ -5,7 +5,7 @@ set -uo pipefail
 #
 # This is a thin wrapper: the booth cut runs the same teardown script as the short
 # talk (content/short-talks/from-click-to-terminal/scripts/teardown.sh). The demo
-# runs on a throwaway repo created from healthcare-org-app/healthcare-transport-template,
+# runs on a throwaway repo created from Postman-Devrel/healthcare-transport-template,
 # not on a shared real repo. See that talk's README for what the script does.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

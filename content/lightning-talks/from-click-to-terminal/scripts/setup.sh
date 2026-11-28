@@ -5,7 +5,7 @@ set -uo pipefail
 #
 # This is a thin wrapper: the booth cut runs the same setup script as the short
 # talk (content/short-talks/from-click-to-terminal/scripts/setup.sh). The demo
-# runs on a throwaway repo created from healthcare-org-app/healthcare-transport-template,
+# runs on a throwaway repo created from Postman-Devrel/healthcare-transport-template,
 # not on a shared real repo. See that talk's README for what the script does.
 # It opens this cut's deck (./presentation/index.html), through DECK_OVERRIDE.
 
